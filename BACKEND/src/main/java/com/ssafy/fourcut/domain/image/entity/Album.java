@@ -23,7 +23,7 @@ public class Album {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "album_name", length = 100)
+    @Column(name = "album_name", nullable = false, length = 100)
     private String albumName;
 
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)

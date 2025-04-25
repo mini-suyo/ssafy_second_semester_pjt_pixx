@@ -27,13 +27,13 @@ public class Image {
     @JoinColumn(name = "album_id", nullable = false)
     private Album album;
 
-    @Column(name = "image_url", length = 200)
+    @Column(name = "image_url", nullable = false, length = 200)
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "image_type", length = 10)
+    @Column(name = "image_type", nullable = false, length = 10)
     private ImageType imageType;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 }
