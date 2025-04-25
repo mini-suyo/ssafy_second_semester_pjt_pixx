@@ -28,16 +28,16 @@ public class Feed {
     @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
 
-    @Column(name = "feed_location", length = 100)
+    @Column(name = "feed_location", nullable = false, length = 100)
     private String feedLocation;
 
-    @Column(name = "feed_date")
+    @Column(name = "feed_date", nullable = false)
     private LocalDateTime feedDate;
 
     @Column(name = "feed_memo", length = 100)
     private String feedMemo;
 
-    @Column(name = "feed_favorite")
+    @Column(name = "feed_favorite", nullable = false)
     private Boolean feedFavorite;
 
     @OneToMany(mappedBy = "feed", cascade = CascadeType.ALL, orphanRemoval = true)
