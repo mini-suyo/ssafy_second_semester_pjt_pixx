@@ -1,0 +1,394 @@
+:root {
+  --background: #000000;
+  --foreground: #f8f8ff;
+  --primary: #a78bfa;
+  --primary-foreground: #ffffff;
+  --secondary: #6366f1;
+  --secondary-foreground: #ffffff;
+  --accent: #f472b6;
+  --accent-foreground: #ffffff;
+  --muted: #383854;
+  --muted-foreground: #c7c7d8;
+  --card: rgba(20, 20, 40, 0.8);
+  --card-foreground: #f8f8ff;
+  --border: #383854;
+  --input: #383854;
+  --ring: #a78bfa;
+  --radius: 0.5rem;
+  --gradient: linear-gradient(to bottom, #000000, #2d0a31);
+  --scrollbar-bg: transparent;
+  --scrollbar-thumb: rgba(58, 26, 69, 0.7);
+  --scrollbar-thumb-hover: rgba(78, 35, 89, 0.8);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+/* 스크롤바 스타일 수정 - 페이드 인/아웃 효과 추가 */
+/* Webkit 브라우저 (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background: var(--scrollbar-bg);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 10px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* 스크롤바 화살표 제거 */
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+/* 스크롤 중일 때 스크롤바 표시 */
+body.scrolling::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.3s ease;
+}
+
+body.scrolling * {
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+/* 기존 html, body 스타일을 수정합니다 */
+html,
+body {
+  max-width: 60dvh;
+  height: 100dvh;
+  margin: 0 auto; /* 화면 중앙에 배치하기 위해 추가 */
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--foreground);
+  /* 배경을 검정색으로 변경합니다 */
+  background: #000000;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* app-container 스타일을 수정합니다 */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-width: 60dvh;
+  margin: 0 auto; /* 화면 중앙에 배치하기 위해 추가 */
+}
+
+/* main-content 스타일을 수정합니다 */
+.main-content {
+  flex: 1;
+  padding: 1rem;
+  padding-bottom: 4rem; /* Add padding for the bottom navbar */
+  width: 100%;
+  max-width: 60dvh;
+  margin: 0 auto;
+}
+
+/* container 클래스도 수정합니다 */
+.container {
+  width: 100%;
+  max-width: 60dvh;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* 기능을 담은 컨테이너에 그라데이션 배경을 적용합니다 */
+.glass-card {
+  background: var(--gradient);
+  border-radius: var(--radius);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.btn-primary:hover {
+  background: var(--primary);
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+.btn-secondary:hover {
+  background: var(--secondary);
+  opacity: 0.9;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+}
+
+.btn-outline:hover {
+  background: var(--muted);
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--foreground);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.grid-cols-1 {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+.gap-6 {
+  gap: 1.5rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+}
+
+.text-3xl {
+  font-size: 1.875rem;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.mt-6 {
+  margin-top: 1.5rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+.p-6 {
+  padding: 1.5rem;
+}
+
+.rounded {
+  border-radius: var(--radius);
+}
+
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
