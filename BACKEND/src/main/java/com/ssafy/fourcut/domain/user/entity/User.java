@@ -4,6 +4,8 @@ import com.ssafy.fourcut.domain.image.entity.Album;
 import com.ssafy.fourcut.domain.image.entity.Feed;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DialectOverride;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,16 +26,17 @@ public class User {
     @Column(name = "kakao_id", nullable = false)
     private Long kakaoId;
 
-    @Column(name = "user_name", nullable = false, length = 45)
-    private String userName;
+    @Column(name = "nickname", nullable = false, length = 45)
+    private String nickname;
 
     @Column(name = "user_email", nullable = false, length = 100)
     private String userEmail;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false,
+            columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
-    @Column(name = "user_token", nullable = false)
+    @Column(name = "user_token", nullable = false, columnDefinition = "INT DEFAULT 3")
     private Integer userToken;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
