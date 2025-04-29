@@ -24,8 +24,8 @@ public class User {
     @Column(name = "kakao_id", nullable = false)
     private Long kakaoId;
 
-    @Column(name = "user_name", nullable = false, length = 45)
-    private String userName;
+    @Column(name = "nickname", nullable = false, length = 45)
+    private String nickname;
 
     @Column(name = "user_email", nullable = false, length = 100)
     private String userEmail;
