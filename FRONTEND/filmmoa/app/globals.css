@@ -75,8 +75,6 @@ body.scrolling * {
 /* 기존 html, body 스타일을 수정합니다 */
 html,
 body {
-  max-width: 60dvh;
-  height: 100dvh;
   margin: 0 auto; /* 화면 중앙에 배치하기 위해 추가 */
   overflow-x: hidden;
 }
@@ -99,6 +97,7 @@ a {
   min-height: 100dvh;
   max-width: 60dvh;
   margin: 0 auto; /* 화면 중앙에 배치하기 위해 추가 */
+  background: linear-gradient(180deg, #2a292f 0%, #21203e 29%, #231b4b 58%, #312a53 100%);
 }
 
 /* main-content 스타일을 수정합니다 */
