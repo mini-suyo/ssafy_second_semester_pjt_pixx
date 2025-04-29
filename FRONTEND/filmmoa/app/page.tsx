@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { Upload, QrCode } from "lucide-react"
-import "./page.css"
+import type React from "react";
+import { useState, useEffect } from "react";
+import { Upload, QrCode } from "lucide-react";
+import "./page.css";
 
 export default function Home() {
-  const [isDragging, setIsDragging] = useState(false)
-  const [stars, setStars] = useState<{ id: number; size: number; top: number; left: number; delay: number }[]>([])
+  const [isDragging, setIsDragging] = useState(false);
+  const [stars, setStars] = useState<{ id: number; size: number; top: number; left: number; delay: number }[]>([]);
 
   // 별 생성 함수
   useEffect(() => {
     const createStars = () => {
-      const newStars = []
-      const starCount = 30 // 별의 개수 (적은 수로 유지)
+      const newStars = [];
+      const starCount = 30; // 별의 개수 (적은 수로 유지)
 
       for (let i = 0; i < starCount; i++) {
         newStars.push({
@@ -22,42 +22,42 @@ export default function Home() {
           top: Math.random() * 100, // 화면 전체에 랜덤하게 배치
           left: Math.random() * 100,
           delay: Math.random() * 3, // 애니메이션 딜레이
-        })
+        });
       }
 
-      setStars(newStars)
-    }
+      setStars(newStars);
+    };
 
-    createStars()
-  }, [])
+    createStars();
+  }, []);
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(true)
-  }
+    e.preventDefault();
+    setIsDragging(true);
+  };
 
   const handleDragLeave = () => {
-    setIsDragging(false)
-  }
+    setIsDragging(false);
+  };
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(false)
+    e.preventDefault();
+    setIsDragging(false);
     // Handle file drop logic here
-    const files = e.dataTransfer.files
+    const files = e.dataTransfer.files;
     if (files.length > 0) {
-      console.log("Files dropped:", files)
+      console.log("Files dropped:", files);
       // Process files
     }
-  }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
+    const files = e.target.files;
     if (files && files.length > 0) {
-      console.log("Files selected:", files)
+      console.log("Files selected:", files);
       // Process files
     }
-  }
+  };
 
   return (
     <div className="home-container animate-fade-in">
@@ -79,9 +79,6 @@ export default function Home() {
       </div>
 
       <section className="upload-section">
-        <h2 className="section-title">네컷 사진 추가하기</h2>
-        <p className="section-description">QR 코드를 스캔하거나 사진을 직접 업로드하여 추억을 저장하세요</p>
-
         <div className="upload-options">
           <div className="upload-option">
             <QrCode size={48} className="option-icon" />
@@ -108,5 +105,5 @@ export default function Home() {
         </div>
       </section>
     </div>
-  )
+  );
 }
