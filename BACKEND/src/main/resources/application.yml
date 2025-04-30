@@ -1,20 +1,18 @@
 server:
   servlet:
-    context-path: /api
+    context-path: /api/v1
   port: 8080
 
 spring:
   application:
     name: fourcut
-
-  config:
-    import: "optional:classpath:application-secret.yml"
-
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/fourcut?serverTimezone=UTC&characterEncoding=UTF-8
     username: root
     password: root
+  config:
+    import: "optional:classpath:application-secret.yml"
 
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
