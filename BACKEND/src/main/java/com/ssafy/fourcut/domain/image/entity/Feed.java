@@ -28,16 +28,30 @@ public class Feed {
     @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
 
-    @Column(name = "feed_location", nullable = false, length = 100)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "album_id", nullable = false)
+    private Album album;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "face_id", nullable = false)
+    private FaceVector faceVector;
+
+    @Column(name = "feed_title", length = 100)
+    private String feedTitle;
+
+    @Column(name = "feed_location", length = 100)
     private String feedLocation;
+
+    @Column(name = "feed_population", length = 100)
+    private Integer feedPopulation;
 
     @Column(name = "feed_date", nullable = false)
     private LocalDateTime feedDate;
 
-    @Column(name = "feed_memo", length = 100)
+    @Column(name = "feed_memo")
     private String feedMemo;
 
-    @Column(name = "feed_favorite", nullable = false)
+    @Column(name = "feed_favorite", nullable = false, columnDefinition="boolean default false")
     private Boolean feedFavorite;
 
     @OneToMany(mappedBy = "feed", cascade = CascadeType.ALL, orphanRemoval = true)

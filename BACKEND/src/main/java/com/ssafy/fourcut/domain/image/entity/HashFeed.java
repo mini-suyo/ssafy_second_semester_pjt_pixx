@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "Hash_feed")
+@Table(name = "hash_feed")
 @Getter
 @Setter
 @Builder
