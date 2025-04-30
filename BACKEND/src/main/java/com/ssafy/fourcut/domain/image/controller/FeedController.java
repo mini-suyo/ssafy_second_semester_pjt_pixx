@@ -72,15 +72,28 @@ public class FeedController {
         return ResponseEntity.ok(resp);
     }
 
-    @GetMapping("/album/{album_id}")
+    /**
+     * POST /api/v1/feed/album/{album_id}
+     * body: { "type":0|1, "page":0, "size":10 }
+     */
+    @PostMapping("/album/{album_id}")
     public ResponseEntity<ApiResponse<AlbumDetailResponse>> getAlbumDetail(
             Principal principal,
-            @PathVariable("album_id") Integer albumId
+            @PathVariable("album_id") Integer albumId,
+            @RequestBody FeedListRequest req
     ) {
-        AlbumDetailResponse data = albumService.getAlbumDetail(albumId);
+//        Integer userId = Integer.valueOf(principal.getName());
+        Integer userId = 1;
+        AlbumDetailResponse data = albumService.getAlbumDetail(
+                userId,
+                albumId,
+                req.getType(),
+                req.getPage(),
+                req.getSize()
+        );
         ApiResponse<AlbumDetailResponse> resp = ApiResponse.<AlbumDetailResponse>builder()
                 .status(Integer.parseInt("200"))
-                .message("앨범 디테일 보기 성공")   // ← 메시지 변경
+                .message("앨범 디테일 보기 성공")
                 .data(data)
                 .build();
         return ResponseEntity.ok(resp);

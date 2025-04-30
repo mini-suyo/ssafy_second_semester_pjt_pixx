@@ -23,4 +23,11 @@ public interface FeedRepository extends JpaRepository<Feed, Integer> {
             Integer userId,
             String brandName
     );
+
+    /** 앨범 단위로 페이징된 최신순/오래된순 조회 */
+    Page<Feed> findByAlbumAlbumIdOrderByFeedDateDesc(Integer albumId, Pageable pageable);
+    Page<Feed> findByAlbumAlbumIdOrderByFeedDateAsc(Integer albumId, Pageable pageable);
+
+    /** 앨범 속 피드 중 가장 과거인 하나만 뽑아오기 (albumDate 계산용) */
+    Feed findTop1ByAlbumAlbumIdOrderByFeedDateAsc(Integer albumId);
 }
