@@ -4,7 +4,7 @@ import com.ssafy.fourcut.domain.image.entity.Feed;
 import com.ssafy.fourcut.domain.image.dto.storeRequestDto;
 import com.ssafy.fourcut.domain.image.entity.Image;
 import com.ssafy.fourcut.domain.image.entity.enums.ImageType;
-import com.ssafy.fourcut.domain.image.repository.feedRepository;
+import com.ssafy.fourcut.domain.image.repository.FeedRepository;
 import com.ssafy.fourcut.domain.image.repository.storeRepository;
 import com.ssafy.fourcut.domain.user.entity.User;
 import com.ssafy.fourcut.domain.user.repository.UserRepository;
@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 public class storeService {
 
     private final UserRepository userRepository;
-    private final feedRepository feedRepository;
+    private final FeedRepository feedRepository;
     private final storeRepository storeRepository;
     private final S3Uploader s3Uploader;
 

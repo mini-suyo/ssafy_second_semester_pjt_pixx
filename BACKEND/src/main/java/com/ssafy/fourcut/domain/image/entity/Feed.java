@@ -32,6 +32,10 @@ public class Feed {
     @JoinColumn(name = "album_id", nullable = false)
     private Album album;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "face_id", nullable = false)
+    private FaceVector faceVector;
+
     @Column(name = "feed_title", length = 100)
     private String feedTitle;
 
