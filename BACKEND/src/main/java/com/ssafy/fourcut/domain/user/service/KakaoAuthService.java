@@ -34,17 +34,16 @@ public class KakaoAuthService {
     private final String tokenUri    = "https://kauth.kakao.com/oauth/token";
     private final String userInfoUri = "https://kapi.kakao.com/v2/user/me";
 
+    // 카카오 로그인
     public TokenDto loginWithKakao(String code) {
-        // 1) 카카오 토큰 교환
+
         String kakaoToken = getKakaoAccessToken(code);
 
-        // 2) 유저 정보 조회
         Map<String, Object> kakaoUser = getKakaoUserInfo(kakaoToken);
         Long kakaoId = ((Number) kakaoUser.get("id")).longValue();
         String email    = (String)((Map<?,?>)kakaoUser.get("kakao_account")).get("email");
         String nickname = (String)((Map<?,?>)((Map<?,?>)kakaoUser.get("kakao_account")).get("profile")).get("nickname");
 
-        // 3) 회원 조회/등록
         User user = userRepository.findByKakaoId(kakaoId)
                 .orElseGet(() -> userRepository.save(User.builder()
                         .kakaoId(kakaoId)
@@ -54,7 +53,7 @@ public class KakaoAuthService {
                         .userToken(0)
                         .build()));
 
-        // 4) JWT 발급
+        // JWT 발급
         Map<String, Object> claims = Map.of(
                 "user_id",    user.getUserId(),
                 "kakao_id",   user.getKakaoId(),
@@ -67,6 +66,7 @@ public class KakaoAuthService {
         return new TokenDto(accessToken, refreshToken);
     }
 
+    // 카카오 access 토큰 요청
     private String getKakaoAccessToken(String code) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -87,6 +87,7 @@ public class KakaoAuthService {
         return (String) body.get("access_token");
     }
 
+    // 카카오 유저 정보 받아오기
     private Map<String,Object> getKakaoUserInfo(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
@@ -102,6 +103,7 @@ public class KakaoAuthService {
         return body;
     }
 
+    // 카카오 id 로그인
     public TokenDto loginWithKakaoId(Long kakaoId) {
         User user = userRepository.findByKakaoId(kakaoId)
                 .orElseThrow(() -> new RuntimeException("등록된 사용자가 없습니다: kakaoId=" + kakaoId));
@@ -117,6 +119,7 @@ public class KakaoAuthService {
         return new TokenDto(accessToken, refreshToken);
     }
 
+    // 회원 탈퇴
     public void withdrawByUserId(Integer userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));

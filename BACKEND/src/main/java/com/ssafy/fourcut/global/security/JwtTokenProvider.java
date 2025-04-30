@@ -56,7 +56,7 @@ public class JwtTokenProvider {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (JwtException e) {
-            return null; // 유효하지 않은 토큰
+            return null;
         }
     }
 
@@ -88,4 +88,6 @@ public class JwtTokenProvider {
                 .signWith(Keys.hmacShaKeyFor(secretBytes), SignatureAlgorithm.HS256)
                 .compact();
     }
+
+
 }

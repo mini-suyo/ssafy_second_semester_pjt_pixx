@@ -30,22 +30,7 @@ public class KakaoAuthController {
     private String kakaoLogoutRedirectUri;
 
 
-//    @GetMapping("/kakao/callback")
-//    public ResponseEntity<ApiResponse<TokenDto>> kakaoCallback(@RequestParam("code") String code) {
-//        TokenDto tokens = kakaoAuthService.loginWithKakao(code);
-//        return ResponseEntity.ok(
-//                ApiResponse.<TokenDto>builder()
-//                        .status(200)
-//                        .message("카카오 로그인 성공")
-//                        .data(tokens)
-//                        .build()
-//        );
-//    }
-
-    /**
-     * POST http://localhost:8080/api/v1/auth/kakao/login
-     * Body: { "code": "{authorization_code}" }
-     */
+    // 카카오 로그인
     @PostMapping("/kakao/login")
     public ResponseEntity<ApiResponse<TokenDto>> kakaoLogin(@RequestBody Map<String,String> body) {
         String code = body.get("code");
@@ -59,6 +44,7 @@ public class KakaoAuthController {
         );
     }
 
+    // 개발용 jwt 토큰 발급
     @PostMapping("/kakao/jwt")
     public ResponseEntity<ApiResponse<TokenDto>> issueJwtByKakaoId(@RequestBody Map<String, Long> body) {
         Long kakaoId = body.get("kakao_id");
@@ -72,11 +58,7 @@ public class KakaoAuthController {
         );
     }
 
-    /**
-     * POST http://localhost:8080/api/v1/auth/logout
-     * Stateless JWT 방식에서는 서버 세션이 없으므로
-     * 클라이언트가 토큰을 삭제하면 로그아웃이 완료됩니다.
-     */
+    // 서비스 로그아웃
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Object>> logout() {
         return ResponseEntity.ok(
@@ -88,6 +70,7 @@ public class KakaoAuthController {
         );
     }
 
+    // 카카오 로그아웃
     @GetMapping("/logout/kakao")
     public void kakaoLogout(HttpServletResponse response) throws IOException {
         String kakaoLogoutUrl = "https://kauth.kakao.com/oauth/logout"
@@ -96,11 +79,12 @@ public class KakaoAuthController {
         response.sendRedirect(kakaoLogoutUrl);
     }
 
+    // 회원 탈퇴
     @DeleteMapping("/withdraw")
     public ResponseEntity<ApiResponse<Object>> withdraw(
             @RequestHeader("Authorization") String authHeader) {
 
-        // 1) 토큰 유효성 검사
+        // 토큰 유효성 검사
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.builder()
@@ -121,14 +105,10 @@ public class KakaoAuthController {
                     );
         }
 
-        // 2) 토큰에서 user_id 꺼내기
         Claims claims = jwtTokenProvider.parseToken(token);
         Integer userId = claims.get("user_id", Integer.class);
 
-        // 3) 회원 탈퇴 로직 호출
         kakaoAuthService.withdrawByUserId(userId);
-
-        // 4) 응답
         return ResponseEntity.ok(
                 ApiResponse.builder()
                         .status(200)
@@ -138,11 +118,12 @@ public class KakaoAuthController {
         );
     }
 
+    // 액세스 토큰 발급
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<Map<String,String>>> refresh(
             @RequestBody Map<String,String> body) {
         String refreshToken = body.get("refresh_token");
-        // 1) 토큰 유효성 검사
+        // 토큰 유효성 검사
         if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.<Map<String,String>>builder()
@@ -151,16 +132,15 @@ public class KakaoAuthController {
                             .data(null)
                             .build());
         }
-        // 2) 토큰에서 user_id 꺼내기
+
         Claims claims = jwtTokenProvider.parseToken(refreshToken);
         Integer userId = claims.get("user_id", Integer.class);
 
-        // 3) 새로운 액세스 토큰(·리프레시 토큰)을 발급
+        // 새로운 액세스 토큰(·리프레시 토큰)을 발급
         String newAccessToken = jwtTokenProvider.createAccessToken(
-                Map.of("user_id", userId /*, …다른 클레임들*/));
+                Map.of("user_id", userId));
         String newRefreshToken = jwtTokenProvider.createRefreshToken(userId);
 
-        // 4) 응답
         return ResponseEntity.ok(
                 ApiResponse.<Map<String,String>>builder()
                         .status(200)
@@ -172,4 +152,6 @@ public class KakaoAuthController {
                         .build()
         );
     }
+
+
 }
