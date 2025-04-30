@@ -36,6 +36,4 @@ public class Album {
     @Column(name = "default_album", nullable = false, columnDefinition="boolean default false")
     private Boolean defaultAlbum;
 
-    @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Image> images;
 }
