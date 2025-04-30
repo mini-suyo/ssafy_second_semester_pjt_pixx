@@ -22,8 +22,8 @@ public class TokenLog {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "token_log", nullable = false, length = 100)
-    private String tokenLog;
+    @Column(name = "token_history", nullable = false, length = 100)
+    private String tokenHistory;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
