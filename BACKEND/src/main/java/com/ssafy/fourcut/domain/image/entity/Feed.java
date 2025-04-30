@@ -32,19 +32,22 @@ public class Feed {
     @JoinColumn(name = "album_id", nullable = false)
     private Album album;
 
+    @Column(name = "feed_title", length = 100)
+    private String feedTitle;
+
     @Column(name = "feed_location", length = 100)
     private String feedLocation;
 
-    @Column(name = "feed_date")
+    @Column(name = "feed_population", length = 100)
+    private Integer feedPopulation;
+
+    @Column(name = "feed_date", nullable = false)
     private LocalDateTime feedDate;
 
-    @Column(name = "feed_title", length = 100)
-    private String feedTitle;          // ↔ 명세의 feedTitle
-
-    @Column(name = "feed_memo", length = 100)
+    @Column(name = "feed_memo")
     private String feedMemo;
 
-    @Column(name = "feed_favorite")
+    @Column(name = "feed_favorite", nullable = false, columnDefinition="boolean default false")
     private Boolean feedFavorite;
 
     @OneToMany(mappedBy = "feed", cascade = CascadeType.ALL, orphanRemoval = true)
