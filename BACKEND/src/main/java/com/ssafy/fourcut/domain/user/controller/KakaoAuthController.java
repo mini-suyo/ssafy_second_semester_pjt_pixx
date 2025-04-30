@@ -3,9 +3,12 @@ package com.ssafy.fourcut.domain.user.controller;
 import com.ssafy.fourcut.domain.user.dto.TokenDto;
 import com.ssafy.fourcut.domain.user.service.KakaoAuthService;
 import com.ssafy.fourcut.global.dto.ApiResponse;
+import com.ssafy.fourcut.global.security.JwtTokenProvider;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +21,7 @@ import java.util.Map;
 public class KakaoAuthController {
 
     private final KakaoAuthService kakaoAuthService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String kakaoClientId;
@@ -92,5 +96,47 @@ public class KakaoAuthController {
                 + "?client_id=" + kakaoClientId
                 + "&logout_redirect_uri=" + kakaoLogoutRedirectUri;
         response.sendRedirect(kakaoLogoutUrl);
+    }
+
+    @DeleteMapping("/withdraw")
+    public ResponseEntity<ApiResponse<Object>> withdraw(
+            @RequestHeader("Authorization") String authHeader) {
+
+        // 1) 토큰 유효성 검사
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.builder()
+                            .status(401)
+                            .message("유효한 액세스 토큰이 필요합니다.")
+                            .data(null)
+                            .build()
+                    );
+        }
+        String token = authHeader.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.builder()
+                            .status(401)
+                            .message("유효한 액세스 토큰이 필요합니다.")
+                            .data(null)
+                            .build()
+                    );
+        }
+
+        // 2) 토큰에서 user_id 꺼내기
+        Claims claims = jwtTokenProvider.parseToken(token);
+        Integer userId = claims.get("user_id", Integer.class);
+
+        // 3) 회원 탈퇴 로직 호출
+        kakaoAuthService.withdrawByUserId(userId);
+
+        // 4) 응답
+        return ResponseEntity.ok(
+                ApiResponse.builder()
+                        .status(200)
+                        .message("회원 탈퇴가 완료되었습니다.")
+                        .data(null)
+                        .build()
+        );
     }
 }

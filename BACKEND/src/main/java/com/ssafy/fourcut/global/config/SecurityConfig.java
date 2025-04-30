@@ -4,6 +4,7 @@ import com.ssafy.fourcut.global.security.JwtAuthenticationFilter;
 import com.ssafy.fourcut.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.*;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,14 +25,23 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/logout/kakao").permitAll()
-                        .requestMatchers("/auth/**").permitAll() // 로그인, 회원가입 관련은 허용
-                        .anyRequest().authenticated()                  // 나머지는 인증 필요
+                        // 1) 탈퇴는 인증 필요
+                        .requestMatchers(HttpMethod.DELETE, "/auth/withdraw").authenticated()
+                        // 2) 그 외 카카오/로그인/로그아웃 관련은 풀어주고
+                        .requestMatchers(
+                                "/auth/kakao/callback",
+                                "/auth/kakao/login",
+                                "/auth/kakao/jwt",
+                                "/auth/logout",
+                                "/auth/logout/kakao"
+                        ).permitAll()
+                        // 3) 나머지 요청은 모두 인증 필요
+                        .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
-
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
+                        UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

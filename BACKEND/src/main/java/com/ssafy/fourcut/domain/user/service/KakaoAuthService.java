@@ -2,6 +2,7 @@ package com.ssafy.fourcut.domain.user.service;
 
 import com.ssafy.fourcut.domain.user.dto.TokenDto;
 import com.ssafy.fourcut.domain.user.entity.User;
+import com.ssafy.fourcut.domain.user.exception.UserNotFoundException;
 import com.ssafy.fourcut.domain.user.repository.UserRepository;
 import com.ssafy.fourcut.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -117,5 +118,10 @@ public class KakaoAuthService {
         return new TokenDto(accessToken, refreshToken);
     }
 
+    public void withdrawByUserId(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        userRepository.delete(user);
+    }
 
 }
