@@ -77,11 +77,12 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String createRefreshToken() {
+    public String createRefreshToken(Integer userId) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + refreshTokenExpiration);
 
         return Jwts.builder()
+                .claim("user_id", userId)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(Keys.hmacShaKeyFor(secretBytes), SignatureAlgorithm.HS256)
