@@ -35,7 +35,8 @@ public class SecurityConfig {
                                 "/auth/kakao/login",
                                 "/auth/kakao/jwt",
                                 "/auth/logout",
-                                "/auth/logout/kakao"
+                                "/auth/logout/kakao",
+                                "/auth/refresh"
                         ).permitAll()
                         // 3) 나머지 요청은 모두 인증 필요
                         .anyRequest().authenticated()
