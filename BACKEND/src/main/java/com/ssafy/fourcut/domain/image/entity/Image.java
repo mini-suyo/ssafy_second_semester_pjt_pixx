@@ -23,10 +23,6 @@ public class Image {
     @JoinColumn(name = "feed_id", nullable = false)
     private Feed feed;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "album_id", nullable = false)
-    private Album album;
-
     @Column(name = "image_url", length = 200)
     private String imageUrl;
 

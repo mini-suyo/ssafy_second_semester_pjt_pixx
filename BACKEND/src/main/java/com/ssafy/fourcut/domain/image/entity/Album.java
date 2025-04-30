@@ -26,6 +26,9 @@ public class Album {
     @Column(name = "album_name", length = 100)
     private String albumName;
 
+    @Column(name = "album_memo", length = 100)
+    private String albumMemo;
+
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Image> images;
+    private List<Feed> feeds;
 }

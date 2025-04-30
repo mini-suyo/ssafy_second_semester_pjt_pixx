@@ -28,11 +28,18 @@ public class Feed {
     @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "album_id", nullable = false)
+    private Album album;
+
     @Column(name = "feed_location", length = 100)
     private String feedLocation;
 
     @Column(name = "feed_date")
     private LocalDateTime feedDate;
+
+    @Column(name = "feed_title", length = 100)
+    private String feedTitle;          // ↔ 명세의 feedTitle
 
     @Column(name = "feed_memo", length = 100)
     private String feedMemo;
