@@ -37,13 +37,12 @@ public class KakaoAuthService {
     public TokenDto loginWithKakao(String code) {
         // 1) 카카오 토큰 교환
         String kakaoToken = getKakaoAccessToken(code);
+
         // 2) 유저 정보 조회
         Map<String, Object> kakaoUser = getKakaoUserInfo(kakaoToken);
-
         Long kakaoId = ((Number) kakaoUser.get("id")).longValue();
-        Map<String, Object> kakaoAccount = (Map<String, Object>) kakaoUser.get("kakao_account");
-        String email    = (String) kakaoAccount.get("email");
-        String nickname = (String) ((Map<String,Object>)kakaoAccount.get("profile")).get("nickname");
+        String email    = (String)((Map<?,?>)kakaoUser.get("kakao_account")).get("email");
+        String nickname = (String)((Map<?,?>)((Map<?,?>)kakaoUser.get("kakao_account")).get("profile")).get("nickname");
 
         // 3) 회원 조회/등록
         User user = userRepository.findByKakaoId(kakaoId)
@@ -63,7 +62,7 @@ public class KakaoAuthService {
                 "user_email", user.getUserEmail()
         );
         String accessToken  = jwtTokenProvider.createAccessToken(claims);
-        String refreshToken = jwtTokenProvider.createRefreshToken();
+        String refreshToken = jwtTokenProvider.createRefreshToken(user.getUserId());
 
         return new TokenDto(accessToken, refreshToken);
     }
@@ -114,7 +113,7 @@ public class KakaoAuthService {
                 "user_email", user.getUserEmail()
         );
         String accessToken  = jwtTokenProvider.createAccessToken(claims);
-        String refreshToken = jwtTokenProvider.createRefreshToken();
+        String refreshToken = jwtTokenProvider.createRefreshToken(user.getUserId());
         return new TokenDto(accessToken, refreshToken);
     }
 
