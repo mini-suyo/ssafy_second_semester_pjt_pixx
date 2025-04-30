@@ -29,20 +29,18 @@ public class KakaoAuthController {
     @Value("${kakao.logout-redirect-uri}")
     private String kakaoLogoutRedirectUri;
 
-    /**
-     * GET http://localhost:8080/api/v1/auth/kakao/callback?code={authorization_code}
-     */
-    @GetMapping("/kakao/callback")
-    public ResponseEntity<ApiResponse<TokenDto>> kakaoCallback(@RequestParam("code") String code) {
-        TokenDto tokens = kakaoAuthService.loginWithKakao(code);
-        return ResponseEntity.ok(
-                ApiResponse.<TokenDto>builder()
-                        .status(200)
-                        .message("카카오 로그인 성공")
-                        .data(tokens)
-                        .build()
-        );
-    }
+
+//    @GetMapping("/kakao/callback")
+//    public ResponseEntity<ApiResponse<TokenDto>> kakaoCallback(@RequestParam("code") String code) {
+//        TokenDto tokens = kakaoAuthService.loginWithKakao(code);
+//        return ResponseEntity.ok(
+//                ApiResponse.<TokenDto>builder()
+//                        .status(200)
+//                        .message("카카오 로그인 성공")
+//                        .data(tokens)
+//                        .build()
+//        );
+//    }
 
     /**
      * POST http://localhost:8080/api/v1/auth/kakao/login
@@ -136,6 +134,41 @@ public class KakaoAuthController {
                         .status(200)
                         .message("회원 탈퇴가 완료되었습니다.")
                         .data(null)
+                        .build()
+        );
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<Map<String,String>>> refresh(
+            @RequestBody Map<String,String> body) {
+        String refreshToken = body.get("refresh_token");
+        // 1) 토큰 유효성 검사
+        if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.<Map<String,String>>builder()
+                            .status(401)
+                            .message("유효한 리프레시 토큰이 필요합니다.")
+                            .data(null)
+                            .build());
+        }
+        // 2) 토큰에서 user_id 꺼내기
+        Claims claims = jwtTokenProvider.parseToken(refreshToken);
+        Integer userId = claims.get("user_id", Integer.class);
+
+        // 3) 새로운 액세스 토큰(·리프레시 토큰)을 발급
+        String newAccessToken = jwtTokenProvider.createAccessToken(
+                Map.of("user_id", userId /*, …다른 클레임들*/));
+        String newRefreshToken = jwtTokenProvider.createRefreshToken(userId);
+
+        // 4) 응답
+        return ResponseEntity.ok(
+                ApiResponse.<Map<String,String>>builder()
+                        .status(200)
+                        .message("토큰 재발급 성공")
+                        .data(Map.of(
+                                "access_token", newAccessToken,
+                                "refresh_token", newRefreshToken
+                        ))
                         .build()
         );
     }
