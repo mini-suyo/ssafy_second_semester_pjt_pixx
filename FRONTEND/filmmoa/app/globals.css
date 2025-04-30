@@ -61,11 +61,21 @@ body.scrolling::-webkit-scrollbar-thumb {
   opacity: 1;
 }
 
+/* 폰트추가 */
+@font-face {
+  font-family: "SUITE";
+  src: url("/fonts/SUITE-Variable.ttf") format("truetype");
+  font-weight: normal; /* 필요하면 100~900 등 추가 가능 */
+  font-style: normal;
+  font-display: swap; /* swap: 페이지 먼저 보여주고 폰트 나중 적용 (UX 개선) */
+}
+
 /* Firefox */
 * {
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
   transition: scrollbar-color 0.3s ease;
+  font-family: "SUITE", sans-serif;
 }
 
 body.scrolling * {
@@ -140,12 +150,14 @@ a {
 }
 
 .btn-primary {
-  background: var(--primary);
+  /* background: var(--primary); */
+  background-color: transparent;
   color: var(--primary-foreground);
 }
 
 .btn-primary:hover {
-  background: var(--primary);
+  /* background: var(--primary); */
+  background-color: transparent;
   opacity: 0.9;
 }
 
