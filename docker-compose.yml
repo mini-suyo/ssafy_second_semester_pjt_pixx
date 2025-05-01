@@ -30,7 +30,7 @@ services:
     container_name: ${SPRING_CONTAINER_NAME}
     restart: always
     expose:
-      - "{SPRING_CONTAINER_PORT}"
+      - "${SPRING_CONTAINER_PORT}"
     environment:
       SPRING_PROFILES_ACTIVE: prod
       # Kakao OAuth
@@ -54,3 +54,7 @@ services:
       # CloudFront Signed URL
       CLOUDFRONT_PRIVATE_KEY_PATH: ${CLOUDFRONT_PRIVATE_KEY_PATH}
       CLOUDFRONT_KEY_PAIR_ID: ${CLOUDFRONT_KEY_PAIR_ID}
+      
+  networks:
+    default:
+      name: app-network
