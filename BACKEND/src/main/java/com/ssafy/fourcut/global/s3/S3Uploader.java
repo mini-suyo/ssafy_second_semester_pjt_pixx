@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -18,20 +17,17 @@ public class S3Uploader {
 
     public String upload(int userId, InputStream inputStream, String originalFilename, String contentType) {
         try {
-            String ext = originalFilename.substring(originalFilename.lastIndexOf('.'));
-            String randomName = UUID.randomUUID().toString();
             String datePath = LocalDate.now().toString().replace("-", "/"); // 2025/04/29
-            System.out.println("userId:::" + userId);
-            String s3Key = "users/" + userId + "/" +  datePath + "/" + randomName + ext;
+            String s3Key = "users/" + userId + "/" + datePath + "/" + originalFilename;
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(contentType);
 
             amazonS3.putObject(bucketName, s3Key, inputStream, metadata);
-
             return s3Key;
         } catch (Exception e) {
             throw new RuntimeException("S3 파일 업로드 실패", e);
         }
     }
+
 }
