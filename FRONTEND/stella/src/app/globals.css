@@ -1,3 +1,5 @@
+/* app/globals.css */
+
 :root {
   --background: #000000;
   --foreground: #f8f8ff;
@@ -16,7 +18,58 @@
   --ring: #a78bfa;
   --radius: 0.5rem;
   --gradient: linear-gradient(to bottom, #000000, #2d0a31);
-  --scrollbar-bg: transparent;
-  --scrollbar-thumb: rgba(58, 26, 69, 0.7);
-  --scrollbar-thumb-hover: rgba(78, 35, 89, 0.8);
+
+}
+
+/* 기존 html, body 스타일을 수정합니다 */
+html,
+body {
+  max-width: 60dvh;
+  height: 100dvh;
+  margin: 0 auto; /* 화면 중앙에 배치하기 위해 추가 */
+  overflow-x: hidden;
+}
+
+body {
+  /* 전체 배경을 검정색으로 변경합니다 */
+  background: #000000;
+}
+
+
+/* app-container 스타일을 수정합니다 */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-width: 60dvh;
+  margin: 0 auto; /* 화면 중앙에 배치하기 위해 추가 */
+  background: var(--night_sky, linear-gradient(180deg, #2A292F 0%, #21203E 28.85%, #231B4B 57.69%, #312A53 100%));
+  position: relative; 
+  overflow: hidden;  
+}
+
+/* main-content 스타일을 수정합니다 */
+.main-content {
+  flex: 1;
+  padding: 1rem;
+  padding-bottom: 4rem; /* Add padding for the bottom navbar */
+  width: 100%;
+  max-width: 60dvh;
+  margin: 0 auto;
+}
+
+body {
+
+  font-family: 'SUITE', sans-serif;
+}
+
+
+
+
+/* 폰트 설정 */
+@font-face {
+  font-family: 'SUITE';
+  src: url('/fonts/SUITE/SUITE-Variable.ttf') format('truetype');
+  font-weight: 100 900; /* 100부터 900까지 범위 지원 */
+  font-style: normal;
 }

@@ -1,8 +1,9 @@
 import type React from "react"
-import { Inter } from "next/font/google"
-import "./globals.css"
 
-const inter = Inter({ subsets: ["latin"] })
+import "./globals.css"
+import StarBackground from "./components/star-background"
+
+
 
 export const metadata = {
   title: "스타로그 - 네컷 사진 아카이브",
@@ -17,11 +18,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body className={inter.className}>
-
-            <div className="app-container">
-              <main className="main-content">{children}</main>
-            </div>
+      <body>
+        <div className="app-container">
+          <StarBackground/>
+          <main className="main-content">{children}</main>
+        </div>
 
       </body>
     </html>
