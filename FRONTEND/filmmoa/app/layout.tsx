@@ -21,14 +21,10 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={inter.className}>
-        <ThemeProvider>
-          <ScrollFadeProvider>
-            <div className="app-container">
-              <Header />
-              <main className="main-content">{children}</main>
-            </div>
-          </ScrollFadeProvider>
-        </ThemeProvider>
+          <div className="app-container">
+            <Header />
+            <main className="main-content">{children}</main>
+          </div>
       </body>
     </html>
   )
