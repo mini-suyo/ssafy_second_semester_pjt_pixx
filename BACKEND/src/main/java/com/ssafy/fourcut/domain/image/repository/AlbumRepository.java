@@ -4,8 +4,10 @@ import com.ssafy.fourcut.domain.image.entity.Album;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AlbumRepository extends JpaRepository<Album, Integer> {
     // 사용자별 앨범 전체 조회
     List<Album> findByUserUserId(Integer userId);
+    Optional<Album> findByUserUserIdAndDefaultAlbumTrue(Integer userId);
 }

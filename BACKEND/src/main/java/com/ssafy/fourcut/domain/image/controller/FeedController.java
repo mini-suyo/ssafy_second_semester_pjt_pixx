@@ -24,13 +24,12 @@ public class FeedController {
      * POST /api/v1/feed
      * body: { "type":0|1|2, "page":0, "size":20 }
      */
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<ApiResponse<?>> getFeeds(
             Principal principal,
             @RequestBody FeedListRequest req
     ) {
-//        Integer userId = Integer.valueOf(principal.getName());
-        Integer userId = 1;
+        Integer userId = Integer.valueOf(principal.getName());
         int type = req.getType();
         int page = req.getPage();
         int size = req.getSize();
@@ -61,8 +60,7 @@ public class FeedController {
      */
     @GetMapping("/album")
     public ResponseEntity<ApiResponse<FeedAlbumResponse>> getFeedAlbum(Principal principal) {
-//        Integer userId = Integer.valueOf(principal.getName());
-        Integer userId = 1;
+        Integer userId = Integer.valueOf(principal.getName());
         FeedAlbumResponse  data = albumService.getFeedAlbum(userId);
         ApiResponse<FeedAlbumResponse> resp = ApiResponse.<FeedAlbumResponse>builder()
                 .status(Integer.parseInt("200"))
@@ -82,8 +80,7 @@ public class FeedController {
             @PathVariable("album_id") Integer albumId,
             @RequestBody FeedListRequest req
     ) {
-//        Integer userId = Integer.valueOf(principal.getName());
-        Integer userId = 1;
+        Integer userId = Integer.valueOf(principal.getName());
         AlbumDetailResponse data = albumService.getAlbumDetail(
                 userId,
                 albumId,
