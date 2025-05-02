@@ -1,13 +1,14 @@
 package com.ssafy.fourcut.global.security;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.*;
 
 @Component
@@ -22,16 +23,20 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh.expiration}")
     private long refreshTokenExpiration;
 
-    private byte[] secretBytes;
+    private Key signingKey;
 
     @PostConstruct
     protected void init() {
-        // secretKey가 Base64가 아니면 인코딩
-        if (!Base64.getEncoder().withoutPadding().encodeToString(secretKey.getBytes()).equals(secretKey)) {
-            this.secretBytes = Base64.getEncoder().encode(secretKey.getBytes(StandardCharsets.UTF_8));
-        } else {
-            this.secretBytes = Base64.getDecoder().decode(secretKey);
+        secretKey = secretKey.trim();
+        byte[] keyBytes;
+        try {
+            // 1) 프로퍼티에 Base64로 넣었으면 디코딩
+            keyBytes = Decoders.BASE64.decode(secretKey);
+        } catch (IllegalArgumentException e) {
+            // 2) 평문(utf-8)일 경우
+            keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
         }
+        this.signingKey  = Keys.hmacShaKeyFor(keyBytes);
     }
 
     // 🔹 JWT 토큰 생성
@@ -43,7 +48,7 @@ public class JwtTokenProvider {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
-                .signWith(Keys.hmacShaKeyFor(secretBytes), SignatureAlgorithm.HS256)
+                .signWith(signingKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -51,7 +56,7 @@ public class JwtTokenProvider {
     public Claims parseToken(String token) {
         try {
             return Jwts.parserBuilder()
-                    .setSigningKey(Keys.hmacShaKeyFor(secretBytes))
+                    .setSigningKey(signingKey)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
@@ -73,7 +78,7 @@ public class JwtTokenProvider {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
-                .signWith(Keys.hmacShaKeyFor(secretBytes), SignatureAlgorithm.HS256)
+                .signWith(signingKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -85,7 +90,7 @@ public class JwtTokenProvider {
                 .claim("user_id", userId)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
-                .signWith(Keys.hmacShaKeyFor(secretBytes), SignatureAlgorithm.HS256)
+                .signWith(signingKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
