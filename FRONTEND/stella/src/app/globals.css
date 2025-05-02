@@ -1,0 +1,22 @@
+:root {
+  --background: #000000;
+  --foreground: #f8f8ff;
+  --primary: #a78bfa;
+  --primary-foreground: #ffffff;
+  --secondary: #6366f1;
+  --secondary-foreground: #ffffff;
+  --accent: #f472b6;
+  --accent-foreground: #ffffff;
+  --muted: #383854;
+  --muted-foreground: #c7c7d8;
+  --card: rgba(20, 20, 40, 0.8);
+  --card-foreground: #f8f8ff;
+  --border: #383854;
+  --input: #383854;
+  --ring: #a78bfa;
+  --radius: 0.5rem;
+  --gradient: linear-gradient(to bottom, #000000, #2d0a31);
+  --scrollbar-bg: transparent;
+  --scrollbar-thumb: rgba(58, 26, 69, 0.7);
+  --scrollbar-thumb-hover: rgba(78, 35, 89, 0.8);
+}
