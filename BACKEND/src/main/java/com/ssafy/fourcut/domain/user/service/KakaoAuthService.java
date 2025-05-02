@@ -1,10 +1,10 @@
 package com.ssafy.fourcut.domain.user.service;
 
 import com.ssafy.fourcut.domain.image.entity.Album;
+import com.ssafy.fourcut.domain.image.repository.AlbumRepository;
 import com.ssafy.fourcut.domain.user.dto.TokenDto;
 import com.ssafy.fourcut.domain.user.entity.User;
 import com.ssafy.fourcut.domain.user.exception.UserNotFoundException;
-import com.ssafy.fourcut.domain.user.repository.AlbumRepository;
 import com.ssafy.fourcut.domain.user.repository.UserRepository;
 import com.ssafy.fourcut.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
