@@ -9,5 +9,9 @@ import java.util.Optional;
 public interface AlbumRepository extends JpaRepository<Album, Integer> {
     // 사용자별 앨범 전체 조회
     List<Album> findByUserUserId(Integer userId);
+
+    // userId와 defaultAlbum이 true인 경우 조회
+    Optional<Album> findByUser_UserIdAndDefaultAlbumTrue(int userId);
+
     Optional<Album> findByUserUserIdAndDefaultAlbumTrue(Integer userId);
 }

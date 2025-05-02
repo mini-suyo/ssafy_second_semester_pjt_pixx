@@ -19,6 +19,7 @@ bin/
 
 ### IntelliJ IDEA ###
 application-secret.yml
+src/main/resources/aws/cloudfront/
 .idea
 *.iws
 *.iml
