@@ -3,6 +3,7 @@ package com.ssafy.fourcut.domain.image.entity;
 import com.ssafy.fourcut.domain.image.entity.enums.ImageType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CurrentTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -31,5 +32,6 @@ public class Image {
     private ImageType imageType;
 
     @Column(name = "created_at", nullable = false)
+    @CurrentTimestamp
     private LocalDateTime createdAt;
 }
