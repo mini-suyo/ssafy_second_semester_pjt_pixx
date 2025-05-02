@@ -1,8 +1,10 @@
 package com.ssafy.fourcut.domain.user.service;
 
+import com.ssafy.fourcut.domain.image.entity.Album;
 import com.ssafy.fourcut.domain.user.dto.TokenDto;
 import com.ssafy.fourcut.domain.user.entity.User;
 import com.ssafy.fourcut.domain.user.exception.UserNotFoundException;
+import com.ssafy.fourcut.domain.user.repository.AlbumRepository;
 import com.ssafy.fourcut.domain.user.repository.UserRepository;
 import com.ssafy.fourcut.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class KakaoAuthService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final RestTemplate restTemplate;
+    private final AlbumRepository albumRepository;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
@@ -45,13 +48,26 @@ public class KakaoAuthService {
         String nickname = (String)((Map<?,?>)((Map<?,?>)kakaoUser.get("kakao_account")).get("profile")).get("nickname");
 
         User user = userRepository.findByKakaoId(kakaoId)
-                .orElseGet(() -> userRepository.save(User.builder()
-                        .kakaoId(kakaoId)
-                        .nickname(nickname)
-                        .userEmail(email)
-                        .createdAt(LocalDateTime.now())
-                        .userToken(0)
-                        .build()));
+                .orElseGet(() -> {
+                    User newUser = userRepository.save(User.builder()
+                            .kakaoId(kakaoId)
+                            .nickname(nickname)
+                            .userEmail(email)
+                            .createdAt(LocalDateTime.now())
+                            .userToken(0)
+                            .build());
+
+                    Album defaultAlbum = Album.builder()
+                            .user(newUser)
+                            .albumName("기본 앨범")
+                            .albumMemo("")
+                            .createdAt(LocalDateTime.now())
+                            .defaultAlbum(true)
+                            .build();
+                    albumRepository.save(defaultAlbum);
+
+                    return newUser;
+                });
 
         // JWT 발급
         Map<String, Object> claims = Map.of(
