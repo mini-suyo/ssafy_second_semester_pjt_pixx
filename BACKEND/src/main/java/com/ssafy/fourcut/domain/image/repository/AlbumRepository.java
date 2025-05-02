@@ -13,4 +13,5 @@ public interface AlbumRepository extends JpaRepository<Album, Integer> {
     // userId와 defaultAlbum이 true인 경우 조회
     Optional<Album> findByUser_UserIdAndDefaultAlbumTrue(int userId);
 
+    Optional<Album> findByUserUserIdAndDefaultAlbumTrue(Integer userId);
 }
