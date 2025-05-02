@@ -1,7 +1,7 @@
 package com.ssafy.fourcut.domain.image.controller;
 
-import com.ssafy.fourcut.domain.image.dto.storeRequestDto;
-import com.ssafy.fourcut.domain.image.service.storeService;
+import com.ssafy.fourcut.domain.image.dto.StoreRequestDto;
+import com.ssafy.fourcut.domain.image.service.StoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/photos/upload")
 @RequiredArgsConstructor
-public class storeController {
+public class StoreController {
 
-    private final storeService storeService;
+    private final StoreService storeService;
 
     @PostMapping("/qr")
-    public void uploadQr(@RequestBody storeRequestDto request) {
+    public void uploadQr(@RequestBody StoreRequestDto request) {
 
         System.out.println(request.getUserId() + " " + request.getPageUrl());
 

@@ -3,6 +3,7 @@ package com.ssafy.fourcut.domain.image.entity;
 import com.ssafy.fourcut.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CurrentTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,7 +34,7 @@ public class Feed {
     private Album album;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "face_id", nullable = false)
+    @JoinColumn(name = "face_id")
     private FaceVector faceVector;
 
     @Column(name = "feed_title", length = 100)
@@ -46,6 +47,7 @@ public class Feed {
     private Integer feedPopulation;
 
     @Column(name = "feed_date", nullable = false)
+    @CurrentTimestamp
     private LocalDateTime feedDate;
 
     @Column(name = "feed_memo")
