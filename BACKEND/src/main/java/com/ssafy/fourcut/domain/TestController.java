@@ -9,4 +9,10 @@ public class TestController {
     public String index() {
         return "test 성공입니다.";
     }
+
+    @GetMapping("/test/more")
+    public String index2() {
+        return "test2 성공입니다.";
+    }
+
 }
