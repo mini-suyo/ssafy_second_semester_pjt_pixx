@@ -23,29 +23,39 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = resolveToken(request);
 
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            Claims claims = jwtTokenProvider.parseToken(token);
+        if (token != null) {
+            if (jwtTokenProvider.validateToken(token)) {
+                Claims claims = jwtTokenProvider.parseToken(token);
 
-            // 클레임에서 필요한 사용자 정보 추출
-            Integer userId = claims.get("user_id", Integer.class);
-            String nickname = claims.get("nickname", String.class);
+                Integer userId = claims.get("user_id", Integer.class);
+                String nickname = claims.get("nickname", String.class);
 
-            // SecurityContext에 인증 정보 세팅
-            User principal = new org.springframework.security.core.userdetails.User(
-                    String.valueOf(userId),
-                    "",
-                    java.util.Collections.emptyList()
-            );
+                User principal = new org.springframework.security.core.userdetails.User(
+                        String.valueOf(userId),
+                        "",
+                        java.util.Collections.emptyList()
+                );
 
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    principal, token, principal.getAuthorities()
-            );
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        principal, token, principal.getAuthorities()
+                );
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다.");
+                return;
+            }
         }
 
         chain.doFilter(request, response);
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, int status, String message) throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json;charset=UTF-8");
+        String body = String.format(message);
+        response.getWriter().write(body);
     }
 
     private String resolveToken(HttpServletRequest request) {
