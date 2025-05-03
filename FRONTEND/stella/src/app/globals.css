@@ -18,7 +18,6 @@
   --ring: #a78bfa;
   --radius: 0.5rem;
   --gradient: linear-gradient(to bottom, #000000, #2d0a31);
-
 }
 
 /* 기존 html, body 스타일을 수정합니다 */
@@ -33,8 +32,8 @@ body {
 body {
   /* 전체 배경을 검정색으로 변경합니다 */
   background: #000000;
+  color: #fffaf8;
 }
-
 
 /* app-container 스타일을 수정합니다 */
 .app-container {
@@ -43,9 +42,9 @@ body {
   min-height: 100dvh;
   max-width: 60dvh;
   margin: 0 auto; /* 화면 중앙에 배치하기 위해 추가 */
-  background: var(--night_sky, linear-gradient(180deg, #2A292F 0%, #21203E 28.85%, #231B4B 57.69%, #312A53 100%));
-  position: relative; 
-  overflow: hidden;  
+  background: var(--night_sky, linear-gradient(180deg, #2a292f 0%, #21203e 28.85%, #231b4b 57.69%, #312a53 100%));
+  position: relative;
+  overflow: hidden;
 }
 
 /* main-content 스타일을 수정합니다 */
@@ -59,17 +58,13 @@ body {
 }
 
 body {
-
-  font-family: 'SUITE', sans-serif;
+  font-family: "SUITE", sans-serif;
 }
-
-
-
 
 /* 폰트 설정 */
 @font-face {
-  font-family: 'SUITE';
-  src: url('/fonts/SUITE/SUITE-Variable.ttf') format('truetype');
+  font-family: "SUITE";
+  src: url("/fonts/SUITE/SUITE-Variable.ttf") format("truetype");
   font-weight: 100 900; /* 100부터 900까지 범위 지원 */
   font-style: normal;
 }
