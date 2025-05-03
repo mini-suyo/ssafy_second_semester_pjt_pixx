@@ -1,0 +1,30 @@
+/* menubar.module.css */
+.nav {
+  display: flex;
+  justify-content: center;
+  gap: 80px; /* 글자 사이 간격 */
+  margin-top: 20px; /* 원하는 만큼 조정 */
+}
+
+.link {
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: normal;
+  color: white; /* 배경이 어두우니까 글자색 흰색 */
+  position: relative;
+}
+
+.active {
+  font-weight: bold;
+}
+
+.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -5px; /* 링크 텍스트 바로 아래 */
+  height: 3px;
+  background-color: purple; /* 보라색 밑줄 */
+  border-radius: 2px;
+}
