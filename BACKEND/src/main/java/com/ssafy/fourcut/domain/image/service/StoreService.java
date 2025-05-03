@@ -47,6 +47,7 @@ public class StoreService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 userId가 존재하지 않습니다."));
         Album album = albumRepository.findByUser_UserIdAndDefaultAlbumTrue(user.getUserId())
                 .orElseThrow(() -> new IllegalStateException("Default album not found"));
+        System.out.println("album :: " + album.getAlbumId());
         Brand brand = brandRepository.findById(1)
                 .orElseThrow(() -> new IllegalStateException("Brand not found"));
         Feed feed = Feed.builder()
