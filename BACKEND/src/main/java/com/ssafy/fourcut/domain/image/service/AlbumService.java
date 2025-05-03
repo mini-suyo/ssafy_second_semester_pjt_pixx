@@ -161,6 +161,11 @@ public class AlbumService {
         Album targetAlbum = albumRepository.findById(albumId)
                 .orElseThrow(() -> new EntityNotFoundException("앨범을 찾을 수 없습니다. id=" + albumId));
 
+        // 2.1) 기본 앨범 삭제 차단
+        if (Boolean.TRUE.equals(targetAlbum.getDefaultAlbum())) {
+            throw new IllegalStateException("기본 앨범은 삭제할 수 없습니다.");
+        }
+
         // 3) 기본 앨범 조회
         Album defaultAlbum = albumRepository
                 .findByUserUserIdAndDefaultAlbumTrue(userId)

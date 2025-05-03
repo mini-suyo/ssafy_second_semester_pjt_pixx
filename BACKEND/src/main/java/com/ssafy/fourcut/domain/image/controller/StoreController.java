@@ -24,11 +24,6 @@ public class StoreController {
         int feedId = storeService.createFeed(request);
         request.setFeedId(feedId);
         // 크롤링을 하여, 파일들 저장 및 DB에 데이터 삽입
-
-        // 하루 : base_api
-        // 모노맨션 : download.php
-        // 모노맨션 브랜드 크롤링
-        String downloadPath = "download.php";
-        storeService.CrawlUploadAndSave(request, downloadPath);
+        storeService.CrawlUploadAndSave(request);
     }
 }
