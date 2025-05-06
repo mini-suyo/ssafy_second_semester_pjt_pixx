@@ -6,3 +6,11 @@ export interface Album {
   albumName: string;
   albumDate: string; // ISO 문자열
 }
+
+export interface AlbumResponse {
+  status: string;
+  message: string;
+  data: {
+    albumList: Album[];
+  };
+}
