@@ -5,11 +5,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { getFeedDetail } from "@/app/lib/api/feedApi";
 import { FeedDetailResponse } from "@/app/types/feed";
+import FeedInfoModal from "./FeedInfoModal";
 import styles from "./feed-detail.module.css";
 
 export default function FeedDetail() {
   const router = useRouter();
   const { feedId } = useParams<{ feedId: string }>();
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
   const { data, isLoading, isError } = useQuery<FeedDetailResponse>({
     queryKey: ["feedDetail", feedId],
@@ -69,7 +71,7 @@ export default function FeedDetail() {
           <img src="/icons/icon-back" alt="뒤로가기" />
         </button>
         <div className={styles.iconButtons}>
-          <button>
+          <button onClick={() => setIsInfoModalOpen(true)}>
             <img src="/icons/icon-info.png" alt="상세정보" />
           </button>
           <button onClick={() => setIsFavorite(!isFavorite)}>
@@ -116,6 +118,9 @@ export default function FeedDetail() {
           <img src="/icons/icon-next-gray.png" alt="오른쪽으로" />
         </button>
       </div>
+
+      {/* FeedInfoModal 연결 */}
+      <FeedInfoModal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)} feedDetail={data} />
     </div>
   );
 }
