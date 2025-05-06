@@ -4,9 +4,9 @@
 
 import { getAlbums } from "@/app/lib/api/albumApi";
 import styles from "./album.module.css";
-import { Album } from "@/app/types/album";
 import { useEffect, useRef, useCallback } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
 
 // 실패 시 사용할 Mock 데이터
@@ -30,6 +30,7 @@ const mockAlbums = {
 };
 
 export default function AlbumList() {
+  const router = useRouter();
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -104,7 +105,7 @@ export default function AlbumList() {
   return (
     <div className={styles.albumListWrapper}>
       {albums.map((album, index) => (
-        <div key={album.albumId} className={styles.albumItem}>
+        <div key={album.albumId} className={styles.albumItem} onClick={() => router.push(`/album/${album.albumId}`)}>
           <div className={`${styles.albumContent} ${index % 2 === 0 ? styles.leftImage : styles.rightImage}`}>
             {/* 별자리 그림은 나중에 매칭 */}
             <img src="/constellations/aries_1.png" alt="별자리" className={styles.constellationImage} />
