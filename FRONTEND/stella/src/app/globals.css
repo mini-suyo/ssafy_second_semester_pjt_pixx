@@ -58,3 +58,10 @@ body {
   font-weight: 100 900; /* 100부터 900까지 범위 지원 */
   font-style: normal;
 }
+
+@font-face {
+  font-family: "SEJONG";
+  src: url("/fonts/SEJONG/SejongGeulggot.ttf") format("truetype");
+  font-weight: 100 900; /* 100부터 900까지 범위 지원 */
+  font-style: normal;
+}
