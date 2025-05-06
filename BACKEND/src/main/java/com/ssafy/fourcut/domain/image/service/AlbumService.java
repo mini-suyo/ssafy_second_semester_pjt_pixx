@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -26,27 +28,66 @@ public class AlbumService {
     private final UserRepository userRepository;
     private final AlbumRepository albumRepository;
     private final FeedRepository feedRepository;
+    private final CloudFrontService cloudFrontService;
 
-    public FeedAlbumResponse getFeedAlbum(Integer userId) {
-        List<Album> albums = albumRepository.findByUserUserId(userId);
+    public FeedAlbumResponse getFeedAlbum(
+            Integer userId,
+            int type,
+            int page,
+            int size
+    ) {
+        // 1) 페이징
+        Page<Album> albumPage = albumRepository.findByUserUserId(
+                userId, PageRequest.of(page, size)
+        );
+        List<Album> albums = albumPage.getContent();
 
-        List<AlbumResponse> dtoList = albums.stream()
+        // 2) 날짜 계산용 Comparator
+        Comparator<LocalDateTime> dtComp = Comparator.nullsLast(Comparator.naturalOrder());
+        Comparator<Album> albumDateComp = Comparator.comparing(
+                album -> album.getFeeds().stream()
+                        .map(Feed::getFeedDate)
+                        .min(Comparator.naturalOrder())
+                        .orElse(null),
+                dtComp
+        );
+        if (type == 0) {
+            albumDateComp = albumDateComp.reversed();  // 최신순
+        } // type==1 그대로 오래된순
+
+        // 3) 즐겨찾기 / 일반 분리 후 각각 정렬
+        List<Album> favs = albums.stream()
+                .filter(Album::getFavoriteAlbum)
+                .sorted(albumDateComp)
+                .toList();
+        List<Album> others = albums.stream()
+                .filter(a -> !a.getFavoriteAlbum())
+                .sorted(albumDateComp)
+                .toList();
+
+        // 4) 0페이지만 favorite 먼저 합치기
+        List<Album> ordered = page == 0
+                ? Stream.concat(favs.stream(), others.stream()).toList()
+                : albums.stream()
+                .sorted(albumDateComp)
+                .toList();
+
+        // 5) DTO 매핑
+        List<AlbumResponse> dtos = ordered.stream()
                 .map(album -> {
-                    // feeds 컬렉션에서 가장 오래된 feedDate 뽑기
-                    LocalDateTime oldestDate = album.getFeeds().stream()
+                    LocalDateTime oldest = album.getFeeds().stream()
                             .map(Feed::getFeedDate)
                             .min(Comparator.naturalOrder())
                             .orElse(null);
-
                     return new AlbumResponse(
                             album.getAlbumId(),
                             album.getAlbumName(),
-                            oldestDate
+                            oldest
                     );
                 })
                 .collect(Collectors.toList());
 
-        return new FeedAlbumResponse(dtoList);
+        return new FeedAlbumResponse(dtos);
     }
 
     public AlbumDetailResponse getAlbumDetail(
@@ -81,10 +122,13 @@ public class AlbumService {
         // 5) Feed → FeedItemResponse 매핑
         List<FeedItemResponse> feedItems = feedPage.stream()
                 .map(f -> {
-                    String thumb = f.getImages().stream()
+                    String rawKey = f.getImages().stream()
                             .findFirst()
                             .map(Image::getImageUrl)
                             .orElse("");
+                    String thumb = rawKey.isEmpty()
+                            ? ""
+                            : cloudFrontService.generateSignedCloudFrontUrl(rawKey);
                     return new FeedItemResponse(
                             f.getFeedId(),
                             thumb,

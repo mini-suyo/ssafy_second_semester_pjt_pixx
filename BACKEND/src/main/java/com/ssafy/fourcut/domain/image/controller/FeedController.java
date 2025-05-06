@@ -55,13 +55,22 @@ public class FeedController {
         }
     }
     /**
-     * GET /api/v1/feed/album
-     * 피드 상세보기 (앨범별 이미지)
+     * POST /api/v1/feed/album
+     * body: { "type":0|1|2, "page":0, "size":20 }
+     * 앨범 리스트 보기
      */
-    @GetMapping("/album")
-    public ResponseEntity<ApiResponse<FeedAlbumResponse>> getFeedAlbum(Principal principal) {
+    @PostMapping("/album")
+    public ResponseEntity<ApiResponse<FeedAlbumResponse>> getFeedAlbum(
+            Principal principal,
+            @RequestBody FeedListRequest req
+    ) {
         Integer userId = Integer.valueOf(principal.getName());
-        FeedAlbumResponse  data = albumService.getFeedAlbum(userId);
+        FeedAlbumResponse data = albumService.getFeedAlbum(
+                userId,
+                req.getType(),
+                req.getPage(),
+                req.getSize()
+        );
         ApiResponse<FeedAlbumResponse> resp = ApiResponse.<FeedAlbumResponse>builder()
                 .status(Integer.parseInt("200"))
                 .message("앨범 불러오기 성공")
