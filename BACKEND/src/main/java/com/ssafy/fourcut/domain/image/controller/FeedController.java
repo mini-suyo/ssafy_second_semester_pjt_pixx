@@ -95,4 +95,79 @@ public class FeedController {
                 .build();
         return ResponseEntity.ok(resp);
     }
+
+    /**
+     * GET /api/v1/feed/{feedId}
+     * 피드 상세보기
+     */
+    @GetMapping("/{feedId}")
+    public ResponseEntity<ApiResponse<FeedDetailResponse>> getFeedDetail(
+            Principal principal,
+            @PathVariable Integer feedId
+    ) {
+        Integer userId = Integer.valueOf(principal.getName());
+        FeedDetailResponse data = feedService.getFeedDetail(userId, feedId);
+        ApiResponse<FeedDetailResponse> resp = ApiResponse.<FeedDetailResponse>builder()
+                .status(Integer.parseInt("200"))
+                .message("피드 상세보기 성공")
+                .data(data)
+                .build();
+        return ResponseEntity.ok(resp);
+    }
+
+    /**
+     * PUT /api/v1/feed/{feedId}
+     * body: UpdateFeedRequest
+     */
+    @PutMapping("/{feedId}")
+    public ResponseEntity<ApiResponse<Void>> updateFeed(
+            Principal principal,
+            @PathVariable Integer feedId,
+            @RequestBody UpdateFeedRequest req
+    ) {
+        Integer userId = Integer.valueOf(principal.getName());
+        feedService.updateFeed(userId, feedId, req);
+        ApiResponse<Void> resp = ApiResponse.<Void>builder()
+                .status(Integer.parseInt("200"))
+                .message("수정완료")
+                .build();
+        return ResponseEntity.ok(resp);
+    }
+
+    /**
+     * DELETE /api/v1/feed/{feedId}
+     * 피드 삭제
+     */
+    @DeleteMapping("/{feedId}")
+    public ResponseEntity<ApiResponse<Void>> deleteFeed(
+            Principal principal,
+            @PathVariable Integer feedId
+    ) {
+        Integer userId = Integer.valueOf(principal.getName());
+        feedService.deleteFeed(userId, feedId);
+        ApiResponse<Void> resp = ApiResponse.<Void>builder()
+                .status(Integer.parseInt("200"))
+                .message("정보 삭제")
+                .build();
+        return ResponseEntity.ok(resp);
+    }
+
+    /**
+     * POST /api/v1/feed/{feedId}/favorite
+     * 피드 좋아요(on/off) 토글
+     */
+    @GetMapping("/{feedId}/favorite")
+    public ResponseEntity<ApiResponse<ToggleFavoriteResponse>> toggleFavorite(
+            Principal principal,
+            @PathVariable Integer feedId
+    ) {
+        Integer userId = Integer.valueOf(principal.getName());
+        ToggleFavoriteResponse data = feedService.toggleFavorite(userId, feedId);
+        ApiResponse<ToggleFavoriteResponse> resp = ApiResponse.<ToggleFavoriteResponse>builder()
+                .status(Integer.parseInt("200"))
+                .message("")
+                .data(data)
+                .build();
+        return ResponseEntity.ok(resp);
+    }
 }
