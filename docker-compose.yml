@@ -15,6 +15,7 @@ services:
       - frontend
       - backend
 
+      
   frontend:
     build:
       context: ./FRONTEND/stella
