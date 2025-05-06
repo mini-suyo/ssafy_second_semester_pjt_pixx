@@ -17,15 +17,15 @@
   --input: #383854;
   --ring: #a78bfa;
   --radius: 0.5rem;
-  --gradient: linear-gradient(to bottom, #000000, #2d0a31);
+  /* --gradient: linear-gradient(to bottom, #000000, #2d0a31); */
 }
 
 /* 기존 html, body 스타일을 수정합니다 */
 html,
 body {
-  max-width: 60dvh;
-  height: 100dvh;
-  margin: 0 auto; /* 화면 중앙에 배치하기 위해 추가 */
+  width: 100%; /*부모가 설정한 폭 100% 따르기*/
+  height: 100%;
+  margin: 0; /* 화면 중앙에 배치하기 위해 추가 */
   overflow-x: hidden;
 }
 
@@ -34,27 +34,17 @@ body {
   background: #000000;
   color: #fffaf8;
 }
-
-/* app-container 스타일을 수정합니다 */
+/* app-container*/
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
-  max-width: 60dvh;
-  margin: 0 auto; /* 화면 중앙에 배치하기 위해 추가 */
-  background: var(--night_sky, linear-gradient(180deg, #2a292f 0%, #21203e 28.85%, #231b4b 57.69%, #312a53 100%));
   position: relative;
   overflow: hidden;
-}
-
-/* main-content 스타일을 수정합니다 */
-.main-content {
-  flex: 1;
-  padding: 1rem;
-  padding-bottom: 4rem; /* Add padding for the bottom navbar */
+  max-width: clamp(344px, 100vw, 412px);
   width: 100%;
-  max-width: 60dvh;
   margin: 0 auto;
+  min-height: 100vh;
+  background: var(--night_sky, linear-gradient(180deg, #2a292f 0%, #21203e 28.85%, #231b4b 57.69%, #312a53 100%));
 }
 
 body {

@@ -1,17 +1,3 @@
-// import Link from "next/link";
-
-// export default function Menubar() {
-//   return (
-//     <div>
-//       <Link href={"/feed"}>feed</Link>
-//       &nbsp;
-//       <Link href={"/album"}>album</Link>
-//       &nbsp;
-//       <Link href={"/people"}>people</Link>
-//     </div>
-//   );
-// }
-
 "use client";
 
 import Link from "next/link";
@@ -22,6 +8,7 @@ export default function Menubar() {
   // url의 현재 위치 파악
   const pathname = usePathname();
 
+  // 메뉴 목록
   const menu = [
     { name: "feed", href: "/feed" },
     { name: "album", href: "/album" },
