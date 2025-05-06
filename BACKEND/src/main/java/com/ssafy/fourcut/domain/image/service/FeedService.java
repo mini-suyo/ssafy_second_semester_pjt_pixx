@@ -25,6 +25,7 @@ public class FeedService {
     private final BrandRepository brandRepository;
     private final HashtagRepository hashtagRepository;
     private final UserRepository userRepository;
+    private final CloudFrontService cloudFrontService;
 
     /** 0,1: 페이징 정렬된 단일 리스트 (unchanged) */
     public List<FeedItemResponse> getFeedsSorted(
@@ -62,10 +63,13 @@ public class FeedService {
 
     /** Feed → FeedItemResponse 변환 공통 */
     private FeedItemResponse toItem(Feed feed) {
-        String thumb = feed.getImages().stream()
+        String rawKey = feed.getImages().stream()
                 .findFirst()
                 .map(Image::getImageUrl)
                 .orElse("");
+        String thumb = rawKey.isEmpty()
+                ? ""
+                : cloudFrontService.generateSignedCloudFrontUrl(rawKey);
         return new FeedItemResponse(
                 feed.getFeedId(),
                 thumb,
@@ -83,11 +87,14 @@ public class FeedService {
         // (선택) userId와 feed.getUser().getUserId() 비교해서 소유권 검증 가능
 
         List<FeedImageResponse> images = feed.getImages().stream()
-                .map(img -> new FeedImageResponse(
-                        img.getImageId(),
-                        img.getImageUrl(),
-                        img.getImageType().name()
-                ))
+                .map(img -> {
+                    String signed = cloudFrontService.generateSignedCloudFrontUrl(img.getImageUrl());
+                    return new FeedImageResponse(
+                            img.getImageId(),
+                            signed,
+                            img.getImageType().name()
+                    );
+                })
                 .collect(Collectors.toList());
 
         List<String> hashtags = feed.getHashFeeds().stream()
@@ -183,16 +190,12 @@ public class FeedService {
 
         Feed feed = feedRepository.findById(feedId)
                 .orElseThrow(() -> new EntityNotFoundException("피드를 찾을 수 없습니다. id=" + feedId));
-        if (!feed.getUser().getUserId().equals(userId)) {
-            throw new EntityNotFoundException("해당 사용자의 피드가 아닙니다. id=" + feedId);
-        }
 
         // 반전 토글
         Boolean current = feed.getFeedFavorite();
         Boolean updated = (current == null) ? Boolean.TRUE : !current;
         feed.setFeedFavorite(updated);
 
-        // 영속성 컨텍스트가 커밋할 때 자동 저장
         return new ToggleFavoriteResponse(feedId, updated);
     }
 }

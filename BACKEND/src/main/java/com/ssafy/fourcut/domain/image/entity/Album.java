@@ -38,6 +38,9 @@ public class Album {
     @Column(name = "default_album", nullable = false, columnDefinition="boolean default false")
     private Boolean defaultAlbum;
 
+    @Column(name = "favorite_album", nullable = false, columnDefinition="boolean default false")
+    private Boolean favoriteAlbum;
+
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Feed> feeds;
 }
