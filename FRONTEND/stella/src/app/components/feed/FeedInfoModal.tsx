@@ -1,3 +1,5 @@
+// components/feed/FeedInfoModal.tsx
+
 "use client";
 
 import { FeedDetailResponse } from "@/app/types/feed";
