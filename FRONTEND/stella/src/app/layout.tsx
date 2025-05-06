@@ -1,7 +1,7 @@
 import type React from "react";
-
+import Providers from "./providers";
 import "./globals.css";
-import StarBackground from "./components/star-background";
+import StarBackground from "./components/StarBackground";
 
 export const metadata = {
   title: "스타로그 - 네컷 사진 아카이브",
@@ -15,7 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <div className="app-container">
           <StarBackground />
-          <main className="main-content">{children}</main>
+          <Providers>{children}</Providers>
         </div>
       </body>
     </html>

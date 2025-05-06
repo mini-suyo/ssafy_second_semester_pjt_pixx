@@ -1,5 +1,11 @@
 // 피드 목록
 
+import FeedList from "@/app/components/feed/FeedList";
+
 export default function Page() {
-  return <div>피드 목록</div>;
+  return (
+    <div>
+      <FeedList />
+    </div>
+  );
 }
