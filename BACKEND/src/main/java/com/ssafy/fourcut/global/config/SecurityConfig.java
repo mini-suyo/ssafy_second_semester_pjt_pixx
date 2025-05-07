@@ -27,6 +27,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // options 요청 인증 없이 통과
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // 1) 탈퇴는 인증 필요
                         .requestMatchers(HttpMethod.DELETE, "/auth/withdraw").authenticated()
                         // 2) 그 외 카카오/로그인/로그아웃 관련은 풀어주고

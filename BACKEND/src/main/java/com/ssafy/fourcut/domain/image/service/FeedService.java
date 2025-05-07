@@ -4,6 +4,7 @@ package com.ssafy.fourcut.domain.image.service;
 import com.amazonaws.services.cloudfront.model.EntityNotFoundException;
 import com.ssafy.fourcut.domain.image.dto.*;
 import com.ssafy.fourcut.domain.image.entity.*;
+import com.ssafy.fourcut.domain.image.repository.AlbumRepository;
 import com.ssafy.fourcut.domain.image.repository.BrandRepository;
 import com.ssafy.fourcut.domain.image.repository.FeedRepository;
 import com.ssafy.fourcut.domain.image.repository.HashtagRepository;
@@ -26,6 +27,7 @@ public class FeedService {
     private final HashtagRepository hashtagRepository;
     private final UserRepository userRepository;
     private final CloudFrontService cloudFrontService;
+    private final AlbumRepository albumRepository;
 
     /** 0,1: 페이징 정렬된 단일 리스트 (unchanged) */
     public List<FeedItemResponse> getFeedsSorted(
@@ -180,22 +182,34 @@ public class FeedService {
     }
 
     /**
-     * feed.favorite 필드를 반전시켜 저장하고, 새 상태를 반환
+     * feed.favorite 토글 + album 재배치
      */
     @Transactional
     public ToggleFavoriteResponse toggleFavorite(Integer userId, Integer feedId) {
-        // 사용자는 검증만 (필요 시)
+        // 1) 사용자 검증
         userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다. id=" + userId));
 
+        // 2) 피드 조회
         Feed feed = feedRepository.findById(feedId)
                 .orElseThrow(() -> new EntityNotFoundException("피드를 찾을 수 없습니다. id=" + feedId));
 
-        // 반전 토글
+        // 3) 좋아요 상태 반전
         Boolean current = feed.getFeedFavorite();
         Boolean updated = (current == null) ? Boolean.TRUE : !current;
         feed.setFeedFavorite(updated);
 
+        // 4) 새 상태에 따라 앨범 이동
+        Album targetAlbum = updated
+                // 좋아요(true) → favorite_album=true 인 앨범으로
+                ? albumRepository.findByUserUserIdAndFavoriteAlbumTrue(userId)
+                .orElseThrow(() -> new EntityNotFoundException("favorite_album=true 인 앨범이 없습니다."))
+                // 좋아요(false) → default_album=true 인 앨범으로
+                : albumRepository.findByUserUserIdAndDefaultAlbumTrue(userId)
+                .orElseThrow(() -> new EntityNotFoundException("default_album=true 인 앨범이 없습니다."));
+        feed.setAlbum(targetAlbum);
+
+        // 5) 변경 내용은 트랜잭션 커밋 시 자동 반영
         return new ToggleFavoriteResponse(feedId, updated);
     }
 }
