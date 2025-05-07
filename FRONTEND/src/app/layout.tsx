@@ -1,8 +1,8 @@
 import type React from "react";
 import Providers from "./providers";
 import "./globals.css";
-import Header from "@/components/header";
-import Navbar from "@/components/navbar";
+import Header from "@/components/Header";
+import Navbar from "@/components/Navbar";
 import StarBackground from "@/components/StarBackground";
 
 export const metadata = {
