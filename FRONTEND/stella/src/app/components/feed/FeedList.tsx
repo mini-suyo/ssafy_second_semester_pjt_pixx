@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { getFeeds } from "../../lib/api/feedApi";
 import { Feed } from "@/app/types/feed";
 import styles from "./feed.module.css";
+import Image from "next/image";
 
 export default function FeedList() {
   const router = useRouter();
@@ -47,7 +48,7 @@ export default function FeedList() {
         {data?.pages.map((page) =>
           page.map((feed: Feed) => (
             <div key={feed.feedId} className={styles["feed-item"]} onClick={() => router.push(`/feed/${feed.feedId}`)}>
-              <img src={feed.feedThumbnailImgUrl || "/dummy-feed-thumbnail.png"} alt={`Feed ${feed.feedId}`} />
+              <Image src={feed.feedThumbnailImgUrl || "/dummy-feed-thumbnail.png"} alt={`Feed ${feed.feedId}`} />
             </div>
           ))
         )}
