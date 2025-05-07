@@ -35,6 +35,11 @@ COPY --from=deps /app/node_modules ./node_modules
 # 소스코드 전체 복사
 COPY . .
 
+# After COPY . .
+RUN ls -R /app/src/components/
+RUN find src -type f -name "*.tsx" | sort
+RUN cat src/app/\(with-menubar\)/layout.tsx || echo "File not found"
+
 # Next.js 빌드
 RUN yarn build
 

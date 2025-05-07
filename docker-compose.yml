@@ -16,26 +16,26 @@ services:
       - backend
 
 
-  frontend:
-    image: node:18-alpine
-    container_name: frontend
-    working_dir: /app
-    command: sh -c "echo '<h1>Hello from Frontend</h1>' > index.html && npx http-server -p 3000"
-    expose:
-      - "3000"   
   # frontend:
-  #   build:
-  #     context: ./FRONTEND
-  #     dockerfile: Dockerfile
-  #   # 빌드한 이미지의 이름 설정
-  #   image: nextjs-project:latest
-  #   container_name: nextjs-container
-  #   restart: always
+  #   image: node:18-alpine
+  #   container_name: frontend
+  #   working_dir: /app
+  #   command: sh -c "echo '<h1>Hello from Frontend</h1>' > index.html && npx http-server -p 3000"
   #   expose:
-  #     - "3000"
-  #   # 운영환경 명시 : 항상 production으로 설정(성능 저하 방지)
-  #   environment:
-  #   - NODE_ENV=production
+  #     - "3000"   
+  frontend:
+    build:
+      context: ./FRONTEND
+      dockerfile: Dockerfile
+    # 빌드한 이미지의 이름 설정
+    image: nextjs-project:latest
+    container_name: nextjs-container
+    restart: always
+    expose:
+      - "3000"
+    # 운영환경 명시 : 항상 production으로 설정(성능 저하 방지)
+    environment:
+    - NODE_ENV=production
 
   backend:
     # Dockerfile로 백엔드 프로젝트를 이미지로 빌드
