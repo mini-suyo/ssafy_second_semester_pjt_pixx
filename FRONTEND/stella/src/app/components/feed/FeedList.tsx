@@ -6,7 +6,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { getFeeds } from "../../lib/api/feedApi";
-import styles from "./feed.module.css";
+import styles from "./feed-list.module.css";
 import Image from "next/image";
 import { Feed } from "../../../app/types/feed";
 // import { Feed } from "@/app/types/feed";

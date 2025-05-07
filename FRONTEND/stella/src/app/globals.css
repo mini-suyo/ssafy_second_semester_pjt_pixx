@@ -44,7 +44,7 @@ body {
   width: 100%;
   margin: 0 auto;
   min-height: 100vh;
-  background: var(--night_sky, linear-gradient(180deg, #2a292f 0%, #21203e 28.85%, #231b4b 57.69%, #312a53 100%));
+  background: var(--night_sky, linear-gradient(180deg, #2a292f 0%, #21203e 2.85%, #231b4b 40.69%, #312a53 100%));
 }
 
 body {
