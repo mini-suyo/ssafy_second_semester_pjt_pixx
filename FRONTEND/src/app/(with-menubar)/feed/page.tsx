@@ -1,6 +1,6 @@
 // 피드 목록
 
-import FeedList from "../../../app/components/feed/FeedList";
+import FeedList from "@/components/feed/FeedList";
 
 export default function Page() {
   return (

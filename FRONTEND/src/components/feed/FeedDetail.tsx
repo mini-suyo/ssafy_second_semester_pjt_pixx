@@ -3,8 +3,8 @@
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { getFeedDetail } from "../../../app/lib/api/feedApi";
-import { FeedDetailResponse } from "../../../app/types/feed";
+import { getFeedDetail } from "@/app/lib/api/feedApi";
+import { FeedDetailResponse } from "@/app/types/feed";
 import FeedInfoModal from "./FeedInfoModal";
 import Image from "next/image";
 import styles from "./feed-detail.module.css";

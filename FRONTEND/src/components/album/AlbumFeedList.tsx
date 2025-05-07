@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { getAlbumDetail } from "../../../app/lib/api/albumApi";
-import { AlbumDetail, AlbumFeed } from "../../../app/types/album";
+import { getAlbumDetail } from "@/app/lib/api/albumApi";
+import { AlbumDetail, AlbumFeed } from "@/app/types/album";
 import { useParams } from "next/navigation";
 
 const AlbumFeedList = () => {
