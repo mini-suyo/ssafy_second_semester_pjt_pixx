@@ -1,23 +1,5 @@
-/* app/globals.css */
-
 :root {
-  --background: #000000;
-  --foreground: #f8f8ff;
-  --primary: #a78bfa;
-  --primary-foreground: #ffffff;
-  --secondary: #6366f1;
-  --secondary-foreground: #ffffff;
-  --accent: #f472b6;
-  --accent-foreground: #ffffff;
-  --muted: #383854;
-  --muted-foreground: #c7c7d8;
-  --card: rgba(20, 20, 40, 0.8);
-  --card-foreground: #f8f8ff;
-  --border: #383854;
-  --input: #383854;
-  --ring: #a78bfa;
-  --radius: 0.5rem;
-  /* --gradient: linear-gradient(to bottom, #000000, #2d0a31); */
+  --navbar-height: 5rem;
 }
 
 /* 기존 html, body 스타일을 수정합니다 */
@@ -33,6 +15,7 @@ body {
   /* 전체 배경을 검정색으로 변경합니다 */
   background: #000000;
   color: #fffaf8;
+  font-family: "SUITE", sans-serif;
 }
 /* app-container*/
 .app-container {
@@ -47,8 +30,16 @@ body {
   background: var(--night_sky, linear-gradient(180deg, #2a292f 0%, #21203e 2.85%, #231b4b 40.69%, #312a53 100%));
 }
 
-body {
-  font-family: "SUITE", sans-serif;
+.app-container > div:nth-child(3) {
+  flex: 1;
+  min-height: calc(100vh - var(--navbar-height));
+  padding-bottom: var(--navbar-height);
+}
+
+.main-content {
+  flex: 1;
+  min-height: calc(100vh - var(--navbar-height));
+  padding-bottom: var(--navbar-height);
 }
 
 /* 폰트 설정 */
