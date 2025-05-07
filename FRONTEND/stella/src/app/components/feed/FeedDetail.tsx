@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { getFeedDetail } from "@/app/lib/api/feedApi";
 import { FeedDetailResponse } from "@/app/types/feed";
 import FeedInfoModal from "./FeedInfoModal";
+import Image from "next/image";
 import styles from "./feed-detail.module.css";
 
 export default function FeedDetail() {
@@ -68,20 +69,20 @@ export default function FeedDetail() {
     <div>
       <div className={styles.topBar}>
         <button onClick={() => router.back()}>
-          <img src="/icons/icon-back" alt="뒤로가기" />
+          <Image src="/icons/icon-back" alt="뒤로가기" />
         </button>
         <div className={styles.iconButtons}>
           <button onClick={() => setIsInfoModalOpen(true)}>
-            <img src="/icons/icon-info.png" alt="상세정보" />
+            <Image src="/icons/icon-info.png" alt="상세정보" />
           </button>
           <button onClick={() => setIsFavorite(!isFavorite)}>
-            <img src={isFavorite ? "/icons/icon-like.png" : "/icons/icon-unlike.png"} alt="즐겨찾기" />
+            <Image src={isFavorite ? "/icons/icon-like.png" : "/icons/icon-unlike.png"} alt="즐겨찾기" />
           </button>
           <button>
-            <img src="/icons/icon-download.png" alt="다운로드" />
+            <Image src="/icons/icon-download.png" alt="다운로드" />
           </button>
           <button>
-            <img src="/icons/icon-send.png" alt="공유" />
+            <Image src="/icons/icon-send.png" alt="공유" />
           </button>
         </div>
       </div>
@@ -90,14 +91,14 @@ export default function FeedDetail() {
         {currentFile.imageType === "VIDEO" ? (
           <video src={currentFile.imageUrl} controls className={styles.mainMediaContent} />
         ) : (
-          <img src={currentFile.imageUrl} alt="피드 미디어" className={styles.mainMediaContent} />
+          <Image src={currentFile.imageUrl} alt="피드 미디어" className={styles.mainMediaContent} />
         )}
       </div>
 
       {/* 하단 미리보기 */}
       <div className={styles.thumbnailWrapper}>
         <button className={styles.arrowButton} onClick={scrollThumbnailLeft}>
-          <img src="/icons/icon-back-gray.png" alt="왼쪽으로" />
+          <Image src="/icons/icon-back-gray.png" alt="왼쪽으로" />
         </button>
         <div className={styles.thumbnailList} ref={thumbnailListRef}>
           {data.feedList.map((file, idx) => (
@@ -109,13 +110,13 @@ export default function FeedDetail() {
               {file.imageType === "VIDEO" ? (
                 <video src={file.imageUrl} className={styles.thumbnailContent} />
               ) : (
-                <img src={file.imageUrl} className={styles.thumbnailContent} />
+                <Image src={file.imageUrl} alt="이미지" className={styles.thumbnailContent} />
               )}
             </div>
           ))}
         </div>
         <button className={styles.arrowButton} onClick={scrollThumbnailRight}>
-          <img src="/icons/icon-next-gray.png" alt="오른쪽으로" />
+          <Image src="/icons/icon-next-gray.png" alt="오른쪽으로" />
         </button>
       </div>
 

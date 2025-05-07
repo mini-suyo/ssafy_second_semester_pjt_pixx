@@ -21,7 +21,7 @@
   box-sizing: border-box;
 }
 
-.feed-item img {
+.feed-item Image {
   width: 100%;
   height: 100%;
   display: block; /*빈 여백 생기는 것 방지*/
