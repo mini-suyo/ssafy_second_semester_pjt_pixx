@@ -19,5 +19,9 @@ public class TestController {
     public String index3() {
         return "test3 성공입니다.";
     }
+    @GetMapping("/test/more3")
+    public String index4() {
+        return "test4 성공입니다.";
+    }
 
 }
