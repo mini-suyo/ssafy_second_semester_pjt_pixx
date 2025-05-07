@@ -39,14 +39,11 @@ services:
     container_name: spring-container
     restart: always
     environment:
-      - SPRING_CONTAINER_PORT=8080
-      - SPRING_CONFIG_ADDITIONAL_LOCATION=file:/app/secrets/
-      - SPRING_PROFILES_ACTIVE=prod
+      SPRING_CONTAINER_PORT: 8080
     expose:
       - "8080"
     volumes:
-      - /home/ubuntu/secrets/backend/application-secret.yml:/app/secrets/application-secret.yml
-      - /home/ubuntu/secrets/aws/cloudfront/private_key.pem:/app/secrets/aws/cloudfront/private_key.pem
+      - /home/ubuntu/aws:/app/aws
 
 networks:
   default:
