@@ -41,6 +41,7 @@ services:
     environment:
       - SPRING_CONTAINER_PORT=8080
       - SPRING_CONFIG_ADDITIONAL_LOCATION=file:/app/secrets/
+      - SPRING_PROFILES_ACTIVE=prod
     expose:
       - "8080"
     volumes:
