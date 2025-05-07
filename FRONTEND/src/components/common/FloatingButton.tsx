@@ -1,3 +1,5 @@
+// 앨범 만들기 / 취소 플로팅 버튼
+
 "use client";
 
 import { MouseEventHandler } from "react";
