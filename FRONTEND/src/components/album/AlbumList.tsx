@@ -3,7 +3,7 @@
 "use client";
 
 import { getAlbums } from "@/app/lib/api/albumApi";
-import styles from "./album.module.css";
+import styles from "./album-list.module.css";
 import { useEffect, useRef, useCallback } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -93,11 +93,11 @@ export default function AlbumList() {
   };
 
   if (status === "pending") {
-    return <h1>앨범을 불러오고 있습니다</h1>;
+    return <div className={styles["loading-message"]}>앨범을 불러오고 있습니다</div>;
   }
 
   if (status === "error") {
-    return <h1>앨범을 불러오는데 문제가 발생했습니다</h1>;
+    return <div className={styles["error-message"]}>오류가 발생했습니다 잠시후 다시 시도해주세요</div>;
   }
 
   // 모든 페이지의 앨범 데이터를 하나의 배열로 합치기
@@ -109,7 +109,13 @@ export default function AlbumList() {
         <div key={album.albumId} className={styles.albumItem} onClick={() => router.push(`/album/${album.albumId}`)}>
           <div className={`${styles.albumContent} ${index % 2 === 0 ? styles.leftImage : styles.rightImage}`}>
             {/* 별자리 그림은 나중에 매칭 */}
-            <Image src="/constellations/aries_1.png" alt="별자리" className={styles.constellationImage} />
+            <Image
+              src="/constellations/aries_1.png"
+              alt="별자리"
+              className={styles.constellationImage}
+              width={100}
+              height={100}
+            />
             <div className={`${styles.albumInfo} ${index % 2 === 0 ? styles.alignLeft : styles.alignRight}`}>
               <div className={styles.albumName}>{album.albumName}</div>
               <div className={styles.separator} />
