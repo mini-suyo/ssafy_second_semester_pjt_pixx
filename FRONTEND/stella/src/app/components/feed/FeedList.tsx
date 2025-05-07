@@ -6,9 +6,10 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { getFeeds } from "../../lib/api/feedApi";
-import { Feed } from "@/app/types/feed";
 import styles from "./feed.module.css";
 import Image from "next/image";
+import { Feed } from "../../../app/types/feed";
+// import { Feed } from "@/app/types/feed";
 
 export default function FeedList() {
   const router = useRouter();

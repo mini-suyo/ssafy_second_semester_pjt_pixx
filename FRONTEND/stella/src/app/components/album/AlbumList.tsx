@@ -2,7 +2,7 @@
 
 "use client";
 
-import { getAlbums } from "@/app/lib/api/albumApi";
+import { getAlbums } from "../../../app/lib/api/albumApi";
 import styles from "./album.module.css";
 import { useEffect, useRef, useCallback } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
