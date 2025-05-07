@@ -1,3 +1,7 @@
+:root {
+  --navbar-height: 5rem;
+}
+
 /* 기존 html, body 스타일을 수정합니다 */
 html,
 body {
@@ -25,6 +29,19 @@ body {
   min-height: 100vh;
   background: var(--night_sky, linear-gradient(180deg, #2a292f 0%, #21203e 28.85%, #231b4b 57.69%, #312a53 100%));
 }
+
+.app-container > div:nth-child(3) {
+  flex: 1;
+  min-height: calc(100vh - var(--navbar-height));
+  padding-bottom: var(--navbar-height);
+}
+
+.main-content {
+  flex: 1;
+  min-height: calc(100vh - var(--navbar-height));
+  padding-bottom: var(--navbar-height);
+}
+
 /* 폰트 설정 */
 @font-face {
   font-family: "SUITE";
