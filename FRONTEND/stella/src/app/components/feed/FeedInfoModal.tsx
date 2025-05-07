@@ -2,7 +2,7 @@
 
 "use client";
 
-import { FeedDetailResponse } from "@/app/types/feed";
+import { FeedDetailResponse } from "../../../app/types/feed";
 import Image from "next/image";
 import styles from "./feed-info-modal.module.css";
 
