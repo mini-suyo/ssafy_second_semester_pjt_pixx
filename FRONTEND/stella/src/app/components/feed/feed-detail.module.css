@@ -19,7 +19,7 @@
   cursor: pointer;
 }
 
-.iconButtons img {
+.iconButtons Image {
   width: 24px;
   height: 24px;
 }
@@ -55,7 +55,7 @@
   padding: 0;
 }
 
-.arrowButton img {
+.arrowButton Image {
   width: 24px;
   height: 24px;
 }
@@ -75,7 +75,7 @@
   flex-shrink: 0;
 }
 
-.thumbnailItem img,
+.thumbnailItem Image,
 .thumbnailItem video {
   width: 100%;
   height: 100%;

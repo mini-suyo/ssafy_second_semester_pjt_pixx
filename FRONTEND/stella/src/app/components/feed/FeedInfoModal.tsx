@@ -3,6 +3,7 @@
 "use client";
 
 import { FeedDetailResponse } from "@/app/types/feed";
+import Image from "next/image";
 import styles from "./feed-info-modal.module.css";
 
 type FeedInfoModalProps = {
@@ -18,7 +19,7 @@ export default function FeedInfoModal({ isOpen, onClose, feedDetail }: FeedInfoM
     <div className={styles.backdrop} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <button className={styles.closeButton} onClick={onClose}>
-          <img src="/icons/icon-close.png" alt="닫기" />
+          <Image src="/icons/icon-close.png" alt="닫기" />
         </button>
 
         {/* 상세 정보 표시 */}
@@ -31,14 +32,14 @@ export default function FeedInfoModal({ isOpen, onClose, feedDetail }: FeedInfoM
 
           {/* 날짜/장소/브랜드 */}
           <div className={styles.infoRow}>
-            <img src="/icons/icon-date.png" alt="촬영일" />
+            <Image src="/icons/icon-date.png" alt="촬영일" />
             {feedDetail?.feedDate}
           </div>
           <div className={styles.infoRow}>
-            <img src="/icons/icon-location.png" alt="위치" /> {feedDetail?.feedLocation}
+            <Image src="/icons/icon-location.png" alt="위치" /> {feedDetail?.feedLocation}
           </div>
           <div className={styles.infoRow}>
-            <img src="/icons/icon-brand.png" alt="브랜드" /> {feedDetail?.brandName}
+            <Image src="/icons/icon-brand.png" alt="브랜드" /> {feedDetail?.brandName}
           </div>
 
           {/* 메모 */}
