@@ -4,11 +4,13 @@ package com.ssafy.fourcut.domain.image.repository;
 import com.ssafy.fourcut.domain.image.entity.Feed;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface FeedRepository extends JpaRepository<Feed, Integer> {
     Page<Feed> findByUserUserIdOrderByFeedDateDesc(Integer userId, Pageable pageable);
@@ -30,4 +32,14 @@ public interface FeedRepository extends JpaRepository<Feed, Integer> {
 
     /** 앨범 속 피드 중 가장 과거인 하나만 뽑아오기 (albumDate 계산용) */
     Feed findTop1ByAlbumAlbumIdOrderByFeedDateAsc(Integer albumId);
+
+    /**
+     * 상세조회용: images, hashFeeds → hashtag, brand 연관관계까지 한 번에 fetch
+     */
+    @EntityGraph(attributePaths = {
+            "images",
+            "hashFeeds.hashtag",
+            "brand"
+    })
+    Optional<Feed> findWithDetailsByFeedId(Integer feedId);
 }

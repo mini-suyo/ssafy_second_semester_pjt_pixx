@@ -3,6 +3,7 @@ package com.ssafy.fourcut.domain.image.entity;
 import com.ssafy.fourcut.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CurrentTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,10 +32,14 @@ public class Album {
     private String albumMemo;
 
     @Column(name = "created_at", nullable = false)
+    @CurrentTimestamp
     private LocalDateTime createdAt;
 
     @Column(name = "default_album", nullable = false, columnDefinition="boolean default false")
     private Boolean defaultAlbum;
+
+    @Column(name = "favorite_album", nullable = false, columnDefinition="boolean default false")
+    private Boolean favoriteAlbum;
 
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Feed> feeds;
