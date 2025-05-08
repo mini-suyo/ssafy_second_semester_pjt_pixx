@@ -64,9 +64,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 USER nextjs
 
 # 포트 열기
-EXPOSE 3000
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+# EXPOSE 3000
+# ENV PORT 3000
+# ENV HOSTNAME "0.0.0.0"
 
 # Healthcheck (optional)
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
