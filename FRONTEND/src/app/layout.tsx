@@ -2,8 +2,8 @@ import type React from "react";
 import Providers from "./providers";
 import "./globals.css";
 import Header from "@/components/Header";
-import Navbar from "@/components/Navbar";
 import StarBackground from "@/components/StarBackground";
+import Navbar from "@/components/Navbar";
 
 export const metadata = {
   title: "스타로그 - 네컷 사진 아카이브",
