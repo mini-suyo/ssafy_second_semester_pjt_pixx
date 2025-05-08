@@ -1,12 +1,20 @@
 .wrapper {
   position: relative;
+  width: 100%;
+  max-width: 412px; /* 모바일 앱 화면 너비와 비슷하게 설정 */
+  margin: 0 auto; /* 화면 중앙에 배치 */
+  min-height: 100vh;
+  background-color: #211e2f; /* 이미지의 배경색과 맞추기 */
+  overflow: hidden; /* 내용이 넘치지 않도록 */
 }
 
 .feed-grid-wrapper {
   max-width: 372px; /* 최대 크기 제한 */
   width: calc(100% - 40px);
+  height: 100%;
   margin: 60px auto 150px; /* 상 / 좌우 / 하 */
   box-sizing: border-box;
+  padding-bottom: 100px; /* 네비게이션 바 공간 확보 */
 }
 
 .feed-grid {
@@ -106,4 +114,13 @@
 
 .retryButton:hover {
   background-color: #ff7020;
+}
+
+.floatingButton {
+  position: absolute;
+  bottom: 20px; /* 5rem(navbar 높이) + 약간 여유 */
+  right: clamp(1rem, 3vw, 1.5rem);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  z-index: 1000;
 }
