@@ -1,5 +1,6 @@
 package com.ssafy.fourcut.domain.image.service;
 
+import com.ssafy.fourcut.domain.image.controller.StoreController;
 import com.ssafy.fourcut.domain.image.entity.Album;
 import com.ssafy.fourcut.domain.image.entity.Brand;
 import com.ssafy.fourcut.domain.image.entity.Feed;
@@ -20,6 +21,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -38,6 +41,8 @@ public class StoreService {
     private final StoreRepository storeRepository;
     private final S3Uploader s3Uploader;
 
+    private static final Logger log = LoggerFactory.getLogger(StoreService.class);
+
     /*
      * feed 테이블을 새로 만든다.
      */
@@ -45,9 +50,10 @@ public class StoreService {
     public int createFeed(StoreRequestDto request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 userId가 존재하지 않습니다."));
+        log.info("userId : " + user.getUserId());
         Album album = albumRepository.findByUser_UserIdAndDefaultAlbumTrue(user.getUserId())
                 .orElseThrow(() -> new IllegalStateException("Default album not found"));
-        System.out.println("album :: " + album.getAlbumId());
+        log.info("album : " + album.getAlbumId());
         Brand brand = brandRepository.findById(1)
                 .orElseThrow(() -> new IllegalStateException("Brand not found"));
         Feed feed = Feed.builder()
@@ -55,14 +61,25 @@ public class StoreService {
                 .album(album)
                 .brand(brand)
                 .feedFavorite(false)
-                .feedLocation("인원을 입력해주세요")
-                .feedMemo("메모를 작성해주세요")
+                .feedLocation("위치를 입력해주세요!")
+                .feedMemo("메모를 작성해주세요!")
                 .feedPopulation(null)
-                .feedTitle("제목을 작성해주세요")
+                .feedTitle("제목을 작성해주세요!")
                 .build();
 
         Feed savedFeed = feedRepository.save(feed);
         return savedFeed.getFeedId();
+    }
+
+    /*
+     * 각 브랜드에 맞춰, brandId를 수정한다.
+     */
+    private void updateBrand(Feed feed, int brandId, String logMessage) {
+        log.info(logMessage);
+        Brand brand = brandRepository.findById(brandId)
+                .orElseThrow(() -> new IllegalStateException("Brand " + brandId + " not found"));
+        feed.setBrand(brand);
+        feedRepository.save(feed);
     }
 
     /*
@@ -71,13 +88,18 @@ public class StoreService {
     @Transactional
     public void CrawlUploadAndSave(StoreRequestDto request) {
         try {
+            Feed feed = feedRepository.findById(request.getFeedId())
+                    .orElseThrow(() -> new IllegalArgumentException("Feed를 찾을 수 없습니다."));
 
             // 브랜드 별 크롤링 메서드 호출
             if (request.getPageUrl().contains("monomansion.net")) {
+                updateBrand(feed, 2, "모노맨션 크롤링");
                 crawlMonomansion(request);
             } else if (request.getPageUrl().contains("haru7")) {
+                updateBrand(feed, 3, "하루필름 크롤링");
                 crawlharu(request);
             } else if (request.getPageUrl().contains("seobuk.kr")) {
+                updateBrand(feed, 4, "포토이즘 크롤링");
                 crawlPhotoism(request);
             } else {
                 throw new IllegalArgumentException("지원하지 않는 브랜드입니다.");
@@ -121,14 +143,12 @@ public class StoreService {
 
     // 포토이즘 크롤링
     private void crawlPhotoism(StoreRequestDto request) throws Exception {
-        System.out.println("photoism");
-        System.out.println(request.getUserId() + " " + request.getPageUrl() + " " + request.getFeedId());
         Feed feed = feedRepository.findById(request.getFeedId())
                 .orElseThrow(() -> new IllegalArgumentException("Feed를 찾을 수 없습니다."));
 
         // 1. uid 파라미터 추출
         String uid = extractUidFromUrl(request.getPageUrl());
-        System.out.println("uid: " + uid);
+        log.info("uid : " + uid);
 
         // 2. POST 요청 보내기
         URL apiUrl = new URL("https://cmsapi.seobuk.kr/v1/etc/seq/resource");
@@ -138,7 +158,7 @@ public class StoreService {
         conn.setDoOutput(true);
 
         String payload = "{\"uid\":\"" + uid + "\"}";
-        System.out.println("payload: " + payload);
+        log.info("payload : " + payload);
         conn.getOutputStream().write(payload.getBytes());
 
         // 3. 응답 JSON 파싱
@@ -150,8 +170,8 @@ public class StoreService {
         String imagePath = fileInfo.getJSONObject("picFile").getString("path");
         String videoPath = fileInfo.getJSONObject("vidFile").getString("path");
 
-        System.out.println("imagePath : " + imagePath);
-        System.out.println("videoPath : " + videoPath);
+        log.info("포토이즘 ImagePath : " + imagePath);
+        log.info("포토이즘 VideoPath : " +  videoPath);
 
         // 5. S3 업로드 및 DB 저장
         uploadAndSave(request.getUserId(), imagePath, feed);
@@ -188,10 +208,6 @@ public class StoreService {
 
 //                String extension = getExtensionByContentType(contentType);
                 String originalFilename = UUID.randomUUID().toString() + extension;
-
-                System.out.println("contentType: " + contentType);
-                System.out.println("fileUrl: " + fileUrl);
-
                 String s3Key = s3Uploader.upload(userId, inputStream, originalFilename, contentType);
 
                 storeRepository.save(
