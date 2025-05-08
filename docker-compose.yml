@@ -24,7 +24,7 @@ services:
     container_name: ${SPRING_DEV_CONTAINER_NAME}
     restart: always
     environment:
-      SPRING_CONTAINER_PORT: ${SPRING_DEV_CONTAINER_PORT}
+      - SPRING_CONTAINER_PORT=${SPRING_DEV_CONTAINER_PORT}
     expose:
       - "${SPRING_DEV_CONTAINER_PORT}"
     volumes:
