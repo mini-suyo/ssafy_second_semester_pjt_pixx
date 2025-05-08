@@ -14,6 +14,8 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
         cfg.setAllowedOriginPatterns(List.of(
+                "http://localhost:3000",
+                "http://localhost:8080",
                 "https://film-moa.com",
                 "https://www.film-moa.com",
                 "https://k12b208p.ssafy.io"
