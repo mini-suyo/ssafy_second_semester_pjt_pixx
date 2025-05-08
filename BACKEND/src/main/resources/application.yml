@@ -8,3 +8,6 @@ spring:
     name: fourcut
   config:
     import: "optional:classpath:application-secret.yml"
+
+cookie:
+  secure: true
