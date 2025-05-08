@@ -13,7 +13,13 @@ public class CorsConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOriginPatterns(List.of("http://localhost:3000", "*"));
+        cfg.setAllowedOriginPatterns(List.of(
+                "http://localhost:3000",
+                "http://localhost:8080",
+                "https://film-moa.com",
+                "https://www.film-moa.com",
+                "https://k12b208p.ssafy.io"
+        ));
         cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setAllowCredentials(true);
