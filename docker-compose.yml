@@ -1,21 +1,5 @@
 services:
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      # ro: 읽기 전용
-      - /home/ubuntu/nginx/conf.d:/etc/nginx/conf.d
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-
-    depends_on:
-      - frontend
-      - backend
-
-
-  frontend:
+  frontend-dev:
     build:
       context: ./FRONTEND
       dockerfile: Dockerfile
@@ -23,13 +7,15 @@ services:
     image: nextjs-project:latest
     container_name: nextjs-container
     restart: always
-    expose:
-      - "3000"
+#	    expose:
+#      - "3000"
+    ports: 
+      - "3000:3000"
     # 운영환경 명시 : 항상 production으로 설정(성능 저하 방지)
     environment:
     - NODE_ENV=production
 
-  backend:
+  backend-dev:
     # Dockerfile로 백엔드 프로젝트를 이미지로 빌드
     build:
       context: ./BACKEND
@@ -40,8 +26,10 @@ services:
     restart: always
     environment:
       SPRING_CONTAINER_PORT: 8080
-    expose:
-      - "8080"
+#    expose:
+#      - "8080"
+    ports:
+      - "8080:8080"
     volumes:
       - /home/ubuntu/aws:/app/aws
 
