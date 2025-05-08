@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/photos/upload")
@@ -14,15 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class StoreController {
 
     private final StoreService storeService;
+    private static final Logger log = LoggerFactory.getLogger(StoreController.class);
 
     @PostMapping("/qr")
     public void uploadQr(@RequestBody StoreRequestDto request) {
-
-        System.out.println(request.getUserId() + " " + request.getPageUrl());
+        log.info("/api/v1/photos/upload/qr");
+        log.info("uploadQr request - userId: {}, pageUrl: {}", request.getUserId(), request.getPageUrl());
 
         // 새로운 feed 생성
         int feedId = storeService.createFeed(request);
         request.setFeedId(feedId);
+
         // 크롤링을 하여, 파일들 저장 및 DB에 데이터 삽입
         storeService.CrawlUploadAndSave(request);
     }
