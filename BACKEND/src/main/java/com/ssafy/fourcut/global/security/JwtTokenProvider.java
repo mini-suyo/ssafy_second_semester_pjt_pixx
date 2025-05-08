@@ -59,7 +59,6 @@ public class JwtTokenProvider {
                     .setSigningKey(signingKey)
                     .setAllowedClockSkewSeconds(180)
                     .build()
-                    .setAllowedClockSkewSeconds(180)
                     .parseClaimsJws(token)
                     .getBody();
         } catch (JwtException e) {
