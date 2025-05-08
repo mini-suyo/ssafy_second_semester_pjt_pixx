@@ -1,12 +1,11 @@
 .floatingButton {
-  position: fixed;
-  right: 20px;
-  bottom: 80px;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background-color: #7f5af0; /* 연보라색 */
-  color: white;
+  position: absolute;
+  bottom: 20px; /* 5rem(navbar 높이) + 약간 여유 */
+  right: clamp(1rem, 3vw, 1.5rem);
+  padding: 10px 30px 10px;
+  border-radius: 10%;
+  background-color: #fffaf8;
+  color: #3c3c3c;
   font-size: 16px;
   font-weight: bold;
   border: none;

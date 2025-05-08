@@ -1,17 +1,24 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { getFeedDetail } from "@/app/lib/api/feedApi";
 import { FeedDetailResponse } from "@/app/types/feed";
+
 import FeedInfoModal from "./FeedInfoModal";
 import Image from "next/image";
 import styles from "./feed-detail.module.css";
 
-export default function FeedDetail() {
+type FeedDetailProps = {
+  feedId: string;
+};
+
+export default function FeedDetail({ feedId }: FeedDetailProps) {
   const router = useRouter();
-  const { feedId } = useParams<{ feedId: string }>();
+
+  console.log("feedId", feedId);
+
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
   const { data, isLoading, isError } = useQuery<FeedDetailResponse>({

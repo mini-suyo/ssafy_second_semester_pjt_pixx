@@ -71,7 +71,6 @@ export default function FeedList() {
       setRetryCount((prev) => ({ ...prev, [feedId]: currentRetryCount + 1 }));
 
       // 이미지 캐시 무효화를 위한 랜덤 쿼리 파라미터 생성
-      const timestamp = new Date().getTime();
       const feedWithRetry = data?.pages.flat().find((feed: Feed) => feed.feedId === feedId);
 
       if (feedWithRetry) {
@@ -132,77 +131,67 @@ export default function FeedList() {
     }
   };
 
-  // 임의의 쿼리 파라미터를 추가하여 이미지 캐시를 우회하는 함수
-  const getImageUrlWithCacheBusting = (url: string, feedId: number) => {
-    if (!url) return "/dummy-feed-thumbnail.png";
-
-    // 재시도 중이 아니라면 원본 URL 반환
-    if (!retryCount[feedId]) return url;
-
-    // URL에 이미 쿼리 파라미터가 있는지 확인
-    const separator = url.includes("?") ? "&" : "?";
-    return `${url}${separator}retry=${retryCount[feedId]}_${new Date().getTime()}`;
-  };
-
   return (
-    <div className={styles["feed-grid-wrapper"]}>
-      <div className={styles["feed-grid"]}>
-        {data?.pages.map((page, pageIndex) =>
-          page.map((feed: Feed, feedIndex: number) => (
-            <div
-              key={feed.feedId}
-              className={styles["feed-item"]}
-              onClick={() => handleFeedClick(feed.feedId)}
-              onTouchStart={handleTouchStart} // longPress
-              onTouchEnd={handleTouchEnd} // longPress
-            >
-              <Image
-                src={feed.feedThumbnailImgUrl || "/dummy-feed-thumbnail.png"}
-                alt={`Feed ${feed.feedId}`}
-                fill
-                className={styles.feedImage}
-                priority={pageIndex === 0 && feedIndex < 6} // 처음 6개는 priority
-                onLoad={() => handleImageLoad(feed.feedId)}
-                onError={() => handleImageError(feed.feedId)}
-              />
+    <div className={styles.wrapper}>
+      <div className={styles["feed-grid-wrapper"]}>
+        <div className={styles["feed-grid"]}>
+          {data?.pages.map((page, pageIndex) =>
+            page.map((feed: Feed, feedIndex: number) => (
+              <div
+                key={feed.feedId}
+                className={styles["feed-item"]}
+                onClick={() => handleFeedClick(feed.feedId)}
+                onTouchStart={handleTouchStart} // longPress
+                onTouchEnd={handleTouchEnd} // longPress
+              >
+                <Image
+                  src={"/dummy-feed-thumbnail.png"}
+                  // src={feed.feedThumbnailImgUrl || "/dummy-feed-thumbnail.png"}
+                  alt={`Feed ${feed.feedId}`}
+                  fill
+                  className={styles.feedImage}
+                  priority={pageIndex === 0 && feedIndex < 6} // 처음 6개는 priority
+                  onLoad={() => handleImageLoad(feed.feedId)}
+                  onError={() => handleImageError(feed.feedId)}
+                />
 
-              {/* 로딩 표시 */}
-              {!imageLoaded[feed.feedId] && !imageErrors[feed.feedId] && (
-                <div className={styles.imageLoading}>로딩중...</div>
-              )}
+                {/* 로딩 표시 */}
+                {!imageLoaded[feed.feedId] && !imageErrors[feed.feedId] && (
+                  <div className={styles.imageLoading}>로딩중...</div>
+                )}
 
-              {/* 에러 표시 및 재시도 버튼 */}
-              {imageErrors[feed.feedId] && (
-                <div className={styles.imageError}>
-                  <p>이미지 로드 실패</p>
-                  <button className={styles.retryButton} onClick={(e) => handleRetryRequest(feed.feedId, e)}>
-                    다시 시도
-                  </button>
-                </div>
-              )}
+                {/* 에러 표시 및 재시도 버튼 */}
+                {imageErrors[feed.feedId] && (
+                  <div className={styles.imageError}>
+                    <p>이미지 로드 실패</p>
+                    <button className={styles.retryButton} onClick={(e) => handleRetryRequest(feed.feedId, e)}>
+                      다시 시도
+                    </button>
+                  </div>
+                )}
 
-              {/* 선택 모드일 때만 체크 아이콘 렌더링 */}
-              {mode === "select" && (
-                <div className={styles.checkIcon}>
-                  <img
-                    src={
-                      selectedFeedIds.includes(feed.feedId) ? "/icons/icon-checked.png" : "/icons/icon-unchecked.png"
-                    }
-                    alt="선택 여부"
-                  />
-                </div>
-              )}
-            </div>
-          ))
-        )}
+                {/* 선택 모드일 때만 체크 아이콘 렌더링 */}
+                {mode === "select" && (
+                  <div className={styles.checkIcon}>
+                    <Image
+                      src={
+                        selectedFeedIds.includes(feed.feedId) ? "/icons/icon-checked.png" : "/icons/icon-unchecked.png"
+                      }
+                      alt="선택 여부"
+                    />
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* 감시용 div: 마지막에 스크롤 도달하면 다음 페이지 불러오기 */}
+        <div ref={observerRef} style={{ height: "1px" }} />
+
+        {/* 추가 로딩 중이면 표시 */}
+        {isFetchingNextPage && <div>추가 로딩 중...</div>}
       </div>
-
-      {/* 감시용 div: 마지막에 스크롤 도달하면 다음 페이지 불러오기 */}
-      <div ref={observerRef} style={{ height: "1px" }} />
-
-      {/* 추가 로딩 중이면 표시 */}
-      {isFetchingNextPage && <div>추가 로딩 중...</div>}
-
       {/* 플로팅 버튼 추가 */}
       <FloatingButton
         mode={mode}
