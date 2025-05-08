@@ -10,7 +10,7 @@ services:
 #	    expose:
 #      - "3000"
     ports: 
-      - "3000:3000"
+      - "3001:3001"
     # 운영환경 명시 : 항상 production으로 설정(성능 저하 방지)
     environment:
     - NODE_ENV=production
@@ -29,7 +29,7 @@ services:
 #    expose:
 #      - "8080"
     ports:
-      - "8080:8080"
+      - "8081:8081"
     volumes:
       - /home/ubuntu/aws:/app/aws
 
