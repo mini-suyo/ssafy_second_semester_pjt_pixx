@@ -59,7 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String resolveToken(HttpServletRequest request) {
-        // 1) 쿠키에 담긴 accessToken 먼저 꺼내기
+        // 1) 쿠키에 담긴 accessToken 먼저 꺼냄
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if ("accessToken".equals(cookie.getName())) {
@@ -67,7 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         }
-        // 2) 헤더로도 지원 (예전 방식, 필요시)
+        // 2) 헤더로도 지원 (예전 방식, 필요시 사용)
         String bearer = request.getHeader("Authorization");
         if (bearer != null && bearer.startsWith("Bearer ")) {
             return bearer.substring(7);
