@@ -39,26 +39,14 @@ public class JwtTokenProvider {
         this.signingKey  = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // 🔹 JWT 토큰 생성
-    public String createToken(Map<String, Object> claims) {
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + accessTokenExpiration);
-
-        return Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(expiry)
-                .signWith(signingKey, SignatureAlgorithm.HS256)
-                .compact();
-    }
 
     // 🔹 토큰 안의 클레임 추출
     public Claims parseToken(String token) {
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(signingKey)
-                    .build()
                     .setAllowedClockSkewSeconds(180)
+                    .build()
                     .parseClaimsJws(token)
                     .getBody();
         } catch (JwtException e) {
@@ -93,6 +81,14 @@ public class JwtTokenProvider {
                 .setExpiration(expiry)
                 .signWith(signingKey, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    // httponly 적용 시 필요
+    public long getAccessTokenExpiry() {
+        return accessTokenExpiration;
+    }
+    public long getRefreshTokenExpiry() {
+        return refreshTokenExpiration;
     }
 
 
