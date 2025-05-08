@@ -3,7 +3,7 @@
 "use client";
 
 import { MouseEventHandler } from "react";
-import styles from "./FloatingButton.module.css";
+import styles from "./floating-button.module.css";
 
 interface FloatingButtonProps {
   mode: "default" | "select";

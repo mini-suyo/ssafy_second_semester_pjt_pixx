@@ -1,4 +1,4 @@
-/* components/album/album.module.css */
+/* components/album/album-list.module.css */
 
 .albumListWrapper {
   display: flex;
@@ -39,6 +39,21 @@
   flex-shrink: 0;
 }
 
+/* 반응형 추가 */
+@media (max-width: 412px) {
+  .constellationImage {
+    width: 90px;
+    height: 90px;
+  }
+}
+
+@media (max-width: 300px) {
+  .constellationImage {
+    width: 75px;
+    height: 75px;
+  }
+}
+
 .albumInfo {
   display: flex;
   flex-direction: column;
@@ -72,4 +87,22 @@
   font-size: 1rem;
   color: #fffaf8c5;
   font-family: "SEJONG";
+}
+
+.loading-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 18px; /* 필요에 따라 크기 조절 */
+  text-align: center;
+}
+
+.error-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 18px; /* 필요에 따라 크기 조절 */
+  text-align: center;
 }
