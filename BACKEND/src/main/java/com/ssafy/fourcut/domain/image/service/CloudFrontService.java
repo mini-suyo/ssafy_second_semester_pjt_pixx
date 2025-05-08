@@ -31,7 +31,8 @@ public class CloudFrontService {
 
 //            Date expiration = new Date(System.currentTimeMillis() + (1000 * 60 * 20)); // 20분
             Date expiration = new Date(System.currentTimeMillis() + (1000L * 60 * 60 * 24 * 7 * 7)); // 7주일
-            File privateKey = new File(privateKeyPath);
+//            File privateKey = new ClassPathResource(privateKeyPath).getFile(); // 로컬 실험용
+            File privateKey = new File(privateKeyPath); // 서버용
 
             return CloudFrontUrlSigner.getSignedURLWithCannedPolicy(
                     SignerUtils.Protocol.https,
