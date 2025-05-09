@@ -7,6 +7,7 @@ FROM node:22-alpine AS base
 FROM base AS deps
 # (필요한 추가 패키지 설치 - 알파인용. git은 빌드시 필요할 수도 있음)
 RUN apk add --no-cache libc6-compat git
+RUN apk --no-cache add curl
 
 
 

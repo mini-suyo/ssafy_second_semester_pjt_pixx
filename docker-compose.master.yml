@@ -16,7 +16,7 @@ services:
     - PORT=${NEXTJS_MASTER_CONTAINER_PORT}
     - HOSTNAME=0.0.0.0
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 30s # 검사 간 간격
       timeout: 30s # 검사 최대 실행 시간
       retries: 3 # 실패 시 재시도 횟수 (모두 실패 시 unhealthy)
