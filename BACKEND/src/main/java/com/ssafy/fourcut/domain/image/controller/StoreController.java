@@ -61,6 +61,6 @@ public class StoreController {
 
         log.info("userId: {}, feedId: {}", request.getUserId(), request.getFeedId());
         log.info("업로드된 파일 수: {}", files.size());
-        storeService.uploadMediaFile(request, files);
+        storeService.uploadFile(request, files);
     }
 }
