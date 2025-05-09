@@ -21,6 +21,9 @@ export default function Logout() {
       );
 
       if (response.data.status === 200) {
+        // 쿠키에서 토큰 삭제
+        document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+        document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
         router.push("/welcome");
       } else {
         throw new Error(response.data.message || "로그아웃 실패");
