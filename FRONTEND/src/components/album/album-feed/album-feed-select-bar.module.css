@@ -1,4 +1,4 @@
-.navbar {
+.selectModeBar {
   position: fixed;
   display: flex;
   justify-content: space-around;
@@ -10,25 +10,15 @@
   width: 100%;
   max-width: clamp(344px, 100vw, 412px);
   background: #4b436e;
-  z-index: 999;
+  z-index: 9999;
 }
 
-.navItem {
+.selectModeBar button {
+  background: none;
+  border: none;
+  color: #fffaf8;
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: var(--foreground);
-  text-decoration: none;
   font-size: 0.875rem;
-}
-
-.icon {
-  width: 30px;
-  height: 30px;
-  margin-bottom: 4px;
-}
-.plusIcon {
-  width: 70px;
-  height: 70px;
-  margin-bottom: 4px;
 }

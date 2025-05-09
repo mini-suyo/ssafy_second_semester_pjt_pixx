@@ -52,4 +52,6 @@ export interface FeedThumbnailItemProps {
   onRetry: (e: React.MouseEvent) => void;
   isSelected: boolean;
   mode: "default" | "select";
+  onLongPressStart?: () => void;
+  onLongPressEnd?: () => void;
 }

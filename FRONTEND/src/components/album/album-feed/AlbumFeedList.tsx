@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { deleteAlbumPhotos, getAlbumDetail } from "@/app/lib/api/albumApi";
 import AlbumHeader from "./AlbumHeader";
 import AlbumFeedGrid from "./AlbumFeedGrid";
+import AlbumFeedSelectBar from "./AlbumFeedSelectBar";
 import styles from "./album-feed-list.module.css";
 
 export default function AlbumFeedList() {
@@ -27,6 +28,9 @@ export default function AlbumFeedList() {
   // 선택 상태 관리
   const [mode, setMode] = useState<"default" | "select">("default");
   const [selectedFeedIds, setSelectedFeedIds] = useState<number[]>([]);
+
+  // long-press 감지
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // API 호출
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status, refetch } = useInfiniteQuery({
@@ -59,6 +63,22 @@ export default function AlbumFeedList() {
     setImageErrors((prev) => ({ ...prev, [feedId]: false }));
   };
 
+  // long-press 감지
+  const handlePressStart = () => {
+    if (mode === "default") {
+      longPressTimerRef.current = setTimeout(() => {
+        setMode("select");
+      }, 1000); // 1초 후 선택모드 진입
+    }
+  };
+
+  // long-press 종료
+  const handlePressEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
   const handleImageError = (feedId: number) => {
     const currentRetry = retryCount[feedId] || 0;
     if (currentRetry < MAX_RETRY_ATTEMPTS) {
@@ -128,32 +148,16 @@ export default function AlbumFeedList() {
         onSortChange={setSortType}
       />
 
-      {/* 🔹 1. 선택 모드 진입/해제 버튼 */}
-      <div className={styles.albumToolbar}>
-        <button
-          className={styles.modeToggleButton}
-          onClick={() => {
-            if (mode === "default") {
-              setMode("select");
-            } else {
-              setMode("default");
-              setSelectedFeedIds([]);
-            }
-          }}
-        >
-          {mode === "default" ? "Create" : "Cancel"}
-        </button>
-      </div>
-
-      {/* 🔹 2. 선택 삭제 버튼 (선택 모드일 때만 노출) */}
+      {/* 선택용 Navbar 렌더링 (선택 모드일 때만 노출) */}
       {mode === "select" && (
-        <div className={styles.toolbarWrapper}>
-          <button className={styles.deleteButton} onClick={handleDeletePhotos}>
-            선택 삭제
-          </button>
-        </div>
+        <AlbumFeedSelectBar
+          onCancel={() => {
+            setMode("default");
+            setSelectedFeedIds([]);
+          }}
+          onDelete={handleDeletePhotos}
+        />
       )}
-
       {allFeeds.length === 0 ? (
         <div className={styles.emptyMessage}>이 앨범에는 사진이 없습니다.</div>
       ) : (
@@ -171,6 +175,8 @@ export default function AlbumFeedList() {
               onRetry={(e) => handleRetryRequest(feed.feedId, e)}
               isSelected={selectedFeedIds.includes(feed.feedId)}
               mode={mode}
+              onLongPressStart={handlePressStart}
+              onLongPressEnd={handlePressEnd}
             />
           ))}
         </div>
