@@ -3,16 +3,22 @@
 import axiosInstance from "./axiosInstance";
 import { AlbumResponse } from "@/app/types/album";
 import { AlbumDetailResponse } from "@/app/types/album";
+import { AlbumParams } from "@/app/types/album";
 
-export async function getAlbums(params: { type: number; page: number; size: number }): Promise<AlbumResponse> {
+export async function getAlbums(params: AlbumParams): Promise<AlbumResponse> {
   const response = await axiosInstance.post("/api/v1/feed/album", params);
   return response.data;
 }
 
-export async function getAlbumDetail(
-  albumId: number,
-  params: { type: number; page: number; size: number }
-): Promise<AlbumDetailResponse> {
+export async function getAlbumDetail(albumId: number, params: AlbumParams): Promise<AlbumDetailResponse> {
   const response = await axiosInstance.post(`/api/v1/feed/album/${albumId}`, params);
+  return response.data;
+}
+
+export async function deleteAlbumPhotos(payload: {
+  albumId: number;
+  imageList: number[];
+}): Promise<{ message: string }> {
+  const response = await axiosInstance.post("/api/v1/album/photo/delete", payload);
   return response.data;
 }
