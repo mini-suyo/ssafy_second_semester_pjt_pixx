@@ -19,7 +19,7 @@
 .feed-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr); /*한 줄에 2개 이미지*/
-  gap: 16px;
+  gap: 12px;
 }
 
 .feed-item {
