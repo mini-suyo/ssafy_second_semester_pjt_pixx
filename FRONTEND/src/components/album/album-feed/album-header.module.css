@@ -26,8 +26,8 @@
 
 .albumMemo {
   font-size: 16px;
-  margin-top: 4%;
-  margin-left: 8%;
+  margin: 4% 0% 5% 8%; /* 상 우 하 좌 */
+
   color: #fffaf8;
 }
 

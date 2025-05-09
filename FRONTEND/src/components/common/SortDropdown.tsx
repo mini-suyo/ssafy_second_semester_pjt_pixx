@@ -37,7 +37,7 @@ export default function SortDropdown({ value, onChange }: Props) {
     }),
     menu: (base) => ({
       ...base,
-      backgroundColor: "transparent",
+      backgroundColor: "#21203e",
     }),
     singleValue: (base) => ({
       ...base,

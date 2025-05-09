@@ -17,16 +17,27 @@ export default function AlbumFeedGrid({
   onRetry,
   isSelected,
   mode,
+  onLongPressStart,
+  onLongPressEnd,
 }: FeedThumbnailItemProps) {
   return (
-    <div className={styles.thumbnailWrapper} onClick={onClick}>
+    <div
+      className={styles.thumbnailWrapper}
+      onClick={onClick}
+      onMouseDown={onLongPressStart}
+      onMouseUp={onLongPressEnd}
+      onMouseLeave={onLongPressEnd}
+      onTouchStart={onLongPressStart}
+      onTouchEnd={onLongPressEnd}
+      onTouchCancel={onLongPressEnd}
+    >
       {mode === "select" && (
         <div className={styles.checkIcon}>
           <Image
             src={isSelected ? "/icons/icon-checked.png" : "/icons/icon-unchecked.png"}
             alt="선택 여부"
-            width={20}
-            height={20}
+            width={40}
+            height={40}
           />
         </div>
       )}

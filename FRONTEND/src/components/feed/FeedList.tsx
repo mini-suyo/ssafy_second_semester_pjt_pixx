@@ -102,14 +102,14 @@ export default function FeedList() {
   if (isLoading) return <div className={styles["loading-message"]}>소중한 피드를 불러오고 있어요</div>;
   if (isError) return <div className={styles["error-message"]}>피드를 불러오는데 실패했습니다</div>;
   // longPress
-  const handleTouchStart = () => {
+  const handlePressStart = () => {
     longPressTimer.current = setTimeout(() => {
       setMode("select");
     }, 300); // 300ms 이상 누르면 선택 모드로
   };
 
   // longPress 타이머 취소
-  const handleTouchEnd = () => {
+  const handlePressEnd = () => {
     if (longPressTimer.current) {
       clearTimeout(longPressTimer.current);
       longPressTimer.current = null;
@@ -141,8 +141,12 @@ export default function FeedList() {
                 key={feed.feedId}
                 className={styles["feed-item"]}
                 onClick={() => handleFeedClick(feed.feedId)}
-                onTouchStart={handleTouchStart} // longPress
-                onTouchEnd={handleTouchEnd} // longPress
+                onTouchStart={handlePressStart} // 모바일 longPress
+                onTouchEnd={handlePressEnd} // 모바일 longPress
+                onTouchCancel={handlePressEnd} // 모바일 longPress
+                onMouseDown={handlePressStart} // 웹 longPress
+                onMouseUp={handlePressEnd} // 웹 longPress
+                onMouseLeave={handlePressEnd} // 웹 longPress
               >
                 <Image
                   src={"/dummy-feed-thumbnail.png"}
