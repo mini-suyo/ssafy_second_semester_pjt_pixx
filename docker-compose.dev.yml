@@ -13,6 +13,7 @@ services:
     environment:
     - NODE_ENV=production
     - PORT=${NEXTJS_DEV_CONTAINER_PORT}
+    - HOSTNAME=0.0.0.0
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3001"]
       interval: 30s # 검사 간 간격
