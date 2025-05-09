@@ -22,7 +22,7 @@ export interface AlbumDetail {
 }
 
 export interface AlbumResponse {
-  status: string;
+  status: number;
   message: string;
   data: {
     albumList: Album[];
@@ -30,7 +30,26 @@ export interface AlbumResponse {
 }
 
 export interface AlbumDetailResponse {
-  status: string;
+  status: number;
   message: string;
   data: AlbumDetail;
+}
+
+export interface AlbumParams {
+  type: number;
+  page: number;
+  size: number;
+}
+
+export interface FeedThumbnailItemProps {
+  feedId: number;
+  imageUrl: string;
+  isLoaded: boolean;
+  isError: boolean;
+  onClick: () => void;
+  onLoad: () => void;
+  onError: () => void;
+  onRetry: (e: React.MouseEvent) => void;
+  isSelected: boolean;
+  mode: "default" | "select";
 }
