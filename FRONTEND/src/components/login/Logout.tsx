@@ -2,13 +2,37 @@
 
 import { useRouter } from "next/navigation";
 import styles from "./logout.module.css";
+import api from "@/app/lib/api/axios";
+import Cookies from "js-cookie";
 
 export default function Logout() {
   const router = useRouter();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    router.push("/welcome");
+  const handleLogout = async () => {
+    try {
+      const response = await api.post(
+        "/api/v1/auth/logout",
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
+
+      if (response.data.status === 200) {
+        // 쿠키 삭제를 더 깔끔하게 처리
+        Cookies.remove("accessToken", { path: "/" });
+        Cookies.remove("refreshToken", { path: "/" });
+        router.push("/welcome");
+      } else {
+        throw new Error(response.data.message || "로그아웃 실패");
+      }
+    } catch (error) {
+      console.error("로그아웃 요청 실패:", error);
+      alert("로그아웃 처리 중 오류가 발생했습니다.");
+    }
   };
 
   return (
