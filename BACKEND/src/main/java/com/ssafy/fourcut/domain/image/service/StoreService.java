@@ -28,6 +28,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -84,7 +86,7 @@ public class StoreService {
     }
 
     /*
-     * 받은 URL을 크롤링하여 파일들을 다운로드한다.
+     * 받은 URL을 크롤링하여 파일들을 다운로드하여 S3에 저장한다.
      */
     @Transactional
     public void CrawlUploadAndSave(QRUploadRequestDto request) {
@@ -102,6 +104,9 @@ public class StoreService {
             } else if (request.getPageUrl().contains("seobuk.kr")) {
                 updateBrand(feed, 4, "포토이즘 크롤링");
                 crawlPhotoism(request);
+            } else if (request.getPageUrl().contains("life4cut.net")) {
+                updateBrand(feed, 5, "인생네컷 크롤링");
+                crawlLife4cut(request);
             } else {
                 throw new IllegalArgumentException("지원하지 않는 브랜드입니다.");
             }
@@ -177,6 +182,41 @@ public class StoreService {
         // 5. S3 업로드 및 DB 저장
         QRuploadAndSave(request.getUserId(), imagePath, feed);
         QRuploadAndSave(request.getUserId(), videoPath, feed);
+    }
+
+    // 인생네컷 크롤링
+    private void crawlLife4cut(QRUploadRequestDto request) throws Exception {
+        Feed feed = feedRepository.findById(request.getFeedId())
+                .orElseThrow(() -> new IllegalArgumentException("Feed를 찾을 수 없습니다."));
+
+        // 1. folderPath 파라미터 추출
+        String folderPath = extractQueryParam(request.getPageUrl(), "folderPath");  // "/QRimage/20250508/770/UUID"
+
+        // 2. 경로에서 각 구성 요소 추출
+        String[] parts = folderPath.split("/");
+        if (parts.length < 5) {
+            throw new IllegalArgumentException("folderPath 형식이 올바르지 않습니다.");
+        }
+
+        String folder = parts[2];
+        String boothId = parts[3];
+        String uuid = parts[4];
+
+        // 3. 파일 URL 구성
+        String basePath = "https://release-renewal-s3.s3.ap-northeast-2.amazonaws.com/QRimage";
+        String imageUrl = String.format("%s/%s/%s/%s/image.jpg", basePath, folder, boothId, uuid);
+        String videoUrl = String.format("%s/%s/%s/%s/video.mp4", basePath, folder, boothId, uuid);
+
+        // 4. 인코딩해서 life4cut 프록시로 요청
+        String imageDownloadUrl = "https://download.life4cut.net/api/download?url=" + URLEncoder.encode(imageUrl, "UTF-8");
+        String videoDownloadUrl = "https://download.life4cut.net/api/download?url=" + URLEncoder.encode(videoUrl, "UTF-8");
+
+        log.info("인생네컷 이미지: " + imageDownloadUrl);
+        log.info("인생네컷 비디오: " + videoDownloadUrl);
+
+        // 5. 다운로드 후 업로드
+        QRuploadAndSave(request.getUserId(), imageDownloadUrl, feed);
+        QRuploadAndSave(request.getUserId(), videoDownloadUrl, feed);
     }
 
     private String extractUidFromUrl(String url) {
@@ -267,7 +307,25 @@ public class StoreService {
         }
     }
 
-    public void uploadMediaFile(FileUploadRequestDto request, List<MultipartFile> files) {
+    // 인생네컷 관련
+    private String extractQueryParam(String url, String key) throws Exception {
+        String[] queryParts = url.split("\\?");
+        if (queryParts.length < 2) return null;
+
+        String[] params = queryParts[1].split("&");
+        for (String param : params) {
+            String[] pair = param.split("=");
+            if (pair.length == 2 && pair[0].equals(key)) {
+                return URLDecoder.decode(pair[1], "UTF-8");
+            }
+        }
+        return null;
+    }
+
+    /*
+     * 받은 파일들을 S3에 저장한다.
+     */
+    public void uploadFile(FileUploadRequestDto request, List<MultipartFile> files) {
         int userId = request.getUserId();
 
         // Feed 엔티티 조회 또는 생성 필요
