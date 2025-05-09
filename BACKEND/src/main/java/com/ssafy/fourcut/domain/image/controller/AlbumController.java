@@ -59,10 +59,10 @@ public class AlbumController {
     }
 
     /**
-     * DELETE /api/v1/album
+     * POST /api/v1/album/delete
      * body: { "albumId": 1 }
      */
-    @DeleteMapping
+    @PostMapping("/delete")
     public ResponseEntity<ApiResponse<Void>> deleteAlbum(
             Principal principal,
             @RequestBody DeleteAlbumRequest req
@@ -98,10 +98,10 @@ public class AlbumController {
 
 
     /**
-     * DELETE /api/v1/album/photo
+     * POST /api/v1/album/photo/delete
      * body: { "albumId":1, "imageList":[1,3,4] }
      */
-    @DeleteMapping("/photo")
+    @PostMapping("/photo/delete")
     public ResponseEntity<ApiResponse<Void>> deletePhotos(
             Principal principal,
             @RequestBody DeletePhotoRequest req
