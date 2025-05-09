@@ -7,7 +7,6 @@ FROM node:22-alpine AS base
 FROM base AS deps
 # (필요한 추가 패키지 설치 - 알파인용. git은 빌드시 필요할 수도 있음)
 RUN apk add --no-cache libc6-compat git
-RUN apk --no-cache add curl
 
 
 
@@ -31,6 +30,7 @@ FROM base AS builder
 # 작업 디렉토리
 WORKDIR /app
 
+
 # deps 단계에서 설치한 node_modules 복사
 COPY --from=deps /app/node_modules ./node_modules
 # 소스코드 전체 복사
@@ -49,6 +49,10 @@ FROM base AS runner
 
 # 작업 디렉토리
 WORKDIR /app
+
+# curl 설치
+USER root
+RUN apk add --no-cache curl
 
 # 보안을 위해 non-root user와 그룹 생성
 RUN addgroup nodejs
