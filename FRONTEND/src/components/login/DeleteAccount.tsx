@@ -10,16 +10,12 @@ export default function DeleteAccount() {
   const handleDeleteAccount = async () => {
     if (window.confirm("정말로 회원탈퇴 하시겠습니까?")) {
       try {
-        const response = await api.post(
-          "/api/v1/auth/withdraw",
-          {},
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-          }
-        );
+        const response = await api.delete("/api/v1/auth/withdraw", {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        });
 
         if (response.data.status === 200) {
           router.push("/welcome");
