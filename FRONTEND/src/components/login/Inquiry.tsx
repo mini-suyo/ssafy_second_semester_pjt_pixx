@@ -1,14 +1,14 @@
 "use client";
 
+import styles from "./inquiry.module.css";
+
 export default function Inquiry() {
+  const handleInquiry = () => {
+    window.open("https://forms.gle/t2ZB2NkXGcTBGd7u8", "_blank", "noopener,noreferrer");
+  };
+
   return (
-    <button
-      className="w-full py-2 px-4 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition-colors"
-      onClick={() => {
-        // 1:1 문의 처리 로직
-        console.log("1:1 문의 클릭");
-      }}
-    >
+    <button className={styles.inquiryButton} onClick={handleInquiry}>
       1:1 문의
     </button>
   );
