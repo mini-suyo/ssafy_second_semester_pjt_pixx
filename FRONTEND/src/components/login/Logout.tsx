@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import styles from "./logout.module.css";
 import api from "@/app/lib/api/axios";
+import Cookies from "js-cookie";
 
 export default function Logout() {
   const router = useRouter();
@@ -21,6 +22,9 @@ export default function Logout() {
       );
 
       if (response.data.status === 200) {
+        // 쿠키 삭제를 더 깔끔하게 처리
+        Cookies.remove("accessToken", { path: "/" });
+        Cookies.remove("refreshToken", { path: "/" });
         router.push("/welcome");
       } else {
         throw new Error(response.data.message || "로그아웃 실패");

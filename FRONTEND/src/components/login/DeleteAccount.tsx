@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import styles from "./delete-account.module.css";
 import api from "@/app/lib/api/axios";
+import Cookies from "js-cookie";
 
 export default function DeleteAccount() {
   const router = useRouter();
@@ -18,6 +19,9 @@ export default function DeleteAccount() {
         });
 
         if (response.data.status === 200) {
+          // js-cookie를 사용하여 쿠키 삭제
+          Cookies.remove("accessToken", { path: "/" });
+          Cookies.remove("refreshToken", { path: "/" });
           router.push("/welcome");
         } else {
           throw new Error(response.data.message || "회원탈퇴 실패");
