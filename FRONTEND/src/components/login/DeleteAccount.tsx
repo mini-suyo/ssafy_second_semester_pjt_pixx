@@ -2,15 +2,35 @@
 
 import { useRouter } from "next/navigation";
 import styles from "./delete-account.module.css";
+import api from "@/app/lib/api/axios";
+import Cookies from "js-cookie";
 
 export default function DeleteAccount() {
   const router = useRouter();
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     if (window.confirm("정말로 회원탈퇴 하시겠습니까?")) {
-      console.log("회원탈퇴 처리");
-      localStorage.removeItem("token");
-      router.push("/welcome");
+      try {
+        const response = await api.delete("/api/v1/auth/withdraw", {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        });
+
+        if (response.data.status === 200) {
+          // js-cookie를 사용하여 쿠키 삭제
+          Cookies.remove("accessToken", { path: "/" });
+          Cookies.remove("refreshToken", { path: "/" });
+          router.push("/welcome");
+        } else {
+          throw new Error(response.data.message || "회원탈퇴 실패");
+        }
+      } catch (error: any) {
+        console.error("회원탈퇴 요청 실패:", error);
+        const errorMessage = error.response?.data?.message || "회원탈퇴 처리 중 오류가 발생했습니다.";
+        alert(errorMessage);
+      }
     }
   };
 

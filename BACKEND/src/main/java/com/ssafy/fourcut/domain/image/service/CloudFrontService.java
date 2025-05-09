@@ -4,14 +4,14 @@ import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
 import com.amazonaws.services.cloudfront.util.SignerUtils;
 import com.ssafy.fourcut.domain.image.controller.StoreController;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.Date;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CloudFrontService {
@@ -25,17 +25,19 @@ public class CloudFrontService {
     @Value("${cloudfront.privateKeyPath}")
     private String privateKeyPath;
 
-    private static final Logger log = LoggerFactory.getLogger(CloudFrontService.class);
-
-    public String generateSignedCloudFrontUrl(String s3Key) {
+    public String generateSignedCloudFrontUrl(String s3Key, String usage) {
         try {
             log.info("S3_Key : " + s3Key);
             log.info("cloudFrontDomain : " + cloudFrontDomain);
             log.info("keyPairId : " + keyPairId);
             log.info("privateKeyPath : " + privateKeyPath);
 
-//            Date expiration = new Date(System.currentTimeMillis() + (1000 * 60 * 20)); // 20분
-            Date expiration = new Date(System.currentTimeMillis() + (1000L * 60 * 60 * 24 * 7 * 7)); // 7주일
+            long time = 1000L * 60 * 5; // 5분
+            if(usage.equals("get")) {
+                time = (1000 * 60 * 30); // 30분
+            }
+
+            Date expiration = new Date(System.currentTimeMillis() + time);
 //            File privateKey = new ClassPathResource(privateKeyPath).getFile(); // 로컬 실험용
             File privateKey = new File(privateKeyPath); // 서버용
 
