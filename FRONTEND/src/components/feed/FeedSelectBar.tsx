@@ -1,16 +1,16 @@
-// components/album/AlbumFeedSelectBar.tsx
+// components/feed/FeedSelectBar.tsx
 
 "use client";
 
 import Image from "next/image";
-import styles from "./album-feed-select-bar.module.css";
+import styles from "./feed-select-bar.module.css";
 
 type SelectModeBarProps = {
   onCancel: () => void;
   onDelete: () => void;
 };
 
-export default function AlbumFeedSelectBar({ onCancel, onDelete }: SelectModeBarProps) {
+export default function FeedSelectBar({ onCancel, onDelete }: SelectModeBarProps) {
   return (
     <div className={styles.selectModeBar}>
       <button onClick={onCancel}>

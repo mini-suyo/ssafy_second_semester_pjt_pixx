@@ -5,11 +5,12 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getFeeds } from "@/app/lib/api/feedApi";
+import { deleteFeed, getFeeds } from "@/app/lib/api/feedApi";
 import styles from "./feed-list.module.css";
 import Image from "next/image";
 import { Feed } from "@/app/types/feed";
 import FloatingButton from "../common/FloatingButton";
+import FeedSelectBar from "./FeedSelectBar";
 
 export default function FeedList() {
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function FeedList() {
   const MAX_RETRY_ATTEMPTS = 3;
 
   // 리액트쿼리 API + 무한스크롤
-  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
     queryKey: ["feeds"],
     queryFn: ({ pageParam = 0 }) => getFeeds({ type: 0, page: pageParam, size: 20 }),
     getNextPageParam: (lastPage, allPages) => {
@@ -131,6 +132,28 @@ export default function FeedList() {
     }
   };
 
+  // 이미지 삭제
+  const handleDeletePhotos = async () => {
+    if (selectedFeedIds.length === 0) {
+      alert("삭제할 사진을 선택해주세요.");
+      return;
+    }
+
+    try {
+      await deleteFeed({
+        imageList: selectedFeedIds,
+      });
+
+      alert("피드 사진 삭제 완료");
+      setMode("default");
+      setSelectedFeedIds([]);
+      refetch(); // 새로운 데이터 불러와서 UI 갱신
+    } catch (error) {
+      alert("삭제 실패");
+      console.error(error);
+    }
+  };
+
   return (
     <div className={styles.wrapper}>
       <div className={styles["feed-grid-wrapper"]}>
@@ -182,10 +205,21 @@ export default function FeedList() {
                         selectedFeedIds.includes(feed.feedId) ? "/icons/icon-checked.png" : "/icons/icon-unchecked.png"
                       }
                       alt="선택 여부"
-                      width={20}
-                      height={20}
+                      width={32}
+                      height={32}
                     />
                   </div>
+                )}
+
+                {/* 선택용 Navbar 렌더링 (선택 모드일 때만 노출) */}
+                {mode === "select" && (
+                  <FeedSelectBar
+                    onCancel={() => {
+                      setMode("default");
+                      setSelectedFeedIds([]);
+                    }}
+                    onDelete={handleDeletePhotos}
+                  />
                 )}
               </div>
             ))
