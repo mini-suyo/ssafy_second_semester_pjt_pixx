@@ -6,11 +6,13 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteFeed, getFeeds } from "@/app/lib/api/feedApi";
+import { createAlbum } from "@/app/lib/api/albumApi";
 import styles from "./feed-list.module.css";
 import Image from "next/image";
 import { Feed } from "@/app/types/feed";
 import FloatingButton from "../common/FloatingButton";
 import FeedSelectBar from "./FeedSelectBar";
+import FeedAlbumCreateModal from "./FeedAlbumCreateModal";
 
 export default function FeedList() {
   const router = useRouter();
@@ -19,6 +21,11 @@ export default function FeedList() {
   const [mode, setMode] = useState<"default" | "select">("default"); // 앨범 생성 플로팅버튼 상태 관리
   const longPressTimer = useRef<NodeJS.Timeout | null>(null); // 썸네일 오래 누르는거 상태 관리
   const [selectedFeedIds, setSelectedFeedIds] = useState<number[]>([]); // 선택된 피드 관리
+
+  // 앨범 생성 모달
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [albumTitle, setAlbumTitle] = useState("");
+  const [albumMemo, setAlbumMemo] = useState("");
 
   // 피드 썸네일 로딩 및 에러 상태 관리
   const [imageLoaded, setImageLoaded] = useState<{ [key: number]: boolean }>({});
@@ -132,6 +139,31 @@ export default function FeedList() {
     }
   };
 
+  // 앨범 생성
+  const handleCreateAlbum = async () => {
+    if (albumTitle.trim() === "" || selectedFeedIds.length === 0) {
+      alert("앨범에 추가할 사진을 선택해주세요.");
+      return;
+    }
+    try {
+      const res = await createAlbum({
+        albumTitle: albumTitle.trim(),
+        albumMemo: albumMemo.trim(),
+        imageList: selectedFeedIds,
+      });
+
+      alert("앨범 생성되었습니다다");
+      setIsModalOpen(false);
+      setMode("default");
+      setSelectedFeedIds([]);
+      setAlbumTitle("");
+      setAlbumMemo("");
+      router.push(`/album/${res.data.albumId}`);
+    } catch (error) {
+      alert("오류가 발생하여 앨범 생성에 실패했습니다");
+      console.log(error);
+    }
+  };
   // 이미지 삭제
   const handleDeletePhotos = async () => {
     if (selectedFeedIds.length === 0) {
@@ -234,8 +266,21 @@ export default function FeedList() {
         }}
       />
 
+      {/* 앨범 생성 모달 */}
+      <FeedAlbumCreateModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        albumTitle={albumTitle}
+        setAlbumTitle={setAlbumTitle}
+        albumMemo={albumMemo}
+        setAlbumMemo={setAlbumMemo}
+        onSubmit={handleCreateAlbum}
+      />
+
       {/* 선택용 Navbar 렌더링 (선택 모드일 때만 노출) */}
-      {mode === "select" && <FeedSelectBar onAdd={() => {}} onCreate={() => {}} onDelete={handleDeletePhotos} />}
+      {mode === "select" && (
+        <FeedSelectBar onAdd={() => {}} onCreate={() => setIsModalOpen(true)} onDelete={handleDeletePhotos} />
+      )}
     </div>
   );
 }
