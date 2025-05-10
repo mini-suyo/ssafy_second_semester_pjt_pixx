@@ -220,5 +220,15 @@ public class FeedService {
         // 5) 변경 내용은 트랜잭션 커밋 시 자동 반영
         return new ToggleFavoriteResponse(feedId, updated);
     }
+
+    // src/main/java/com/ssafy/fourcut/domain/image/service/FeedService.java
+    @Transactional
+    public void deleteFeeds(Integer userId, List<Integer> feedIds) {
+        //피드들 조회
+        List<Feed> feeds = feedRepository.findAllById(feedIds);
+
+        //삭제
+        feedRepository.deleteAll(feeds);
+    }
 }
 
