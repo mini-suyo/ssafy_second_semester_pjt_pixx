@@ -210,17 +210,6 @@ export default function FeedList() {
                     />
                   </div>
                 )}
-
-                {/* 선택용 Navbar 렌더링 (선택 모드일 때만 노출) */}
-                {mode === "select" && (
-                  <FeedSelectBar
-                    onCancel={() => {
-                      setMode("default");
-                      setSelectedFeedIds([]);
-                    }}
-                    onDelete={handleDeletePhotos}
-                  />
-                )}
               </div>
             ))
           )}
@@ -244,6 +233,9 @@ export default function FeedList() {
           }
         }}
       />
+
+      {/* 선택용 Navbar 렌더링 (선택 모드일 때만 노출) */}
+      {mode === "select" && <FeedSelectBar onAdd={() => {}} onCreate={() => {}} onDelete={handleDeletePhotos} />}
     </div>
   );
 }
