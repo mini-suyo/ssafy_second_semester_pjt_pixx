@@ -5,11 +5,14 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getFeeds } from "@/app/lib/api/feedApi";
+import { deleteFeed, getFeeds } from "@/app/lib/api/feedApi";
+import { createAlbum } from "@/app/lib/api/albumApi";
 import styles from "./feed-list.module.css";
 import Image from "next/image";
 import { Feed } from "@/app/types/feed";
 import FloatingButton from "../common/FloatingButton";
+import FeedSelectBar from "./FeedSelectBar";
+import FeedAlbumCreateModal from "./FeedAlbumCreateModal";
 
 export default function FeedList() {
   const router = useRouter();
@@ -19,6 +22,10 @@ export default function FeedList() {
   const longPressTimer = useRef<NodeJS.Timeout | null>(null); // 썸네일 오래 누르는거 상태 관리
   const [selectedFeedIds, setSelectedFeedIds] = useState<number[]>([]); // 선택된 피드 관리
 
+  // 앨범 생성 모달
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [albumTitle, setAlbumTitle] = useState("");
+
   // 피드 썸네일 로딩 및 에러 상태 관리
   const [imageLoaded, setImageLoaded] = useState<{ [key: number]: boolean }>({});
   const [imageErrors, setImageErrors] = useState<{ [key: number]: boolean }>({});
@@ -26,7 +33,7 @@ export default function FeedList() {
   const MAX_RETRY_ATTEMPTS = 3;
 
   // 리액트쿼리 API + 무한스크롤
-  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
     queryKey: ["feeds"],
     queryFn: ({ pageParam = 0 }) => getFeeds({ type: 0, page: pageParam, size: 20 }),
     getNextPageParam: (lastPage, allPages) => {
@@ -131,6 +138,51 @@ export default function FeedList() {
     }
   };
 
+  // 앨범 생성
+  const handleCreateAlbum = async () => {
+    if (albumTitle.trim() === "" || selectedFeedIds.length === 0) {
+      alert("앨범에 추가할 사진을 선택해주세요.");
+      return;
+    }
+    try {
+      const res = await createAlbum({
+        albumTitle: albumTitle.trim(),
+        imageList: selectedFeedIds,
+      });
+
+      alert("앨범 생성되었습니다다");
+      setIsModalOpen(false);
+      setMode("default");
+      setSelectedFeedIds([]);
+      setAlbumTitle("");
+      router.push(`/album/${res.data.albumId}`);
+    } catch (error) {
+      alert("오류가 발생하여 앨범 생성에 실패했습니다");
+      console.log(error);
+    }
+  };
+  // 이미지 삭제
+  const handleDeletePhotos = async () => {
+    if (selectedFeedIds.length === 0) {
+      alert("삭제할 사진을 선택해주세요.");
+      return;
+    }
+
+    try {
+      await deleteFeed({
+        imageList: selectedFeedIds,
+      });
+
+      alert("피드 사진 삭제 완료");
+      setMode("default");
+      setSelectedFeedIds([]);
+      refetch(); // 새로운 데이터 불러와서 UI 갱신
+    } catch (error) {
+      alert("삭제 실패");
+      console.error(error);
+    }
+  };
+
   return (
     <div className={styles.wrapper}>
       <div className={styles["feed-grid-wrapper"]}>
@@ -182,8 +234,8 @@ export default function FeedList() {
                         selectedFeedIds.includes(feed.feedId) ? "/icons/icon-checked.png" : "/icons/icon-unchecked.png"
                       }
                       alt="선택 여부"
-                      width={20}
-                      height={20}
+                      width={32}
+                      height={32}
                     />
                   </div>
                 )}
@@ -210,6 +262,20 @@ export default function FeedList() {
           }
         }}
       />
+
+      {/* 앨범 생성 모달 */}
+      <FeedAlbumCreateModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        albumTitle={albumTitle}
+        setAlbumTitle={setAlbumTitle}
+        onSubmit={handleCreateAlbum}
+      />
+
+      {/* 선택용 Navbar 렌더링 (선택 모드일 때만 노출) */}
+      {mode === "select" && (
+        <FeedSelectBar onAdd={() => {}} onCreate={() => setIsModalOpen(true)} onDelete={handleDeletePhotos} />
+      )}
     </div>
   );
 }

@@ -21,3 +21,9 @@ export interface FeedDetailResponse {
   feedDate: string;
   feedFavorite: boolean;
 }
+
+export interface DeleteFeedResponse {
+  status: string;
+  message: string;
+  data: {};
+}
