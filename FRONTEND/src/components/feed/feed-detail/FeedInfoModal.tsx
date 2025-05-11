@@ -17,9 +17,8 @@ type FeedInfoModalProps = {
 };
 
 export default function FeedInfoModal({ isOpen, onClose, feedDetail, feedId }: FeedInfoModalProps) {
-  if (!isOpen) return null;
-
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  if (!isOpen) return null;
 
   return (
     <>
