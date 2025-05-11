@@ -27,3 +27,13 @@ export interface DeleteFeedResponse {
   message: string;
   data: {};
 }
+
+export interface FeedDetailUpdate {
+  feedId: number;
+  feedTitle: string;
+  feedDate: string;
+  location: string;
+  brandName: string;
+  feedMemo: string;
+  hashtags: string;
+}
