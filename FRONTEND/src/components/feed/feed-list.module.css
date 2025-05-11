@@ -11,7 +11,7 @@
   max-width: 372px; /* 최대 크기 제한 */
   width: calc(100% - 40px);
   height: 100%;
-  margin: 60px auto 150px; /* 상 / 좌우 / 하 */
+  margin: 10px auto 150px; /* 상 / 좌우 / 하 */
   box-sizing: border-box;
   padding-bottom: 100px; /* 네비게이션 바 공간 확보 */
 }
@@ -94,6 +94,16 @@
   color: white;
   font-size: 14px;
   text-align: center;
+}
+
+/* 정렬 */
+.selectWrapper {
+  width: 100%;
+  max-width: 412px;
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 10%;
+  margin-top: 5%;
 }
 
 .imageError p {
