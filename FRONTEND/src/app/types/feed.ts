@@ -25,7 +25,7 @@ export interface FeedDetailResponse {
 export interface DeleteFeedResponse {
   status: string;
   message: string;
-  data: {};
+  data: Record<string, never>;
 }
 
 export interface FeedDetailUpdate {

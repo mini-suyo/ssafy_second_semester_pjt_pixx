@@ -26,3 +26,11 @@ export async function updateFeed(feedId: number, data: FeedDetailUpdate) {
   const response = await axiosInstance.put(`/api/v1/feed/${feedId}`, data);
   return response.data;
 }
+
+// 사진 다운로드 API
+export const downloadImageFile = async (imageId: number) => {
+  const response = await axiosInstance.get(`/api/v1/photos/download/${imageId}`);
+  const fileUrl = response.data.signedUrl;
+  if (!fileUrl) throw new Error("signedUrl이 응답에 없습니다.");
+  return fileUrl;
+};

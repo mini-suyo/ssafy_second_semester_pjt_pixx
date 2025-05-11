@@ -21,14 +21,15 @@ export default function FeedInfoEditModal({
   onSuccess: () => void;
   feedId: number;
 }) {
-  if (!isOpen || !feedDetail) return null;
-
   const [title, setTitle] = useState(feedDetail.feedTitle || "");
   const [date, setDate] = useState(dayjs(feedDetail.feedDate).format("YYYY.MM.DD"));
   const [location, setLocation] = useState(feedDetail.feedLocation || "");
   const [brand, setBrand] = useState(feedDetail.brandName || "");
   const [memo, setMemo] = useState(feedDetail.feedMemo || "");
   const [hashtags, setHashtags] = useState(feedDetail.feedHashtags?.map((tag: string) => `#${tag}`).join(" ") || "");
+
+  if (!isOpen || !feedDetail) return null;
+
   const handleSubmit = async () => {
     try {
       const formattedDate = dayjs(date, "YYYY.MM.DD").format("YYYY-MM-DDTHH:mm:ss");

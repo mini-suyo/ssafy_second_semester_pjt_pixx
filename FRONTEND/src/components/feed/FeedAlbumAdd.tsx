@@ -20,7 +20,7 @@ export default function FeedAlbumAdd({ isOpen, onClose, onSelect }: FeedAlbumAdd
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ["albums"],
     queryFn: async ({ pageParam = 0 }) => await getAlbums({ type: 0, page: pageParam, size: 20 }),
     getNextPageParam: (lastPage, allPages) => {

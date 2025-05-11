@@ -7,7 +7,7 @@ export default async function Page({ params }: { params: Promise<{ feedId: strin
   const { feedId } = await params;
   return (
     <main>
-      <FeedDetail feedId={feedId} />
+      <FeedDetail feedId={Number(feedId)} />
     </main>
   );
 }
