@@ -1,4 +1,4 @@
-// components/album/SelectModeBar.tsx
+// components/album/AlbumFeedSelectBar.tsx
 
 "use client";
 
