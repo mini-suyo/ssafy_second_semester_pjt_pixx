@@ -73,6 +73,11 @@ export default function FeedDetail({ feedId }: FeedDetailProps) {
     alert("Comming soon");
   };
 
+  const handleFavorite = () => {
+    setIsFavorite(!isFavorite);
+    alert("Comming soon");
+  };
+
   if (isLoading) return <div>로딩 중...</div>;
   if (isError || !data) return <div>피드를 불러오는데 실패했습니다.</div>;
 
@@ -87,7 +92,7 @@ export default function FeedDetail({ feedId }: FeedDetailProps) {
             <Image src="/icons/icon-info.png" alt="상세정보" width={26} height={26} />
           </button>
           {/* <button onClick={() => setIsFavorite(!isFavorite)} > */}
-          <button onClick={handleUnfinished}>
+          <button onClick={handleFavorite}>
             <Image
               src={isFavorite ? "/icons/icon-like.png" : "/icons/icon-unlike-white.png"}
               alt="즐겨찾기"
