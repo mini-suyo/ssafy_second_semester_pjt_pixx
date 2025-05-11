@@ -22,6 +22,12 @@ export async function createAlbum(data: { albumTitle: string; imageList: number[
   return await axiosInstance.post("/api/v1/album", data);
 }
 
+// 피드에서 앨범에 사진 추가
+export async function addPhotosToAlbum(data: { albumId: number; imageList: number[] }) {
+  const res = await axiosInstance.post("/api/v1/album/photo", data);
+  return res.data;
+}
+
 // 앨범 피드 삭제
 export async function deleteAlbumPhotos(payload: {
   albumId: number;
