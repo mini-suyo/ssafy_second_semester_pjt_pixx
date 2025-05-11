@@ -12,7 +12,7 @@ import Image from "next/image";
 import styles from "./feed-detail.module.css";
 
 type FeedDetailProps = {
-  feedId: string;
+  feedId: number;
 };
 
 export default function FeedDetail({ feedId }: FeedDetailProps) {
@@ -118,7 +118,12 @@ export default function FeedDetail({ feedId }: FeedDetailProps) {
       </div>
 
       {/* FeedInfoModal 연결 */}
-      <FeedInfoModal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)} feedDetail={data} />
+      <FeedInfoModal
+        isOpen={isInfoModalOpen}
+        onClose={() => setIsInfoModalOpen(false)}
+        feedDetail={data}
+        feedId={feedId}
+      />
     </div>
   );
 }
