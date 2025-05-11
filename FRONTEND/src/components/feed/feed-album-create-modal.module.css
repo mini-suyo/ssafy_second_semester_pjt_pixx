@@ -1,24 +1,25 @@
 .overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  position: fixed; /* 부모(.app-container) 기준 위치 */
+  inset: 0; /* top, right, bottom, left 모두 0 */
+  min-height: 100%; /* 앱 영역 전체 커버 */
   background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10000;
+  padding: 1rem; /* 양쪽 여백 확보 (모달이 화면 넘지 않게) */
+  box-sizing: border-box;
 }
 
 .modal {
   background: #fffaf8;
   color: #000;
-  padding: 2rem;
+  padding: 2rem 1.5rem;
   border-radius: 1rem;
-  width: 90%;
-  max-width: 400px;
+  width: 100%;
+  max-width: 320px; /* 모바일 환경에서도 안정적인 너비 */
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
 }
 
 .title {
