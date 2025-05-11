@@ -6,13 +6,14 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteFeed, getFeeds } from "@/app/lib/api/feedApi";
-import { createAlbum } from "@/app/lib/api/albumApi";
+import { addPhotosToAlbum, createAlbum } from "@/app/lib/api/albumApi";
 import styles from "./feed-list.module.css";
 import Image from "next/image";
 import { Feed } from "@/app/types/feed";
 import FloatingButton from "../common/FloatingButton";
 import FeedSelectBar from "./FeedSelectBar";
 import FeedAlbumCreateModal from "./FeedAlbumCreateModal";
+import FeedAlbumAdd from "./FeedAlbumAdd";
 
 export default function FeedList() {
   const router = useRouter();
@@ -25,6 +26,9 @@ export default function FeedList() {
   // 앨범 생성 모달
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [albumTitle, setAlbumTitle] = useState("");
+
+  // 앨범에 사진 추가
+  const [isAlbumModalOpen, setIsAlbumModalOpen] = useState(false);
 
   // 피드 썸네일 로딩 및 에러 상태 관리
   const [imageLoaded, setImageLoaded] = useState<{ [key: number]: boolean }>({});
@@ -161,6 +165,28 @@ export default function FeedList() {
       console.log(error);
     }
   };
+
+  // 앨범에 피드 추가
+  const handleAddToAlbum = () => {
+    if (selectedFeedIds.length === 0) {
+      alert("추가할 사진을 먼저 선택해주세요.");
+      return;
+    }
+    setIsAlbumModalOpen(true);
+  };
+
+  const handleAlbumSelect = async (albumId: number) => {
+    try {
+      await addPhotosToAlbum({ albumId, imageList: selectedFeedIds });
+      alert("앨범에 사진이 추가되었습니다.");
+      setIsAlbumModalOpen(false);
+      setMode("default");
+      setSelectedFeedIds([]);
+    } catch (error) {
+      alert("사진 추가에 실패했습니다.");
+      console.error(error);
+    }
+  };
   // 이미지 삭제
   const handleDeletePhotos = async () => {
     if (selectedFeedIds.length === 0) {
@@ -272,9 +298,12 @@ export default function FeedList() {
         onSubmit={handleCreateAlbum}
       />
 
+      {/* 앨범에 피드 추가 */}
+      <FeedAlbumAdd isOpen={isAlbumModalOpen} onClose={() => setIsAlbumModalOpen(false)} onSelect={handleAlbumSelect} />
+
       {/* 선택용 Navbar 렌더링 (선택 모드일 때만 노출) */}
       {mode === "select" && (
-        <FeedSelectBar onAdd={() => {}} onCreate={() => setIsModalOpen(true)} onDelete={handleDeletePhotos} />
+        <FeedSelectBar onAdd={handleAddToAlbum} onCreate={() => setIsModalOpen(true)} onDelete={handleDeletePhotos} />
       )}
     </div>
   );
