@@ -25,7 +25,6 @@ export default function FeedList() {
   // 앨범 생성 모달
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [albumTitle, setAlbumTitle] = useState("");
-  const [albumMemo, setAlbumMemo] = useState("");
 
   // 피드 썸네일 로딩 및 에러 상태 관리
   const [imageLoaded, setImageLoaded] = useState<{ [key: number]: boolean }>({});
@@ -148,7 +147,6 @@ export default function FeedList() {
     try {
       const res = await createAlbum({
         albumTitle: albumTitle.trim(),
-        albumMemo: albumMemo.trim(),
         imageList: selectedFeedIds,
       });
 
@@ -157,7 +155,6 @@ export default function FeedList() {
       setMode("default");
       setSelectedFeedIds([]);
       setAlbumTitle("");
-      setAlbumMemo("");
       router.push(`/album/${res.data.albumId}`);
     } catch (error) {
       alert("오류가 발생하여 앨범 생성에 실패했습니다");
@@ -272,8 +269,6 @@ export default function FeedList() {
         onClose={() => setIsModalOpen(false)}
         albumTitle={albumTitle}
         setAlbumTitle={setAlbumTitle}
-        albumMemo={albumMemo}
-        setAlbumMemo={setAlbumMemo}
         onSubmit={handleCreateAlbum}
       />
 
