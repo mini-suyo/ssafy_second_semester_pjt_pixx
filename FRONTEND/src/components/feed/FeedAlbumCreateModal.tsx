@@ -7,8 +7,6 @@ type AlbumCreateProps = {
   onClose: () => void;
   albumTitle: string;
   setAlbumTitle: (title: string) => void;
-  albumMemo: string;
-  setAlbumMemo: (memo: string) => void;
   onSubmit: () => void;
 };
 
@@ -17,8 +15,6 @@ export default function FeedAlbumCreateModal({
   onClose,
   albumTitle,
   setAlbumTitle,
-  albumMemo,
-  setAlbumMemo,
   onSubmit,
 }: AlbumCreateProps) {
   if (!isOpen) return null;
@@ -34,13 +30,6 @@ export default function FeedAlbumCreateModal({
           placeholder="앨범 제목을 입력하세요"
           value={albumTitle}
           onChange={(e) => setAlbumTitle(e.target.value)}
-        />
-
-        <textarea
-          className={styles.textarea}
-          placeholder="앨범 메모를 입력하세요"
-          value={albumMemo}
-          onChange={(e) => setAlbumMemo(e.target.value)}
         />
 
         <div className={styles.buttonRow}>

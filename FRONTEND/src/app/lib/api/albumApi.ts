@@ -18,7 +18,7 @@ export async function getAlbumDetail(albumId: number, params: AlbumParams): Prom
 }
 
 // 피드에서 앨범 생성
-export async function createAlbum(data: { albumTitle: string; albumMemo: string; imageList: number[] }) {
+export async function createAlbum(data: { albumTitle: string; imageList: number[] }) {
   return await axiosInstance.post("/api/v1/album", data);
 }
 
