@@ -2,8 +2,13 @@
   display: flex;
   flex-direction: column;
   padding: 1rem;
-  height: auto;
+  height: calc(100% - 10rem); /* navbar 높이 5rem을 제외 */
   justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: calc(50% - 2.5rem); /* navbar 높이의 절반만큼 위로 조정 */
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .buttonContainer {

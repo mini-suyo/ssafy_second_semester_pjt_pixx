@@ -35,16 +35,10 @@ body {
   padding-right: env(safe-area-inset-right); /* iOS 대응 */
 }
 
-.app-container > div:nth-child(3) {
-  flex: 1;
-  min-height: calc(100vh - var(--navbar-height));
-  padding-bottom: var(--navbar-height);
-}
-
 .main-content {
   flex: 1;
-  min-height: calc(100vh - var(--navbar-height));
-  padding-bottom: var(--navbar-height);
+  min-height: calc(100% - 7rem);
+  overflow-y: auto;
 }
 
 /* 폰트 설정 */
