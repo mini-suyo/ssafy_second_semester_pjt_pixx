@@ -16,7 +16,7 @@ export default function FloatingButton({ mode, onClick }: FloatingButtonProps) {
       className={`${styles.floatingButton} ${mode === "default" ? styles.floatingButtonDefault : styles.floatingButtonSelect}`}
       onClick={onClick}
     >
-      {mode === "default" ? "Create" : "Cancel"}
+      {mode === "default" ? "Edit" : "Cancel"}
     </button>
   );
 }
