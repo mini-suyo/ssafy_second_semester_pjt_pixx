@@ -1,12 +1,12 @@
 package com.ssafy.fourcut.domain.image.entity;
 
+import com.ssafy.fourcut.domain.faceDetection.entity.FaceVector;
 import com.ssafy.fourcut.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CurrentTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -34,10 +34,6 @@ public class Feed {
     @JoinColumn(name = "album_id", nullable = false)
     private Album album;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "face_id", nullable = true)
-    private FaceVector faceVector;
-
     @Column(name = "feed_title", length = 100)
     private String feedTitle;
 
@@ -62,4 +58,6 @@ public class Feed {
 
     @OneToMany(mappedBy = "feed", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Image> images;
+
+
 }
