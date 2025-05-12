@@ -3,6 +3,7 @@ package com.ssafy.fourcut.domain.image.controller;
 import com.ssafy.fourcut.domain.image.entity.Image;
 import com.ssafy.fourcut.domain.image.repository.StoreRepository;
 import com.ssafy.fourcut.domain.image.service.CloudFrontService;
+import com.ssafy.fourcut.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -25,7 +26,7 @@ public class FileDownloadController {
         log.info("/api/v1/photos/download/" + imageId);
 
         Image image = storeRepository.findById(imageId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 imageId가 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(404, "해당 이미지(" + imageId + ")를 찾을 수 없습니다."));
 
         String s3Key = image.getImageUrl();
         String signedUrl = cloudFrontService.generateSignedCloudFrontUrl(s3Key, "download");
@@ -54,7 +55,7 @@ public class FileDownloadController {
             return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
         } catch (Exception e) {
             log.error("파일 다운로드 실패", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            throw new CustomException(500, "파일 다운로드 중 오류가 발생했습니다.");
         }
     }
 }

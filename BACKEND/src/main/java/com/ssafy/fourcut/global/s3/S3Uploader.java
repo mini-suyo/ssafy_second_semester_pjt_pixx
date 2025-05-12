@@ -2,6 +2,7 @@ package com.ssafy.fourcut.global.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.ssafy.fourcut.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +28,7 @@ public class S3Uploader {
             amazonS3.putObject(bucketName, s3Key, inputStream, metadata);
             return s3Key;
         } catch (Exception e) {
-            throw new RuntimeException("S3 파일 업로드 실패", e);
+            throw new CustomException(500, "S3 파일 업로드 실패");
         }
     }
 
