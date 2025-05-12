@@ -6,13 +6,15 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteFeed, getFeeds } from "@/app/lib/api/feedApi";
-import { createAlbum } from "@/app/lib/api/albumApi";
+import { addPhotosToAlbum, createAlbum } from "@/app/lib/api/albumApi";
 import styles from "./feed-list.module.css";
 import Image from "next/image";
 import { Feed } from "@/app/types/feed";
 import FloatingButton from "../common/FloatingButton";
 import FeedSelectBar from "./FeedSelectBar";
 import FeedAlbumCreateModal from "./FeedAlbumCreateModal";
+import FeedAlbumAdd from "./FeedAlbumAdd";
+import SortDropdown from "../common/SortDropdown";
 
 export default function FeedList() {
   const router = useRouter();
@@ -26,16 +28,23 @@ export default function FeedList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [albumTitle, setAlbumTitle] = useState("");
 
+  // 앨범에 사진 추가
+  const [isAlbumModalOpen, setIsAlbumModalOpen] = useState(false);
+
   // 피드 썸네일 로딩 및 에러 상태 관리
   const [imageLoaded, setImageLoaded] = useState<{ [key: number]: boolean }>({});
   const [imageErrors, setImageErrors] = useState<{ [key: number]: boolean }>({});
   const [retryCount, setRetryCount] = useState<{ [key: number]: number }>({});
   const MAX_RETRY_ATTEMPTS = 3;
 
+  // 정렬
+  const [sortType, setSortType] = useState<"recent" | "oldest">("recent");
+  const apiSortType = sortType === "recent" ? 0 : 1;
+
   // 리액트쿼리 API + 무한스크롤
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
-    queryKey: ["feeds"],
-    queryFn: ({ pageParam = 0 }) => getFeeds({ type: 0, page: pageParam, size: 20 }),
+    queryKey: ["feeds", sortType],
+    queryFn: ({ pageParam = 0 }) => getFeeds({ type: apiSortType, page: pageParam, size: 20 }),
     getNextPageParam: (lastPage, allPages) => {
       // lastPage.length가 20개보다 적으면 더 이상 가져올게 없다고 판단
       if (lastPage.length < 20) return undefined;
@@ -115,6 +124,11 @@ export default function FeedList() {
     }, 300); // 300ms 이상 누르면 선택 모드로
   };
 
+  // 정렬
+  const handleSortChange = (value: "recent" | "oldest") => {
+    setSortType(value);
+    refetch(); // 정렬 변경 시 데이터 다시 불러오기
+  };
   // longPress 타이머 취소
   const handlePressEnd = () => {
     if (longPressTimer.current) {
@@ -161,6 +175,28 @@ export default function FeedList() {
       console.log(error);
     }
   };
+
+  // 앨범에 피드 추가
+  const handleAddToAlbum = () => {
+    if (selectedFeedIds.length === 0) {
+      alert("추가할 사진을 먼저 선택해주세요.");
+      return;
+    }
+    setIsAlbumModalOpen(true);
+  };
+
+  const handleAlbumSelect = async (albumId: number) => {
+    try {
+      await addPhotosToAlbum({ albumId, imageList: selectedFeedIds });
+      alert("앨범에 사진이 추가되었습니다.");
+      setIsAlbumModalOpen(false);
+      setMode("default");
+      setSelectedFeedIds([]);
+    } catch (error) {
+      alert("사진 추가에 실패했습니다.");
+      console.error(error);
+    }
+  };
   // 이미지 삭제
   const handleDeletePhotos = async () => {
     if (selectedFeedIds.length === 0) {
@@ -185,6 +221,10 @@ export default function FeedList() {
 
   return (
     <div className={styles.wrapper}>
+      {/* 정렬 */}
+      <div className={styles.selectWrapper}>
+        <SortDropdown value={sortType} onChange={handleSortChange} />
+      </div>
       <div className={styles["feed-grid-wrapper"]}>
         <div className={styles["feed-grid"]}>
           {data?.pages.map((page, pageIndex) =>
@@ -272,9 +312,12 @@ export default function FeedList() {
         onSubmit={handleCreateAlbum}
       />
 
+      {/* 앨범에 피드 추가 */}
+      <FeedAlbumAdd isOpen={isAlbumModalOpen} onClose={() => setIsAlbumModalOpen(false)} onSelect={handleAlbumSelect} />
+
       {/* 선택용 Navbar 렌더링 (선택 모드일 때만 노출) */}
       {mode === "select" && (
-        <FeedSelectBar onAdd={() => {}} onCreate={() => setIsModalOpen(true)} onDelete={handleDeletePhotos} />
+        <FeedSelectBar onAdd={handleAddToAlbum} onCreate={() => setIsModalOpen(true)} onDelete={handleDeletePhotos} />
       )}
     </div>
   );

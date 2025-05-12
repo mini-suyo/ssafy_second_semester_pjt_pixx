@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { getFeedDetail } from "@/app/lib/api/feedApi";
+import { downloadImageFile, getFeedDetail } from "@/app/lib/api/feedApi";
 import { FeedDetailResponse } from "@/app/types/feed";
 
 import FeedMainMedia from "./FeedMainMedia";
@@ -12,7 +12,7 @@ import Image from "next/image";
 import styles from "./feed-detail.module.css";
 
 type FeedDetailProps = {
-  feedId: string;
+  feedId: number;
 };
 
 export default function FeedDetail({ feedId }: FeedDetailProps) {
@@ -46,6 +46,38 @@ export default function FeedDetail({ feedId }: FeedDetailProps) {
     }
   };
 
+  // 사진다운로드
+  const handleDownload = async () => {
+    if (!currentFile) return;
+    try {
+      const fileUrl = await downloadImageFile(currentFile.imageId);
+
+      const res = await fetch(fileUrl);
+      const blob = await res.blob();
+
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob); // S3에서 받은 파일 다운로드 링크
+      link.download = `image_${currentFile.imageId}`; // 다운로드 받을 때 사용할 파일 이름 (비워두면 원본 이름 사용)
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href); // 메모리 해제
+    } catch (error) {
+      console.error("다운로드 실패:", error);
+      alert("Comming soon"); // 사진 다운로드 실패. 임시 알람
+    }
+  };
+
+  // 사진 좋아요 임시
+  const handleUnfinished = () => {
+    alert("Comming soon");
+  };
+
+  const handleFavorite = () => {
+    setIsFavorite(!isFavorite);
+    alert("Comming soon");
+  };
+
   if (isLoading) return <div>로딩 중...</div>;
   if (isError || !data) return <div>피드를 불러오는데 실패했습니다.</div>;
 
@@ -59,7 +91,8 @@ export default function FeedDetail({ feedId }: FeedDetailProps) {
           <button onClick={() => setIsInfoModalOpen(true)}>
             <Image src="/icons/icon-info.png" alt="상세정보" width={26} height={26} />
           </button>
-          <button onClick={() => setIsFavorite(!isFavorite)}>
+          {/* <button onClick={() => setIsFavorite(!isFavorite)} > */}
+          <button onClick={handleFavorite}>
             <Image
               src={isFavorite ? "/icons/icon-like.png" : "/icons/icon-unlike-white.png"}
               alt="즐겨찾기"
@@ -67,10 +100,10 @@ export default function FeedDetail({ feedId }: FeedDetailProps) {
               height={20}
             />
           </button>
-          <button>
+          <button onClick={handleDownload}>
             <Image src="/icons/icon-download.png" alt="다운로드" width={22} height={22} />
           </button>
-          <button>
+          <button onClick={handleUnfinished}>
             <Image src="/icons/icon-send.png" alt="공유" width={22} height={20} />
           </button>
         </div>
@@ -118,7 +151,12 @@ export default function FeedDetail({ feedId }: FeedDetailProps) {
       </div>
 
       {/* FeedInfoModal 연결 */}
-      <FeedInfoModal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)} feedDetail={data} />
+      <FeedInfoModal
+        isOpen={isInfoModalOpen}
+        onClose={() => setIsInfoModalOpen(false)}
+        feedDetail={data}
+        feedId={feedId}
+      />
     </div>
   );
 }
