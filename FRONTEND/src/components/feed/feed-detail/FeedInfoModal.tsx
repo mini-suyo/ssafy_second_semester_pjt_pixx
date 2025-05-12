@@ -19,7 +19,7 @@ type FeedInfoModalProps = {
 
 export default function FeedInfoModal({ isOpen, onClose, feedDetail, feedId }: FeedInfoModalProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [detail, setDetail] = useState(feedDetail); // feedDetail은 불변값이므로 따로 상태 만들어서 수정 반영
+  const [detail, setDetail] = useState(feedDetail); // feedDetail은 불변값이므로 따로 상태 만들어서 수정 반영 // props로만 해도될수도? 리팩토링때 해보기
 
   if (!isOpen) return null;
 
@@ -40,7 +40,7 @@ export default function FeedInfoModal({ isOpen, onClose, feedDetail, feedId }: F
           {/* 상세 정보 표시 */}
           <div className={styles.content}>
             {/* 제목 */}
-            <h2 className={styles.title}>{detail?.feedTitle}</h2>
+            <h2 className={styles.title}>{detail?.feedTitle ?? "제목을 작성해주세요"}</h2>
 
             {/* 구분선 */}
             <div className={styles.divider} />
@@ -54,16 +54,18 @@ export default function FeedInfoModal({ isOpen, onClose, feedDetail, feedId }: F
               {detail?.feedDate ? dayjs(detail.feedDate).format("YYYY.MM.DD") : ""}
             </div>
             <div className={styles.infoRow}>
-              <Image src="/icons/icon-location.png" alt="위치" width={20} height={20} /> {detail?.feedLocation}
+              <Image src="/icons/icon-location.png" alt="위치" width={20} height={20} />{" "}
+              {detail?.feedLocation ?? "장소를 입력해주세요"}
             </div>
             <div className={styles.infoRow}>
-              <Image src="/icons/icon-brand.png" alt="브랜드" width={20} height={20} /> {detail?.brandName}
+              <Image src="/icons/icon-brand.png" alt="브랜드" width={20} height={20} />{" "}
+              {detail?.brandName ?? "브랜드를 선택해주세요"}
             </div>
 
             {/* 메모 */}
             <div className={styles.memo}>
               <h3>Memo</h3>
-              <p>{detail?.feedMemo}</p>
+              <p>{detail?.feedMemo ?? "메모를 작성해주세요"}</p>
             </div>
           </div>
         </div>
@@ -78,11 +80,11 @@ export default function FeedInfoModal({ isOpen, onClose, feedDetail, feedId }: F
             setIsEditModalOpen(false);
             try {
               const res = await getFeedDetail(feedId);
-              setDetail(res.data); // 최신 정보로 갱신
+              console.log("수정 후 재조회 결과:", res);
+              setDetail(res); // 최신 정보로 갱신
             } catch (error) {
               console.error("수정 후 정보 재조회 실패 : ", error);
             }
-            onClose(); // 정보 갱신을 위해 모달 전체 닫고 다시 열도록
           }}
           feedId={feedId}
         />

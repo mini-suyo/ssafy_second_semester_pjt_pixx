@@ -260,6 +260,10 @@ export default function FeedList() {
                   onLoad={() => handleImageLoad(feed.feedId)}
                   onError={() => handleImageError(feed.feedId)}
                 />
+                {/* 선택된 피드 약간 어둡게 처리 */}
+                {mode === "select" && selectedFeedIds.includes(feed.feedId) && (
+                  <div className={styles.selectedOverlay}></div>
+                )}
 
                 {/* 로딩 표시 */}
                 {!imageLoaded[feed.feedId] && !imageErrors[feed.feedId] && (
@@ -289,10 +293,6 @@ export default function FeedList() {
                       width={32}
                       height={32}
                     />
-                    {/* 선택된 피드 약간 어둡게 처리 */}
-                    {mode === "select" && selectedFeedIds.includes(feed.feedId) && (
-                      <div className={styles.selectedOverlay}></div>
-                    )}
                   </div>
                 )}
               </div>
