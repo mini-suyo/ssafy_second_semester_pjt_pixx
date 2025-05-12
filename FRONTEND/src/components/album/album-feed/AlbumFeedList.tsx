@@ -133,7 +133,8 @@ export default function AlbumFeedList() {
       alert("앨범 사진 삭제 완료");
       setMode("default");
       setSelectedFeedIds([]);
-      refetch(); // 새로운 데이터 불러와서 UI 갱신
+      refetch(); // 새로운 데이터 불러와서 UI 갱신(캐시 데이터 새로 불러옴)
+      // router.refresh(); // 새로고침 효과
     } catch (error) {
       alert("삭제 실패");
       console.error(error);

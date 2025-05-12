@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteFeed, getFeeds } from "@/app/lib/api/feedApi";
@@ -18,6 +18,7 @@ import SortDropdown from "../common/SortDropdown";
 
 export default function FeedList() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   // 앨범 생성
   const [mode, setMode] = useState<"default" | "select">("default"); // 앨범 생성 플로팅버튼 상태 관리
@@ -121,7 +122,7 @@ export default function FeedList() {
   const handlePressStart = () => {
     longPressTimer.current = setTimeout(() => {
       setMode("select");
-    }, 300); // 300ms 이상 누르면 선택 모드로
+    }, 800); // 800ms 이상 누르면 선택 모드로
   };
 
   // 정렬
@@ -163,16 +164,20 @@ export default function FeedList() {
         albumTitle: albumTitle.trim(),
         imageList: selectedFeedIds,
       });
+      alert("앨범 생성되었습니다");
+      await queryClient.invalidateQueries({
+        predicate: (query) => query.queryKey[0] === "albums",
+      });
 
-      alert("앨범 생성되었습니다다");
-      setIsModalOpen(false);
-      setMode("default");
-      setSelectedFeedIds([]);
-      setAlbumTitle("");
       router.push(`/album/${res.data.albumId}`);
     } catch (error) {
       alert("오류가 발생하여 앨범 생성에 실패했습니다");
       console.log(error);
+    } finally {
+      setIsModalOpen(false);
+      setMode("default");
+      setSelectedFeedIds([]);
+      setAlbumTitle("");
     }
   };
 
@@ -189,12 +194,16 @@ export default function FeedList() {
     try {
       await addPhotosToAlbum({ albumId, imageList: selectedFeedIds });
       alert("앨범에 사진이 추가되었습니다.");
-      setIsAlbumModalOpen(false);
-      setMode("default");
-      setSelectedFeedIds([]);
+      await queryClient.invalidateQueries({ queryKey: ["albums"] }); // 앨범 목록 무효화
+      router.push(`/album/${albumId}`); //  앨범 상세 페이지로 이동
+      router.refresh();
     } catch (error) {
       alert("사진 추가에 실패했습니다.");
       console.error(error);
+    } finally {
+      setIsAlbumModalOpen(false);
+      setMode("default");
+      setSelectedFeedIds([]);
     }
   };
   // 이미지 삭제
@@ -210,12 +219,14 @@ export default function FeedList() {
       });
 
       alert("피드 사진 삭제 완료");
-      setMode("default");
-      setSelectedFeedIds([]);
+
       refetch(); // 새로운 데이터 불러와서 UI 갱신
     } catch (error) {
       alert("삭제 실패");
       console.error(error);
+    } finally {
+      setMode("default");
+      setSelectedFeedIds([]);
     }
   };
 
