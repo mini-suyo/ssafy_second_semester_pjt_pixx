@@ -61,6 +61,21 @@ export default function AlbumList() {
     initialPageParam: 0,
   });
 
+  // // 앨범 삭제
+  // const handleDeleteAlbum = async () => {
+  //   const confirmDelete = confirm("정말 이 앨범을 삭제하시겠습니까?");
+  //   if (!confirmDelete) return;
+
+  //   try {
+  //     await deleteAlbum(albumId);
+  //     alert("앨범이 삭제되었습니다.");
+  //     router.push("/album"); // 앨범 리스트 페이지로 이동
+  //   } catch (err) {
+  //     alert("앨범 삭제에 실패했습니다.");
+  //     console.error(err);
+  //   }
+  // };
+
   // 무한 스크롤을 위한 IntersectionObserver 설정
   const handleObserver = useCallback(
     (entries: IntersectionObserverEntry[]) => {
