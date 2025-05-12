@@ -1,17 +1,35 @@
 .uploadContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-top: 2rem;
-  text-align: center;
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px;
+  margin: 2rem auto;
+  box-sizing: border-box;
+  z-index: 2;
 }
 
 .uploadButton {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
-  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
   color: white;
-  border: 0px solid #000000;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
   cursor: pointer;
   font-size: 1rem;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+}
+
+.uploadButton:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .fileInput {
@@ -19,35 +37,50 @@
 }
 
 .fileList {
-  margin-top: 1rem;
-  padding: 1rem;
-  background-color: transparent;
-  border-radius: 8px;
+  width: 100%;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.fileList p {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
 }
 
 .fileName {
-  margin: 0.5rem 0;
+  margin: 0.75rem 0;
+  padding: 0.5rem 1rem;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
   font-size: 0.9rem;
-  color: white;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .submitButton {
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  background-color: #000000;
-  color: #ffffff;
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #6366f1;
+  color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-size: 1rem;
-  transition: all 0.2s ease;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
 .submitButton:hover:not(:disabled) {
-  background-color: #333333;
+  background-color: #4f46e5;
+  transform: translateY(-1px);
 }
 
 .submitButton:disabled {
-  background-color: #cccccc;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
   cursor: not-allowed;
 }
