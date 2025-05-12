@@ -1,7 +1,9 @@
 // app/lib/api/feedApi.ts
 
-import axiosInstance from "./axiosInstance";
 import { Feed, DeleteFeedResponse, FeedDetailUpdate } from "@/app/types/feed";
+
+import axiosInstance from "./axiosInstance";
+// import api from "./axios";
 
 //피드 목록 조회 API
 export const getFeeds = async (params: { type: number; page: number; size: number }): Promise<Feed[]> => {

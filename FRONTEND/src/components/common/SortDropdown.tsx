@@ -9,8 +9,8 @@ interface OptionType {
 }
 
 const options: OptionType[] = [
-  { value: "recent", label: "latest" },
-  { value: "oldest", label: "oldest" },
+  { value: "recent", label: "최신순" },
+  { value: "oldest", label: "오래된순" },
 ];
 
 interface Props {
