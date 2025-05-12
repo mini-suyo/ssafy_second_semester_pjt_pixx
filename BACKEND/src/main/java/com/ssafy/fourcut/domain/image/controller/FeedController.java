@@ -144,18 +144,18 @@ public class FeedController {
     }
 
     /**
-     * DELETE /api/v1/feed/{feedId}
+     * POST /api/v1/feed/delete
      * 피드 삭제
      */
-    @DeleteMapping("/{feedId}")
+    @PostMapping("/delete")
     public ResponseEntity<ApiResponse<Void>> deleteFeed(
             Principal principal,
-            @PathVariable Integer feedId
+            @RequestBody DeleteFeedsRequest req
     ) {
         Integer userId = Integer.valueOf(principal.getName());
-        feedService.deleteFeed(userId, feedId);
+        feedService.deleteFeeds(userId, req.getImageList());
         ApiResponse<Void> resp = ApiResponse.<Void>builder()
-                .status(Integer.parseInt("200"))
+                .status(200)
                 .message("정보 삭제")
                 .build();
         return ResponseEntity.ok(resp);

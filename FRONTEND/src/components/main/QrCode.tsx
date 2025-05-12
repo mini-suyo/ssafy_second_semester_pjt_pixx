@@ -1,7 +1,7 @@
 "use client";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "@/app/lib/api/axios";
 import styles from "./qr-code.module.css";
 
 export default function QrCode() {
@@ -32,22 +32,27 @@ export default function QrCode() {
         // QR 코드 URL을 백엔드로 전송
         const sendQrCode = async () => {
           try {
-            const response = await axios.post(
+            const response = await api.post(
+              // axios를 api로 변경
               "/api/v1/photos/upload/qr",
               { pageUrl: decodedText },
               {
                 headers: {
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
-                  "Content-Type": "multipart/form-data",
+                  "Content-Type": "application/json",
                 },
+                withCredentials: true,
               }
             );
 
-            if (response.status === 200) {
+            if (response.data.status === "200") {
               alert("QR 코드가 성공적으로 등록되었습니다.");
             }
-          } catch (error) {
-            alert("QR 코드 등록에 실패했습니다.");
+          } catch (error: any) {
+            if (error.response?.data?.status === "400") {
+              alert(error.response.data.message || "QR 코드 등록에 실패했습니다.");
+            } else {
+              alert("QR 코드 등록에 실패했습니다.");
+            }
             console.error("Error:", error);
           }
         };

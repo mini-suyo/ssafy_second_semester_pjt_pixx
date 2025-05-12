@@ -3,12 +3,15 @@ package com.ssafy.fourcut.global.exception;
 import com.ssafy.fourcut.domain.user.exception.CustomExceptions;
 import com.ssafy.fourcut.domain.user.exception.UserNotFoundException;
 import com.ssafy.fourcut.global.dto.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @Slf4j
 @RestControllerAdvice
@@ -82,5 +85,11 @@ public class GlobalExceptionHandler {
                         .message("서버 내부 오류가 발생했습니다.")
                         .data(null)
                         .build());
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<?> handleMaxSizeException(MaxUploadSizeExceededException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .body(new ApiResponse<>(413, "업로드 파일 크기가 20MB를 초과했습니다.", null));
     }
 }

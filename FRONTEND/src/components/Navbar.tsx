@@ -25,7 +25,7 @@ export default function Navbar() {
         <span>Photo</span>
       </Link>
 
-      <Link href="/" className={styles.navItem}>
+      <Link href="/main" className={styles.navItem}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
