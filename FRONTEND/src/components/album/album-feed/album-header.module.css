@@ -2,14 +2,13 @@
   display: flex;
   flex-direction: column; /* 한 줄씩 배치 */
   align-items: flex-start;
-  padding: 1.5rem 1rem;
-  gap: 10px;
+  padding: 3%;
 }
 
 .albumTitleRow {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 5px;
 }
 
 .backButton {
@@ -27,7 +26,8 @@
 
 .albumMemo {
   font-size: 16px;
-  margin-top: 20px;
+  margin: 4% 0% 5% 8%; /* 상 우 하 좌 */
+
   color: #fffaf8;
 }
 
@@ -38,10 +38,14 @@
   padding-right: 5%; /* 오른쪽 여백 */
 }
 
-.sortSelect {
-  background-color: #fffaf8;
-  color: #202020;
+/* .sortSelect {
+  background-color: transparent;
+  color: #fffaf8;
+  border: none;
   font-size: 0.875rem;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
-}
+  appearance: none; 
+  outline: none;
+  font-family: "SEJONG";
+} */

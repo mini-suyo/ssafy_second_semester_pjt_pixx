@@ -4,6 +4,7 @@ import React from "react";
 import styles from "./album-header.module.css";
 import Link from "next/link";
 import Image from "next/image";
+import SortDropdown from "@/components/common/SortDropdown";
 
 type AlbumHeaderProps = {
   albumName: string;
@@ -21,19 +22,12 @@ export default function AlbumHeader({ albumName, albumMemo, sortType, onSortChan
           <Image src="/icons/icon-back.png" alt="뒤로가기" width={24} height={24} />
         </Link>
         <div className={styles.albumName}>{albumName}</div>
-        {albumMemo && <div className={styles.albumMemo}>{albumMemo}</div>}
       </div>
+      {albumMemo && <div className={styles.albumMemo}>{albumMemo}</div>}
 
       {/* 정렬 */}
       <div className={styles.selectWrapper}>
-        <select
-          className={styles.sortSelect}
-          value={sortType}
-          onChange={(e) => onSortChange(e.target.value as "recent" | "oldest")}
-        >
-          <option value="recent">최신순</option>
-          <option value="oldest">오래된순</option>
-        </select>
+        <SortDropdown value={sortType} onChange={onSortChange} />
       </div>
     </div>
   );

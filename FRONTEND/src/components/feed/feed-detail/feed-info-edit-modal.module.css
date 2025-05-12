@@ -10,7 +10,7 @@
   flex-direction: column;
   justify-content: flex-end;
 
-  z-index: 10000;
+  z-index: 11110;
   padding: 0;
   box-sizing: border-box;
 
@@ -37,7 +37,13 @@
   gap: 0.5rem;
 }
 
-.editButton,
+.buttonRow {
+  display: flex;
+  justify-content: center; /* 가로 가운데 정렬 */
+  gap: 1rem; /* 버튼 사이 간격 */
+  margin-top: 2rem; /* 위쪽 여백 */
+}
+
 .closeButton {
   background: none;
   border: none;
@@ -45,14 +51,51 @@
   padding: 0;
 }
 
-/* .closeButton {
-  top: 1rem;
-  right: 1rem;
-  z-index: 10;
-  background: none;
+.input {
+  background-color: transparent;
+  box-sizing: border-box;
+  color: #fffaf8;
   border: none;
+  border-bottom: 1px solid #fffaf83a;
+  padding: 0.5rem 1rem;
+
+  font-size: 0.9rem;
+  width: 80%;
+  margin-bottom: 0.75rem;
+}
+
+.textarea {
+  width: 90%;
+  height: 6rem;
+  background-color: transparent;
+  box-sizing: border-box;
+  color: #fffaf8;
+  border: none;
+  border-bottom: 1px solid #fffaf83a;
+  padding: 0.75rem 1rem;
+
+  font-size: 0.9rem;
+  resize: none;
+}
+
+.cancelButton,
+.submitButton {
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5rem;
   cursor: pointer;
-} */
+}
+
+.cancelButton {
+  background: #bbb;
+  color: white;
+}
+
+.submitButton {
+  background: #4b436e;
+  color: white;
+}
 
 .closeButton Image {
   width: 24px;

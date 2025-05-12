@@ -21,3 +21,19 @@ export interface FeedDetailResponse {
   feedDate: string;
   feedFavorite: boolean;
 }
+
+export interface DeleteFeedResponse {
+  status: string;
+  message: string;
+  data: Record<string, never>;
+}
+
+export interface FeedDetailUpdate {
+  feedId: number;
+  feedTitle: string;
+  feedDate: string;
+  location: string;
+  brandName: string;
+  feedMemo: string;
+  hashtags: string;
+}

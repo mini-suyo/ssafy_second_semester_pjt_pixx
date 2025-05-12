@@ -23,23 +23,22 @@ body {
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  max-width: clamp(344px, 100vw, 412px);
+
   width: 100%;
+  /* max-width: clamp(344px, 100vw, 412px); */
+  max-width: 412px;
   margin: 0 auto;
+
   min-height: 100vh;
   background: var(--night_sky, linear-gradient(180deg, #2a292f 0%, #21203e 2.85%, #231b4b 40.69%, #312a53 100%));
-}
-
-.app-container > div:nth-child(3) {
-  flex: 1;
-  min-height: calc(100vh - var(--navbar-height));
-  padding-bottom: var(--navbar-height);
+  padding-left: env(safe-area-inset-left); /* iOS 대응 */
+  padding-right: env(safe-area-inset-right); /* iOS 대응 */
 }
 
 .main-content {
   flex: 1;
-  min-height: calc(100vh - var(--navbar-height));
-  padding-bottom: var(--navbar-height);
+  min-height: calc(100% - 7rem);
+  overflow-y: auto;
 }
 
 /* 폰트 설정 */
