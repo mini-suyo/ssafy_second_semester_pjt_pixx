@@ -12,6 +12,7 @@
   background-color: #ffffff;
   border-radius: 50%;
   opacity: 0.4;
+  z-index: 1;
   animation: twinkle 3s infinite alternate;
 }
 

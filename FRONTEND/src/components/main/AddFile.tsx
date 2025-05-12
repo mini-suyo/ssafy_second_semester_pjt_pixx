@@ -8,26 +8,66 @@ export default function AddFile() {
   const [isUploading, setIsUploading] = useState(false);
 
   const validateFiles = (fileList: FileList): boolean => {
-    const imageFiles = Array.from(fileList).filter(
+    const currentFiles = Array.from(fileList);
+    const previousFiles = files ? Array.from(files) : [];
+    const allFiles = [...previousFiles, ...currentFiles];
+
+    // 파일 타입별로 분류
+    const jpgPngFiles = allFiles.filter(
       (file) => file.type === "image/jpeg" || file.type === "image/png" || file.type === "image/jpg"
     );
+    const gifFiles = allFiles.filter((file) => file.type === "image/gif");
+    const mp4Files = allFiles.filter((file) => file.type === "video/mp4");
 
-    if (imageFiles.length !== 1) {
-      alert("JPG/PNG 이미지는 정확히 1장만 업로드해야 합니다.");
+    // 각 타입별 파일 개수 검증
+    if (jpgPngFiles.length === 0) {
+      alert("JPG/PNG 이미지는 필수로 1장 업로드해야 합니다.");
       return false;
     }
 
-    // gif와 mp4는 선택사항이므로 추가 검증 필요 없음
+    if (jpgPngFiles.length > 1) {
+      alert("JPG/PNG 이미지는 1장만 업로드할 수 있습니다.");
+      return false;
+    }
+
+    if (gifFiles.length > 1) {
+      alert("GIF 파일은 최대 1개만 업로드할 수 있습니다.");
+      return false;
+    }
+
+    if (mp4Files.length > 1) {
+      alert("MP4 파일은 최대 1개만 업로드할 수 있습니다.");
+      return false;
+    }
+
+    // 지원하지 않는 파일 형식 체크
+    const unsupportedFiles = allFiles.filter(
+      (file) => !["image/jpeg", "image/jpg", "image/png", "image/gif", "video/mp4"].includes(file.type)
+    );
+
+    if (unsupportedFiles.length > 0) {
+      alert("지원하지 않는 파일 형식이 포함되어 있습니다.");
+      return false;
+    }
+
     return true;
   };
 
+  // handleFileChange 메서드도 수정
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       if (validateFiles(event.target.files)) {
-        setFiles(event.target.files);
+        // 기존 파일과 새 파일을 병합
+        const currentFiles = Array.from(event.target.files);
+        const previousFiles = files ? Array.from(files) : [];
+        const mergedFiles = [...previousFiles, ...currentFiles];
+
+        // FileList 객체로 변환
+        const dataTransfer = new DataTransfer();
+        mergedFiles.forEach((file) => dataTransfer.items.add(file));
+        setFiles(dataTransfer.files);
       } else {
         event.target.value = "";
-        setFiles(null);
       }
     }
   };
@@ -70,6 +110,23 @@ export default function AddFile() {
     }
   };
 
+  const handleRemoveFile = (indexToRemove: number) => {
+    if (!files) return;
+
+    const newFiles = Array.from(files).filter((_, index) => index !== indexToRemove);
+
+    if (newFiles.length === 0) {
+      setFiles(null);
+      const fileInput = document.getElementById("fileInput") as HTMLInputElement;
+      if (fileInput) fileInput.value = "";
+      return;
+    }
+
+    const dataTransfer = new DataTransfer();
+    newFiles.forEach((file) => dataTransfer.items.add(file));
+    setFiles(dataTransfer.files);
+  };
+
   return (
     <div className={styles.uploadContainer}>
       <label htmlFor="fileInput" className={styles.uploadButton}>
@@ -87,9 +144,12 @@ export default function AddFile() {
         <div className={styles.fileList}>
           <p>선택된 파일 ({files.length}개):</p>
           {Array.from(files).map((file, index) => (
-            <p key={index} className={styles.fileName}>
-              {file.name}
-            </p>
+            <div key={index} className={styles.fileItem}>
+              <p className={styles.fileName}>{file.name}</p>
+              <button onClick={() => handleRemoveFile(index)} className={styles.removeButton} type="button">
+                ✕
+              </button>
+            </div>
           ))}
           <button onClick={handleUpload} disabled={isUploading} className={styles.submitButton}>
             {isUploading ? "업로드 중..." : "업로드하기"}
