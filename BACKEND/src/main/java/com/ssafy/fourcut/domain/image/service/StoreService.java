@@ -64,10 +64,6 @@ public class StoreService {
                 .album(album)
                 .brand(brand)
                 .feedFavorite(false)
-                .feedLocation("위치를 입력해주세요!")
-                .feedMemo("메모를 작성해주세요!")
-                .feedPopulation(null)
-                .feedTitle("제목을 작성해주세요!")
                 .build();
 
         Feed savedFeed = feedRepository.save(feed);
