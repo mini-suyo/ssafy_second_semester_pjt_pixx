@@ -238,6 +238,7 @@ public class StoreService {
             try (InputStream inputStream = connection.getInputStream()) {
 
                 String contentType = connection.getContentType();
+                long contentLength = connection.getContentLengthLong();
 
                 // 2. contentType이 부정확한 경우 확장자 추출해서 보정
                 String extension;
@@ -250,7 +251,7 @@ public class StoreService {
 
 //                String extension = getExtensionByContentType(contentType);
                 String originalFilename = UUID.randomUUID().toString() + extension;
-                String s3Key = s3Uploader.upload(userId, inputStream, originalFilename, contentType);
+                String s3Key = s3Uploader.upload(userId, inputStream, originalFilename, contentType, contentLength);
 
                 storeRepository.save(
                         Image.builder()
@@ -338,7 +339,7 @@ public class StoreService {
                 String extension = getExtensionByContentType(contentType);
 
                 String originalFilename = UUID.randomUUID().toString() + extension;
-                String s3Key = s3Uploader.upload(userId, inputStream, originalFilename, contentType);
+                String s3Key = s3Uploader.upload(userId, inputStream, originalFilename, contentType, file.getSize());
 
                 storeRepository.save(
                         Image.builder()

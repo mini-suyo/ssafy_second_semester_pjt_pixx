@@ -15,13 +15,14 @@ public class S3Uploader {
     private final AmazonS3 amazonS3;
     private final String bucketName = "filmmoa"; // 너희 S3 버킷 이름
 
-    public String upload(int userId, InputStream inputStream, String originalFilename, String contentType) {
+    public String upload(int userId, InputStream inputStream, String originalFilename, String contentType, Long contentLength) {
         try {
             String datePath = LocalDate.now().toString().replace("-", "/"); // 2025/04/29
             String s3Key = "users/" + userId + "/" + datePath + "/" + originalFilename;
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(contentType);
+            metadata.setContentLength(contentLength);
 
             amazonS3.putObject(bucketName, s3Key, inputStream, metadata);
             return s3Key;
