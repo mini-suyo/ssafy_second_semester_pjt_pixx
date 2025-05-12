@@ -8,6 +8,7 @@
 }
 
 .albumItem {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center; /* 기본은 가운데 정렬 */
@@ -119,17 +120,16 @@
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.4); /* 어둡게 처리 */
-  z-index: 5;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4); /* 어둡게 */
+  z-index: 4;
+  pointer-events: none;
 }
 
 .checkIcon {
   position: absolute;
   top: 8px;
   left: 8px;
-  width: 24px;
-  height: 24px;
   z-index: 10;
 }
