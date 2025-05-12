@@ -241,8 +241,8 @@ export default function FeedList() {
                 onMouseLeave={handlePressEnd} // 웹 longPress
               >
                 <Image
-                  src={"/dummy-feed-thumbnail.png"}
-                  // src={feed.feedThumbnailImgUrl || "/dummy-feed-thumbnail.png"}
+                  // src={"/dummy-feed-thumbnail.png"}
+                  src={feed.feedThumbnailImgUrl || "/dummy-feed-thumbnail.png"}
                   alt={`Feed ${feed.feedId}`}
                   fill
                   className={styles.feedImage}
