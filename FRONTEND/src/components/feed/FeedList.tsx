@@ -169,7 +169,7 @@ export default function FeedList() {
         predicate: (query) => query.queryKey[0] === "albums",
       });
 
-      router.push(`/album/${res.data.albumId}`);
+      router.push(`/album/${res.data.data.albumId}`);
     } catch (error) {
       alert("오류가 발생하여 앨범 생성에 실패했습니다");
       console.log(error);
