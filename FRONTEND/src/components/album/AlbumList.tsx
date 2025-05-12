@@ -169,6 +169,15 @@ export default function AlbumList() {
               onClick={() => handleAlbumClick(album.albumId)}
               className={styles.albumItem}
             >
+              {/* ✅ 선택된 앨범일 때만 체크 아이콘 & 오버레이 렌더링 */}
+              {mode === "select" && selectedAlbumIds.includes(album.albumId) && (
+                <>
+                  <div className={styles.selectedOverlay} />
+                  <div className={styles.checkIcon}>
+                    <Image src="/icons/icon-checked-purple.png" alt="선택됨" width={32} height={32} />
+                  </div>
+                </>
+              )}
               <div className={`${styles.albumContent} ${index % 2 === 0 ? styles.leftImage : styles.rightImage}`}>
                 <Image
                   src="/constellations/aries_1.png"
@@ -183,25 +192,6 @@ export default function AlbumList() {
                   <div className={styles.albumDate}>{formatDate(album.albumDate)}</div>
                 </div>
               </div>
-              {/* 선택 모드일 때만 체크 아이콘 렌더링 */}
-              {mode === "select" && (
-                <div className={styles.checkIcon}>
-                  <Image
-                    src={
-                      selectedAlbumIds.includes(album.albumId)
-                        ? "/icons/icon-checked-purple.png"
-                        : "/icons/icon-unchecked-purple.png"
-                    }
-                    alt="선택 여부"
-                    width={32}
-                    height={32}
-                  />
-                  {/* 선택된 피드 약간 어둡게 처리 */}
-                  {mode === "select" && selectedAlbumIds.includes(album.albumId) && (
-                    <div className={styles.selectedOverlay}></div>
-                  )}
-                </div>
-              )}
             </div>
           ))
         )}

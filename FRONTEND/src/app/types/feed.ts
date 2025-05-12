@@ -35,5 +35,5 @@ export interface FeedDetailUpdate {
   location: string;
   brandName: string;
   feedMemo: string;
-  hashtags: string;
+  hashtags: string[];
 }
