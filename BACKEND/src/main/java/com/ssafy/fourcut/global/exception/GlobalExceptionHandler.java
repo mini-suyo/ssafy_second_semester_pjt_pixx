@@ -3,12 +3,18 @@ package com.ssafy.fourcut.global.exception;
 import com.ssafy.fourcut.domain.user.exception.CustomExceptions;
 import com.ssafy.fourcut.domain.user.exception.UserNotFoundException;
 import com.ssafy.fourcut.global.dto.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
@@ -83,4 +89,23 @@ public class GlobalExceptionHandler {
                         .data(null)
                         .build());
     }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<?> handleMaxSizeException(MaxUploadSizeExceededException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .body(new ApiResponse<>(413, "업로드 파일 크기가 20MB를 초과했습니다.", null));
+    }
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e) {
+        return ResponseEntity
+                .status(e.getStatusCode())
+                .body(ApiResponse.<Void>builder()
+                        .status(e.getStatusCode())
+                        .message(e.getMessage())
+                        .data(null)
+                        .build());
+    }
+
+
 }
