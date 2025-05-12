@@ -51,13 +51,38 @@
   font-size: 0.95rem;
 }
 
-.fileName {
+.fileItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin: 0.75rem 0;
   padding: 0.5rem 1rem;
   background-color: rgba(255, 255, 255, 0.08);
   border-radius: 6px;
+}
+
+.fileName {
+  margin: 0 !important;
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.removeButton {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  margin-left: 1rem;
+}
+
+.removeButton:hover {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .submitButton {

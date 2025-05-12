@@ -110,6 +110,23 @@ export default function AddFile() {
     }
   };
 
+  const handleRemoveFile = (indexToRemove: number) => {
+    if (!files) return;
+
+    const newFiles = Array.from(files).filter((_, index) => index !== indexToRemove);
+
+    if (newFiles.length === 0) {
+      setFiles(null);
+      const fileInput = document.getElementById("fileInput") as HTMLInputElement;
+      if (fileInput) fileInput.value = "";
+      return;
+    }
+
+    const dataTransfer = new DataTransfer();
+    newFiles.forEach((file) => dataTransfer.items.add(file));
+    setFiles(dataTransfer.files);
+  };
+
   return (
     <div className={styles.uploadContainer}>
       <label htmlFor="fileInput" className={styles.uploadButton}>
@@ -127,9 +144,12 @@ export default function AddFile() {
         <div className={styles.fileList}>
           <p>선택된 파일 ({files.length}개):</p>
           {Array.from(files).map((file, index) => (
-            <p key={index} className={styles.fileName}>
-              {file.name}
-            </p>
+            <div key={index} className={styles.fileItem}>
+              <p className={styles.fileName}>{file.name}</p>
+              <button onClick={() => handleRemoveFile(index)} className={styles.removeButton} type="button">
+                ✕
+              </button>
+            </div>
           ))}
           <button onClick={handleUpload} disabled={isUploading} className={styles.submitButton}>
             {isUploading ? "업로드 중..." : "업로드하기"}
