@@ -2,27 +2,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  height: 4rem;
-  width: 60%;
-  padding: 8px 12px;
+  height: 3.5rem;
+  width: 14rem;
+  padding: 0.5rem 0.75rem;
   background-color: #fee500;
   border: none;
   border-radius: 6px;
-  font-size: 24px;
+  gap: 0.5rem;
+  font-size: 20px;
   font-weight: 400;
   color: #000000;
   cursor: pointer;
   transition: background-color 0.2s ease;
   position: absolute;
-  top: 70%;
+  top: 75%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
 
 .kakaoIcon {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
   position: relative;
   top: 4px;
