@@ -1,5 +1,6 @@
 package com.ssafy.fourcut.domain.user.entity;
 
+import com.ssafy.fourcut.domain.faceDetection.entity.FaceVector;
 import com.ssafy.fourcut.domain.image.entity.Album;
 import com.ssafy.fourcut.domain.image.entity.Feed;
 import jakarta.persistence.*;
@@ -8,6 +9,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DialectOverride;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -47,4 +49,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Album> albums;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FaceVector> faceVectors;
 }
