@@ -34,4 +34,7 @@ public class Image {
     @Column(name = "created_at", nullable = false)
     @CurrentTimestamp
     private LocalDateTime createdAt;
+
+    @Column(name = "is_thumbnail", nullable = false, columnDefinition = "boolean default false")
+    private Boolean isThumbnail;
 }
