@@ -90,6 +90,7 @@ export default function AlbumList() {
 
   // 날짜 형식 변환
   const formatDate = (dateString: string) => {
+    if (!dateString) return "";
     return dayjs(dateString).format("YYYY. MM. DD ~");
   };
 
