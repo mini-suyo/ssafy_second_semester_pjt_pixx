@@ -14,13 +14,15 @@
   display: flex; /* 가운데 정렬을 위해 */
   justify-content: center; /* 가로 가운데 정렬 */
   align-items: center; /* 세로 가운데 정렬 */
-  /* font-family: SEJONG; */
+  font-family: SUITE;
 }
 
 /* 기본 모드 (Create) */
 .floatingButtonDefault {
-  background-color: #fffaf8;
-  color: #3c3c3c;
+  background-color: #6366f1;
+  /* background-color: #fffaf8; */
+  color: #fffaf8;
+  /* color: #3c3c3c; */
 }
 
 /* 선택 모드 (Cancel) */

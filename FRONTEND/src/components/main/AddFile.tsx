@@ -104,6 +104,9 @@ export default function AddFile() {
         await queryClient.invalidateQueries({
           predicate: (query) => query.queryKey[0] === "feeds",
         });
+        await queryClient.refetchQueries({
+          predicate: (query) => query.queryKey[0] === "feeds",
+        });
         console.log("피드 쿼리 무효화 완료");
       }
     } catch (error: any) {

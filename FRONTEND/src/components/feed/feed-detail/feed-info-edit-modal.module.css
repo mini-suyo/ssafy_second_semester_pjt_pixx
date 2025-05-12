@@ -145,3 +145,16 @@
   font-size: 0.9rem;
   white-space: pre-wrap;
 }
+
+/* 달력 팝업 전체 */
+.custom-calendar {
+  background-color: #261b2d;
+  color: #fffaf8;
+  border-radius: 0;
+  border: none;
+}
+
+/* 일요일만 색상 다르게 */
+.sunday {
+  color: #ff6b6b;
+}
