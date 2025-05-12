@@ -114,3 +114,22 @@
   padding-right: 5%; /* 오른쪽 여백 */
   margin-top: 5%;
 }
+
+.selectedOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4); /* 어둡게 처리 */
+  z-index: 5;
+}
+
+.checkIcon {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 24px;
+  height: 24px;
+  z-index: 10;
+}
