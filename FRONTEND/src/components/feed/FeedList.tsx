@@ -169,7 +169,7 @@ export default function FeedList() {
         predicate: (query) => query.queryKey[0] === "albums",
       });
 
-      router.push(`/album/${res.data.albumId}`);
+      router.push(`/album/${res.data.data.albumId}`);
     } catch (error) {
       alert("오류가 발생하여 앨범 생성에 실패했습니다");
       console.log(error);
@@ -196,7 +196,6 @@ export default function FeedList() {
       alert("앨범에 사진이 추가되었습니다.");
       await queryClient.invalidateQueries({ queryKey: ["albums"] }); // 앨범 목록 무효화
       router.push(`/album/${albumId}`); //  앨범 상세 페이지로 이동
-      router.refresh();
     } catch (error) {
       alert("사진 추가에 실패했습니다.");
       console.error(error);
@@ -261,6 +260,10 @@ export default function FeedList() {
                   onLoad={() => handleImageLoad(feed.feedId)}
                   onError={() => handleImageError(feed.feedId)}
                 />
+                {/* 선택된 피드 약간 어둡게 처리 */}
+                {mode === "select" && selectedFeedIds.includes(feed.feedId) && (
+                  <div className={styles.selectedOverlay}></div>
+                )}
 
                 {/* 로딩 표시 */}
                 {!imageLoaded[feed.feedId] && !imageErrors[feed.feedId] && (
@@ -282,7 +285,9 @@ export default function FeedList() {
                   <div className={styles.checkIcon}>
                     <Image
                       src={
-                        selectedFeedIds.includes(feed.feedId) ? "/icons/icon-checked.png" : "/icons/icon-unchecked.png"
+                        selectedFeedIds.includes(feed.feedId)
+                          ? "/icons/icon-checked-purple.png"
+                          : "/icons/icon-unchecked-purple.png"
                       }
                       alt="선택 여부"
                       width={32}

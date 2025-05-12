@@ -55,3 +55,16 @@ body {
   font-weight: 100 900; /* 100부터 900까지 범위 지원 */
   font-style: normal;
 }
+
+/* 캘린더 관련 css(여기에 적용하는게 안정적) */
+
+.custom-calendar {
+  background-color: #261b2d;
+  color: #fffaf8;
+  border-radius: 0;
+  border: none;
+}
+
+.react-datepicker__day--sunday {
+  color: #ff6b6b;
+}
