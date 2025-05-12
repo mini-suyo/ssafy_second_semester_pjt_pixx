@@ -2,7 +2,7 @@ package com.ssafy.fourcut.domain.image.service;
 
 import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
 import com.amazonaws.services.cloudfront.util.SignerUtils;
-import com.ssafy.fourcut.domain.image.controller.StoreController;
+import com.ssafy.fourcut.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,11 +27,6 @@ public class CloudFrontService {
 
     public String generateSignedCloudFrontUrl(String s3Key, String usage) {
         try {
-            log.info("S3_Key : " + s3Key);
-            log.info("cloudFrontDomain : " + cloudFrontDomain);
-            log.info("keyPairId : " + keyPairId);
-            log.info("privateKeyPath : " + privateKeyPath);
-
             long time = 1000L * 60 * 5; // 5분
             if(usage.equals("get")) {
                 time = (1000 * 60 * 30); // 30분
@@ -50,7 +45,8 @@ public class CloudFrontService {
                     expiration
             );
         } catch (Exception e) {
-            throw new RuntimeException("CloudFront 서명 URL 생성 실패", e);
+            log.error("CloudFront 서명 URL 생성 실패", e);
+            throw new CustomException(500, "CloudFront 서명 URL 생성에 실패했습니다.");
         }
     }
 }
