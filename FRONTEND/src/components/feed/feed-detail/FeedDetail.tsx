@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { downloadImageFile, getFeedDetail } from "@/app/lib/api/feedApi";
+import { getFeedDetail } from "@/app/lib/api/feedApi";
 import { FeedDetailResponse } from "@/app/types/feed";
 
 import FeedMainMedia from "./FeedMainMedia";
@@ -46,68 +46,6 @@ export default function FeedDetail({ feedId }: FeedDetailProps) {
     }
   };
 
-  // 사진다운로드
-  // const handleDownload = async (imageId: number) => {
-  //   try {
-  //     const response = await fetch(`/photos/download/${imageId}`);
-  //     if (!response.ok) throw new Error("다운로드 실패");
-
-  //     const blob = await response.blob();
-  //     const contentType = response.headers.get("content-type");
-  //     const disposition = response.headers.get("content-disposition");
-
-  //     // 파일 이름 추출
-  //     let filename = `download_${imageId}`;
-  //     if (disposition) {
-  //       const match = disposition.match(/filename="?([^"]+)"?/);
-  //       if (match?.[1]) filename = match[1];
-  //     }
-
-  //     const url = URL.createObjectURL(blob);
-  //     const a = document.createElement("a");
-  //     a.href = url;
-  //     a.download = filename;
-  //     document.body.appendChild(a);
-  //     a.click();
-  //     document.body.removeChild(a);
-  //     URL.revokeObjectURL(url);
-  //   } catch (e) {
-  //     console.error("다운로드 실패", e);
-  //     alert("다운로드에 실패했습니다.");
-  //   }
-  // };
-
-  // const handleDownload = (imageId: number) => {
-  //   window.open(`/photos/download/${imageId}`, "_blank");
-  // };
-
-  // const handleDownload = async (imageId: number) => {
-  //   const downloadUrl = `/photos/download/${imageId}`;
-  //   const link = document.createElement("a");
-  //   link.href = downloadUrl;
-  //   link.download = ""; // 빈 문자열이면 서버에서 보내준 이름 사용
-  //   document.body.appendChild(link);
-  //   link.click();
-  //   document.body.removeChild(link);
-  // };
-
-  const handleDownload = async () => {
-    if (!currentFile) return;
-    try {
-      const fileUrl = await downloadImageFile(currentFile.imageId);
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob); // S3에서 받은 파일 다운로드 링크
-      link.download = `image_${currentFile.imageId}`; // 다운로드 받을 때 사용할 파일 이름 (비워두면 원본 이름 사용)
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(link.href); // 메모리 해제
-    } catch (error) {
-      console.error("다운로드 실패:", error);
-      alert("Coming soon"); // 사진 다운로드 실패. 임시 알람
-    }
-  };
-
   // 사진 좋아요 임시
   const handleUnfinished = () => {
     alert("Coming soon");
@@ -141,7 +79,7 @@ export default function FeedDetail({ feedId }: FeedDetailProps) {
             />
           </button>
           {/* <button onClick={() => currentFile && handleDownload(currentFile.imageId)}> */}
-          <button onClick={handleDownload}>
+          <button>
             <Image src="/icons/icon-download.png" alt="다운로드" width={22} height={22} />
           </button>
           <button onClick={handleUnfinished}>

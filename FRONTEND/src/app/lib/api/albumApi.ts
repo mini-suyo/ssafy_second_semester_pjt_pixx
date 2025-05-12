@@ -5,6 +5,7 @@ import { AlbumDetailResponse } from "@/app/types/album";
 import { AlbumParams, AlbumDeleteResponse } from "@/app/types/album";
 
 import axiosInstance from "./axiosInstance";
+// import api from "./axios";
 
 // 앨범 목록 불러오기
 export async function getAlbums(params: AlbumParams): Promise<AlbumResponse> {

@@ -11,26 +11,6 @@ import Image from "next/image";
 import dayjs from "dayjs";
 import SortDropdown from "../common/SortDropdown";
 
-// 실패 시 사용할 Mock 데이터
-const mockAlbums = {
-  status: "200",
-  message: "앨범 불러오기 성공",
-  data: {
-    albumList: [
-      {
-        albumId: 1,
-        albumName: "Mock 앨범1",
-        albumDate: "2025-05-06T10:00:00",
-      },
-      {
-        albumId: 2,
-        albumName: "Mock 앨범2",
-        albumDate: "2025-05-05T10:00:00",
-      },
-    ],
-  },
-};
-
 export default function AlbumList() {
   const router = useRouter();
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -44,14 +24,9 @@ export default function AlbumList() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status, refetch } = useInfiniteQuery({
     queryKey: ["albums"],
     queryFn: async ({ pageParam = 0 }) => {
-      try {
-        const response = await getAlbums({ type: apiSortType, page: pageParam, size: 20 });
-        return response;
-      } catch (error) {
-        console.error("앨범 불러오기 실패:", error);
-        return mockAlbums; // 실패하면 Mock 데이터로 대체
-      }
+      return await getAlbums({ type: apiSortType, page: pageParam, size: 20 });
     },
+
     getNextPageParam: (lastPage, allPages) => {
       // API 응답 형식에 맞게 처리
       // 만약 마지막 페이지의 결과가 20개 미만이면 더 이상 페이지가 없음
@@ -134,27 +109,34 @@ export default function AlbumList() {
       <div className={styles.selectWrapper}>
         <SortDropdown value={sortType} onChange={handleSortChange} />
       </div>
+
       <div className={styles.albumListWrapper}>
-        {albums.map((album, index) => (
-          <div key={album.albumId} className={styles.albumItem} onClick={() => router.push(`/album/${album.albumId}`)}>
-            <div className={`${styles.albumContent} ${index % 2 === 0 ? styles.leftImage : styles.rightImage}`}>
-              {/* 별자리 그림은 나중에 매칭 */}
-              <Image
-                src="/constellations/aries_1.png"
-                alt="별자리"
-                className={styles.constellationImage}
-                width={100}
-                height={100}
-              />
-              <div className={`${styles.albumInfo} ${index % 2 === 0 ? styles.alignLeft : styles.alignRight}`}>
-                <div className={styles.albumName}>{album.albumName}</div>
-                <div className={styles.separator} />
-                <div className={styles.albumDate}>{formatDate(album.albumDate)}</div>
+        {albums.length === 0 ? (
+          <div className={styles["empty-message"]}>앨범을 불러오는데 실패했어요</div>
+        ) : (
+          albums.map((album, index) => (
+            <div
+              key={album.albumId}
+              className={styles.albumItem}
+              onClick={() => router.push(`/album/${album.albumId}`)}
+            >
+              <div className={`${styles.albumContent} ${index % 2 === 0 ? styles.leftImage : styles.rightImage}`}>
+                <Image
+                  src="/constellations/aries_1.png"
+                  alt="별자리"
+                  className={styles.constellationImage}
+                  width={100}
+                  height={100}
+                />
+                <div className={`${styles.albumInfo} ${index % 2 === 0 ? styles.alignLeft : styles.alignRight}`}>
+                  <div className={styles.albumName}>{album.albumName}</div>
+                  <div className={styles.separator} />
+                  <div className={styles.albumDate}>{formatDate(album.albumDate)}</div>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-
+          ))
+        )}
         {/* 무한 스크롤을 위한 로딩 표시기 */}
         <div ref={loadMoreRef} className={styles.loadMoreTrigger}>
           {isFetchingNextPage && <p>앨범을 더 불러오는 중...</p>}
