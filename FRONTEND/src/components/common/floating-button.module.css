@@ -19,8 +19,10 @@
 
 /* 기본 모드 (Create) */
 .floatingButtonDefault {
-  background-color: #fffaf8;
-  color: #3c3c3c;
+  background-color: #6366f1;
+  /* background-color: #fffaf8; */
+  color: #fffaf8;
+  /* color: #3c3c3c; */
 }
 
 /* 선택 모드 (Cancel) */

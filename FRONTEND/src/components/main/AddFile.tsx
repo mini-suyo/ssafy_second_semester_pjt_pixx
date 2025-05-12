@@ -3,7 +3,6 @@ import { useState } from "react";
 import api from "@/app/lib/api/axios";
 import styles from "./add-file.module.css";
 import { useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/router";
 
 export default function AddFile() {
   const [files, setFiles] = useState<FileList | null>(null);
