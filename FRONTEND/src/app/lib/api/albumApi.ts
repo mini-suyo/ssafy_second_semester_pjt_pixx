@@ -1,9 +1,11 @@
 // app/lib/api/albumApi.ts
 
-import axiosInstance from "./axiosInstance";
 import { AlbumResponse } from "@/app/types/album";
 import { AlbumDetailResponse } from "@/app/types/album";
-import { AlbumParams } from "@/app/types/album";
+import { AlbumParams, AlbumDeleteResponse } from "@/app/types/album";
+
+import axiosInstance from "./axiosInstance";
+// import api from "./axios";
 
 // 앨범 목록 불러오기
 export async function getAlbums(params: AlbumParams): Promise<AlbumResponse> {
@@ -14,6 +16,12 @@ export async function getAlbums(params: AlbumParams): Promise<AlbumResponse> {
 // 앨범 피드 목록 불러오기
 export async function getAlbumDetail(albumId: number, params: AlbumParams): Promise<AlbumDetailResponse> {
   const response = await axiosInstance.post(`/api/v1/feed/album/${albumId}`, params);
+  return response.data;
+}
+
+// 앨범 삭제
+export async function deleteAlbum(albumId: number): Promise<AlbumDeleteResponse> {
+  const response = await axiosInstance.post(`api/v1/album/delete`, { albumId });
   return response.data;
 }
 
