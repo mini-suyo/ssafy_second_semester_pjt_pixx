@@ -2,10 +2,12 @@
 import { useState } from "react";
 import api from "@/app/lib/api/axios";
 import styles from "./add-file.module.css";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function AddFile() {
   const [files, setFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const queryClient = useQueryClient();
 
   const validateFiles = (fileList: FileList): boolean => {
     const currentFiles = Array.from(fileList);
@@ -97,6 +99,12 @@ export default function AddFile() {
         // 파일 입력 초기화
         const fileInput = document.getElementById("fileInput") as HTMLInputElement;
         if (fileInput) fileInput.value = "";
+        // 피드 목록 갱신
+        console.log("파일 업로드 성공, 피드 쿼리 무효화 시도");
+        await queryClient.invalidateQueries({
+          predicate: (query) => query.queryKey[0] === "feeds",
+        });
+        console.log("피드 쿼리 무효화 완료");
       }
     } catch (error: any) {
       if (error.response?.data?.status === "400") {

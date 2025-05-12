@@ -16,6 +16,16 @@ const nextConfig: NextConfig = {
     };
     return config;
   },
+
+  // 사진 다운로드
+  async rewrites() {
+    return [
+      {
+        source: "/photos/download/:imageId",
+        destination: "https://dev.film-moa.com/api/v1/photos/download/:imageId",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

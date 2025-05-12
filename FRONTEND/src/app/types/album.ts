@@ -35,6 +35,11 @@ export interface AlbumDetailResponse {
   data: AlbumDetail;
 }
 
+export interface AlbumDeleteResponse {
+  status: number;
+  message: string;
+}
+
 export interface AlbumParams {
   type: number;
   page: number;
