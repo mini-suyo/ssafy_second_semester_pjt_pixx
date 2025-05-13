@@ -5,11 +5,8 @@ import com.ssafy.fourcut.domain.image.entity.Album;
 import com.ssafy.fourcut.domain.image.entity.Feed;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.DialectOverride;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -52,4 +49,13 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FaceVector> faceVectors;
+
+    public void addFaceVector(FaceVector fv) {
+        faceVectors.add(fv);
+        fv.setUser(this);
+    }
+    public void removeFaceVector(FaceVector fv) {
+        faceVectors.remove(fv);
+        fv.setUser(null);
+    }
 }
