@@ -30,13 +30,13 @@ export default function FeedInfoEditModal({
   const [location, setLocation] = useState(feedDetail.feedLocation || "");
   const [brand, setBrand] = useState(feedDetail.brandName || "");
   const [memo, setMemo] = useState(feedDetail.feedMemo || "");
-  const [hashtags, setHashtags] = useState(feedDetail.feedHashtags?.map((tag: string) => `#${tag}`).join(" ") || "");
 
   // 브랜드 선택
   const brandOptions = [
     { value: "인생네컷", label: "인생네컷" },
     { value: "포토이즘", label: "포토이즘" },
-    // { value: "모노멘션", label: "모노멘션" },
+    { value: "모노맨션", label: "모노맨션" },
+    { value: "하루필름", label: "하루필름" },
     { value: "기타", label: "기타" },
   ];
 
@@ -85,11 +85,6 @@ export default function FeedInfoEditModal({
     try {
       const formattedDate = dayjs(date, "YYYY.MM.DD").format("YYYY-MM-DDTHH:mm:ss");
 
-      const tagArray = hashtags
-        .split(/\s+/)
-        .map((tag: string) => tag.replace(/^#/, ""))
-        .filter(Boolean);
-
       await updateFeed(Number(feedId), {
         feedId: Number(feedId),
         feedTitle: title,
@@ -135,30 +130,21 @@ export default function FeedInfoEditModal({
           className={styles.input}
           value={[...tagList.map((t) => `#${t}`), rawInput].join(" ")}
           onChange={(e) => {
-            // 사용자가 직접 입력 중인 부분만 추출
             const input = e.target.value;
 
-            // 전체 문자열을 공백으로 split해서 마지막 단어만 추출
-            const lastWord = input.split(" ").pop() ?? "";
+            // 전체 입력을 공백 기준으로 나눔
+            const words = input.trim().split(/\s+/);
 
-            setRawInput(lastWord.replace(/^#/, "")); // # 제거 후 반영
-          }}
-          onKeyDown={(e) => {
-            if (e.key === " " || e.key === "Enter") {
-              e.preventDefault();
-              const word = rawInput.trim().replace(/^#/, "");
-              if (!word) return;
-              setTagList([...tagList, word]);
-              setRawInput("");
-            }
+            // 마지막 단어만 입력 중인 rawInput으로 유지
+            const lastWord = input.endsWith(" ") ? "" : (words.pop() ?? "");
 
-            if (e.key === "Backspace" && rawInput === "" && tagList.length > 0) {
-              e.preventDefault();
-              const newList = [...tagList];
-              const last = newList.pop();
-              setTagList(newList);
-              setRawInput(last ?? "");
-            }
+            // 그 외 단어는 태그로 등록
+            const newTags = words
+              .map((w) => w.replace(/^#/, "").trim())
+              .filter((w) => w.length > 0 && !tagList.includes(w)); // 중복 방지
+
+            setTagList([...tagList, ...newTags]);
+            setRawInput(lastWord);
           }}
           placeholder="해시태그 - #없이 띄어쓰기로 구분하세요"
         />
