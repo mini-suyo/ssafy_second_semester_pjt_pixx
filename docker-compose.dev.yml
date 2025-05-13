@@ -36,6 +36,9 @@ services:
       - "${SPRING_DEV_CONTAINER_PORT}"
     volumes:
       - /home/ubuntu/aws:/app/aws
+    depends_on:
+      mysql:
+        condition: service_healthy   # 에러 방지를 위해 mysql healthcheck 통과 후 시작
 
   mysql:
     image: mysql:8.0.41-oracle
@@ -47,6 +50,10 @@ services:
       - "${MYSQL_CONTAINER_PORT}:${MYSQL_CONTAINER_PORT}"
     volumes:
       - /home/ubuntu/docker-mysql/filmmoa_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping"]
+      interval: 5s # 5초 간격으로 체크
+      retries: 10 # 10번까지 재시도
 
 networks:
   default:
