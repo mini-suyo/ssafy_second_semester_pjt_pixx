@@ -108,8 +108,10 @@ public class StoreService {
                 throw new CustomException(400, "지원하지 않는 브랜드입니다.");
             }
         } catch (CustomException e) {
+            feedRepository.deleteById(request.getFeedId());
             throw e;
         } catch (Exception e) {
+            feedRepository.deleteById(request.getFeedId());
             throw new CustomException(500, "크롤링 및 다운로드 중 오류가 발생했습니다.");
         }
     }
@@ -152,7 +154,7 @@ public class StoreService {
                 .orElseThrow(() -> new CustomException(404, "Feed를 찾을 수 없습니다."));
 
         // 1. uid 파라미터 추출
-        String uid = extractUidFromUrl(request.getPageUrl());
+        String uid = extractUidFromUrl(request.getFeedId(), request.getPageUrl());
         log.info("uid : " + uid);
 
         // 2. POST 요청 보내기
@@ -218,9 +220,12 @@ public class StoreService {
         QRuploadAndSave(request.getUserId(), videoDownloadUrl, feed);
     }
 
-    private String extractUidFromUrl(String url) {
+    private String extractUidFromUrl(int feedId, String url) {
         int idx = url.indexOf("u=");
-        if (idx == -1) throw new CustomException(400, "uid 파라미터가 URL에 없습니다.");
+        if (idx == -1) {
+            feedRepository.deleteById(feedId);
+            throw new CustomException(400, "uid 파라미터가 URL에 없습니다.");
+        }
         return url.substring(idx + 2);
     }
 
@@ -256,13 +261,14 @@ public class StoreService {
                         Image.builder()
                                 .feed(feed)
                                 .imageUrl(s3Key)
-                                .imageType(detectImageType(contentType))
+                                .imageType(detectImageType(feed.getFeedId(), contentType))
                                 .createdAt(LocalDateTime.now())
                                 .build()
                 );
             }
         } catch (Exception e) {
-            throw new CustomException(500, "파일 다운로드 및 업로드 중 오류가 발생했습니다.");
+            feedRepository.deleteById(feed.getFeedId());
+            throw new CustomException(500, "파일 다운로드 및 S3 업로드 중 오류가 발생했습니다.");
         }
     }
 
@@ -278,12 +284,13 @@ public class StoreService {
         }
     }
 
-    private ImageType detectImageType(String contentType) {
+    private ImageType detectImageType(int feedId, String contentType) {
         if (contentType.startsWith("image/")) {
             if (contentType.equals("image/gif")) return ImageType.GIF;
             else return ImageType.IMAGE;
         }
         if (contentType.startsWith("video/")) return ImageType.VIDEO;
+        feedRepository.deleteById(feedId);
         throw new CustomException(500, "알 수 없는 파일 타입: " + contentType);
     }
 
@@ -344,12 +351,13 @@ public class StoreService {
                         Image.builder()
                                 .feed(feed)
                                 .imageUrl(s3Key)
-                                .imageType(detectImageType(contentType)) // photo, gif, video 등
+                                .imageType(detectImageType(feed.getFeedId(), contentType)) // photo, gif, video 등
                                 .createdAt(LocalDateTime.now())
                                 .build()
                 );
 
             } catch (Exception e) {
+                feedRepository.deleteById(feed.getFeedId());
                 throw new CustomException(500, "파일 업로드 실패: " + file.getOriginalFilename());
             }
         }
