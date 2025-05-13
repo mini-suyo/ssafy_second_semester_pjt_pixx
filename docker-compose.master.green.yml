@@ -1,6 +1,6 @@
 
 services:
-  ${NEXTJS_MASTER_GREEN_SERVICE_NAME}:
+  frontend-master-green:
     build:
       context: ./FRONTEND
       dockerfile: Dockerfile
@@ -22,7 +22,7 @@ services:
       retries: 3 # 실패 시 재시도 횟수 (모두 실패 시 unhealthy)
       start_period: 30s # 컨테이너 시작 후 검사 시작까지 대기 시간
 
-  ${SPRING_MASTER_GREEN_SERVICE_NAME}:
+  backend-master-green:
     # Dockerfile로 백엔드 프로젝트를 이미지로 빌드
     build:
       context: ./BACKEND
