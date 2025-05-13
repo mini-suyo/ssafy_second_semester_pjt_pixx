@@ -2,12 +2,15 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./feed-info-edit-modal.module.css";
 import { updateFeed } from "@/app/lib/api/feedApi";
 
 import dayjs from "dayjs";
 import Image from "next/image";
+import Select from "react-select";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function FeedInfoEditModal({
   isOpen,
@@ -29,7 +32,54 @@ export default function FeedInfoEditModal({
   const [memo, setMemo] = useState(feedDetail.feedMemo || "");
   const [hashtags, setHashtags] = useState(feedDetail.feedHashtags?.map((tag: string) => `#${tag}`).join(" ") || "");
 
+  // 브랜드 선택
+  const brandOptions = [
+    { value: "인생네컷", label: "인생네컷" },
+    { value: "포토이즘", label: "포토이즘" },
+    // { value: "모노멘션", label: "모노멘션" },
+    { value: "기타", label: "기타" },
+  ];
+
+  const selectedBrandOption = brandOptions.find((opt) => opt.value === brand) ?? null;
+
+  // 날짜 선택
+  const [parsedDate, setParsedDate] = useState<Date | null>(date ? dayjs(date, "YYYY.MM.DD").toDate() : null);
+
+  // 해시 태그 # 설정
+  const [tagList, setTagList] = useState<string[]>([]);
+  const [rawInput, setRawInput] = useState("");
+
+  //  feedDetail이 바뀔 때마다 상태 초기화
+  useEffect(() => {
+    if (!feedDetail) return;
+
+    setTitle(feedDetail.feedTitle || "");
+    setDate(dayjs(feedDetail.feedDate).format("YYYY.MM.DD"));
+    setLocation(feedDetail.feedLocation || "");
+    setBrand(feedDetail.brandName || "");
+    setMemo(feedDetail.feedMemo || "");
+
+    // 해시태그 상태 초기화
+    const initialTags = feedDetail.feedHashtags || [];
+    setTagList(initialTags); // ex: ["고양이", "귀엽다"]
+    setRawInput(""); // 입력창은 비움
+  }, [feedDetail]);
+
   if (!isOpen || !feedDetail) return null;
+
+  // 해시태그 핸들러(# 자동으로 붙여줌)
+  // const handleHashtagChange = (value: string) => {
+  //   setRawHashtagInput(value);
+  // };
+
+  // const formatHashtags = (input: string) => {
+  //   return input
+  //     .split(/\s+/)
+  //     .map((word) => word.replace(/^#/, ""))
+  //     .filter(Boolean)
+  //     .map((word) => `#${word}`)
+  //     .join(" ");
+  // };
 
   const handleSubmit = async () => {
     try {
@@ -47,14 +97,13 @@ export default function FeedInfoEditModal({
         location,
         brandName: brand,
         feedMemo: memo,
-        hashtags: tagArray,
+        hashtags: tagList,
       });
-      console.log("feedDetail.feedId:", feedDetail.feedId);
       console.log("props.feedId:", feedId);
 
       alert("수정 완료!");
+      await onSuccess();
       onClose();
-      onSuccess();
     } catch (err) {
       console.error(err);
       alert("수정 실패");
@@ -73,7 +122,7 @@ export default function FeedInfoEditModal({
         {/* 제목 입력 */}
         <input
           className={styles.input}
-          value={title}
+          value={title === null ? "" : title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="제목을 작성해주세요"
         />
@@ -81,40 +130,112 @@ export default function FeedInfoEditModal({
         {/* <div className={styles.divider} /> */}
 
         {/* 해시태그 입력 */}
+        {/* 추후 실시간 포맷팅 `react-tag-input, react-tagsinput, react-select + isMulti` 도전전 */}
         <input
           className={styles.input}
-          value={hashtags}
-          onChange={(e) => setHashtags(e.target.value)}
-          placeholder="#해시태그 #입력"
+          value={[...tagList.map((t) => `#${t}`), rawInput].join(" ")}
+          onChange={(e) => {
+            // 사용자가 직접 입력 중인 부분만 추출
+            const input = e.target.value;
+
+            // 전체 문자열을 공백으로 split해서 마지막 단어만 추출
+            const lastWord = input.split(" ").pop() ?? "";
+
+            setRawInput(lastWord.replace(/^#/, "")); // # 제거 후 반영
+          }}
+          onKeyDown={(e) => {
+            if (e.key === " " || e.key === "Enter") {
+              e.preventDefault();
+              const word = rawInput.trim().replace(/^#/, "");
+              if (!word) return;
+              setTagList([...tagList, word]);
+              setRawInput("");
+            }
+
+            if (e.key === "Backspace" && rawInput === "" && tagList.length > 0) {
+              e.preventDefault();
+              const newList = [...tagList];
+              const last = newList.pop();
+              setTagList(newList);
+              setRawInput(last ?? "");
+            }
+          }}
+          placeholder="해시태그 - #없이 띄어쓰기로 구분하세요"
         />
 
         {/* 날짜 / 장소 / 브랜드 입력 */}
         <div className={styles.infoRow}>
           <Image src="/icons/icon-date.png" alt="촬영일" width={20} height={20} />
-          <input
+          <DatePicker
+            selected={parsedDate}
+            calendarClassName="custom-calendar"
+            dayClassName={(date) => (dayjs(date).day() === 0 ? "sunday" : "")}
+            onChange={(date: Date | null) => {
+              setParsedDate(date);
+              if (date) {
+                setDate(dayjs(date).format("YYYY.MM.DD")); // 기존 date 문자열도 업데이트
+              }
+            }}
+            dateFormat="yyyy.MM.dd"
+            placeholderText="촬영일을 선택해주세요"
             className={styles.input}
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            placeholder="YYYY.MM.DD"
           />
         </div>
         <div className={styles.infoRow}>
           <Image src="/icons/icon-location.png" alt="위치" width={20} height={20} />
           <input
             className={styles.input}
-            value={location}
+            value={location === null ? "" : location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="장소"
           />
         </div>
         <div className={styles.infoRow}>
           <Image src="/icons/icon-brand.png" alt="브랜드" width={20} height={20} />
-          <input
-            className={styles.input}
-            value={brand}
-            onChange={(e) => setBrand(e.target.value)}
-            placeholder="브랜드"
-          />
+          <div style={{ flex: 1 }}>
+            <Select
+              options={brandOptions}
+              placeholder="브랜드를 선택해주세요"
+              value={selectedBrandOption}
+              onChange={(selected) => {
+                if (selected) setBrand(selected.value);
+              }}
+              components={{ IndicatorSeparator: () => null }}
+              styles={{
+                container: (base) => ({
+                  ...base,
+                  width: "85%", //
+                }),
+                control: (base) => ({
+                  ...base,
+                  backgroundColor: "transparent",
+                  border: "none",
+                  borderBottom: "1px solid rgba(255, 250, 248, 0.23)",
+                  boxShadow: "none",
+                  color: "#fffaf8",
+                  borderRadius: 0,
+                }),
+                singleValue: (base) => ({
+                  ...base,
+                  color: "#fffaf8",
+                }),
+                placeholder: (base) => ({
+                  ...base,
+                  color: "#fffaf8a8",
+                }),
+                menu: (base) => ({
+                  ...base,
+                  backgroundColor: "#261b2d",
+                  color: "#fffaf8",
+                }),
+                option: (base, state) => ({
+                  ...base,
+                  backgroundColor: state.isFocused ? "#4b436e" : "transparent",
+                  color: "#fffaf8",
+                }),
+              }}
+            />
+          </div>
         </div>
 
         {/* 메모 */}
@@ -122,7 +243,7 @@ export default function FeedInfoEditModal({
           <h3>Memo</h3>
           <textarea
             className={styles.textarea}
-            value={memo}
+            value={memo === null ? "" : memo}
             onChange={(e) => setMemo(e.target.value)}
             placeholder="메모를 작성해주세요"
           />

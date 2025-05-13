@@ -123,17 +123,23 @@ public class AlbumService {
         // 5) Feed → FeedItemResponse 매핑
         List<FeedItemResponse> feedItems = feedPage.stream()
                 .map(f -> {
-                    String thumbUrl = f.getImages().stream()
-                            // IMAGE 타입만 필터
-                            .filter(img -> ImageType.IMAGE.equals(img.getImageType()))
-                            // ID 기준 최소값(Image 객체) 선택
-                            .min(Comparator.comparing(Image::getImageId))
-                            // Image → URL
+                    // 1) isThumbnail=true 인 이미지 우선 탐색
+                    String rawUrl = f.getImages().stream()
+                            .filter(img -> Boolean.TRUE.equals(img.getIsThumbnail()))
                             .map(Image::getImageUrl)
-                            // URL → 서명된 CloudFront URL
-                            .map(url -> cloudFrontService.generateSignedCloudFrontUrl(url, "get"))
-                            // 없으면 빈 문자열
-                            .orElse("");
+                            .findFirst()
+                            // 2) 없으면 IMAGE 타입 중 ID가 가장 작은 것
+                            .orElseGet(() -> f.getImages().stream()
+                                    .filter(img -> ImageType.IMAGE.equals(img.getImageType()))
+                                    .min(Comparator.comparing(Image::getImageId))
+                                    .map(Image::getImageUrl)
+                                    .orElse("")
+                            );
+
+                    // 3) CloudFront signed URL 생성
+                    String thumbUrl = rawUrl.isEmpty()
+                            ? ""
+                            : cloudFrontService.generateSignedCloudFrontUrl(rawUrl, "get");
 
                     return new FeedItemResponse(
                             f.getFeedId(),
