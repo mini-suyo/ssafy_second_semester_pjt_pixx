@@ -43,5 +43,9 @@ public class FaceVector {
     @Column(name = "detection_count", nullable = false, columnDefinition = "INT DEFAULT 1")
     private Integer detectionCount = 1;
 
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "rep_detection_id")
+    private FaceDetection repDetection;
+
 
 }
