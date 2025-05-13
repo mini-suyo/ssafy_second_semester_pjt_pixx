@@ -4,12 +4,14 @@ import api from "@/app/lib/api/axios";
 import styles from "./add-file.module.css";
 import { useQueryClient } from "@tanstack/react-query";
 import ErrorModal from "@/components/ErrorModal";
+import { useRouter } from "next/navigation";
 
 export default function AddFile() {
   const [files, setFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const validateFiles = (fileList: FileList): boolean => {
     const currentFiles = Array.from(fileList);
@@ -82,7 +84,6 @@ export default function AddFile() {
     setIsUploading(true);
     const formData = new FormData();
 
-    // 파일 추가
     Array.from(files).forEach((file) => {
       formData.append("files", file);
     });
@@ -95,21 +96,22 @@ export default function AddFile() {
         withCredentials: true,
       });
 
-      if (response.data.status === "200") {
-        setErrorMessage("파일이 성공적으로 업로드되었습니다.");
+      if (response.data.status === 200) {
         setFiles(null);
         // 파일 입력 초기화
         const fileInput = document.getElementById("fileInput") as HTMLInputElement;
         if (fileInput) fileInput.value = "";
+
         // 피드 목록 갱신
-        console.log("파일 업로드 성공, 피드 쿼리 무효화 시도");
         await queryClient.invalidateQueries({
           predicate: (query) => query.queryKey[0] === "feeds",
         });
         await queryClient.refetchQueries({
           predicate: (query) => query.queryKey[0] === "feeds",
         });
-        console.log("피드 쿼리 무효화 완료");
+
+        // 피드 상세 페이지로 라우팅
+        router.push(`/feed/${response.data.data.feedId}`);
       }
     } catch (error: any) {
       if (error.response?.data?.status === "400") {
