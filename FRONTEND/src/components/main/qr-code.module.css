@@ -1,55 +1,117 @@
-.container {
+.QrScannerContainer {
+  min-height: 300px;
+  height: 50vh;
   display: flex;
   justify-content: center;
-  padding: 1rem;
-  box-sizing: border-box;
-  width: 100%;
-  height: auto;
+  align-items: center;
 }
 
-.qrContainer {
-  top: 2rem;
-  text-align: center;
-  position: relative;
-  width: 100%;
-  box-sizing: border-box;
+.videoContainer {
+  width: 80%;
+  aspect-ratio: 1/1;
+  max-width: min(80vh, 500px);
+  object-fit: cover;
+  z-index: 2;
 }
 
-.reader {
-  position: relative;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.reader video {
-  /* width: 100%; */
-}
-
-.reader :global(#reader__dashboard) {
-  /* display: none !important; */
-}
-
-.result {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #f0f0f0;
-  border-radius: 8px;
-}
-
-.result p {
-  margin: 5px 0;
-}
-
-.retryButton {
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  background-color: #ffffff;
-  border: 1px solid #000000;
-  border-radius: 8px;
+.scanButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+  border: none;
   cursor: pointer;
-  font-size: 1rem;
+  padding: 20px;
+  font-size: 14px;
+  color: white;
 }
 
-.retryButton:hover {
-  background-color: #f0f0f0;
+.qrIcon {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 10px;
+}
+
+.cornerTL,
+.cornerTR,
+.cornerBL,
+.cornerBR {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid white;
+}
+
+.cornerTL {
+  top: 0;
+  left: 0;
+  border-right: none;
+  border-bottom: none;
+}
+
+.cornerTR {
+  top: 0;
+  right: 0;
+  border-left: none;
+  border-bottom: none;
+}
+
+.cornerBL {
+  bottom: 0;
+  left: 0;
+  border-right: none;
+  border-top: none;
+}
+
+.cornerBR {
+  bottom: 0;
+  right: 0;
+  border-left: none;
+  border-top: none;
+}
+
+.qrDots {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background-image: radial-gradient(circle, white 2px, transparent 2px);
+  background-size: 8px 8px;
+}
+
+.scanButton span {
+  margin: 2px 0;
+}
+
+.scanningContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.controlsContainer {
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
+  max-width: min(80vh, 500px);
+  margin-top: 10px;
+}
+
+.closeButton,
+.switchCameraButton {
+  padding: 8px 16px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.closeButton:hover,
+.switchCameraButton:hover {
+  background-color: rgba(0, 0, 0, 0.8);
 }
