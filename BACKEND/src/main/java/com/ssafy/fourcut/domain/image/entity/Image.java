@@ -45,4 +45,5 @@ public class Image {
 
     @OneToMany(mappedBy = "image", cascade = ALL, orphanRemoval = true)
     private List<FaceDetection> detections;
+
 }
