@@ -1,104 +1,107 @@
 "use client";
-import { Html5QrcodeScanner } from "html5-qrcode";
-import { useEffect, useState } from "react";
-import api from "@/app/lib/api/axios";
+import { useEffect, useRef, useState } from "react";
+import { BrowserQRCodeReader } from "@zxing/browser";
 import styles from "./qr-code.module.css";
+import api from "@/app/lib/api/axios";
 
 export default function QrCode() {
-  const [scanResult, setScanResult] = useState<string | null>(null);
-  const [isScanning, setIsScanning] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isScanning, setIsScanning] = useState(false);
+
+  const handleQrResult = async (qrUrl: string) => {
+    try {
+      const response = await api.post("/api/v1/photos/upload/qr", {
+        pageUrl: qrUrl,
+      });
+
+      if (response.data.status === "200") {
+        setIsScanning(false); // 성공 시 스캐너 종료
+      } else {
+        console.error("QR 업로드 실패:", response.data.message);
+      }
+    } catch (error) {
+      console.error("QR 업로드 에러:", error);
+    }
+  };
 
   useEffect(() => {
-    let scanner: Html5QrcodeScanner | null = null;
+    const codeReader = new BrowserQRCodeReader();
+    let controls: { stop: () => void } | undefined;
+
+    const startScanning = async () => {
+      try {
+        controls = await codeReader.decodeFromConstraints(
+          {
+            video: {
+              facingMode: { exact: "environment" },
+            },
+          },
+          videoRef.current!,
+          (result, error) => {
+            if (result) {
+              const qrUrl = result.getText();
+              handleQrResult(qrUrl);
+            }
+            if (error && !(error instanceof DOMException)) {
+              console.error("스캔 오류:", error);
+            }
+          }
+        );
+      } catch (err) {
+        try {
+          controls = await codeReader.decodeFromConstraints(
+            {
+              video: {
+                facingMode: "environment",
+                width: { min: 640, ideal: 1280, max: 1920 },
+                height: { min: 480, ideal: 720, max: 1080 },
+              },
+            },
+            videoRef.current!,
+            (result, error) => {
+              if (result) {
+                const qrUrl = result.getText();
+                handleQrResult(qrUrl);
+              }
+              if (error && !(error instanceof DOMException)) {
+                console.error("스캔 오류:", error);
+              }
+            }
+          );
+        } catch (fallbackErr) {
+          console.error("카메라 접근 오류:", fallbackErr);
+        }
+      }
+    };
 
     if (isScanning) {
-      scanner = new Html5QrcodeScanner(
-        "reader",
-        {
-          fps: 5,
-          qrbox: { width: 250, height: 250 },
-          videoConstraints: {
-            facingMode: "environment",
-          },
-        },
-        false
-      );
-
-      function onScanSuccess(decodedText: string) {
-        setScanResult(decodedText);
-        setIsScanning(false);
-        scanner?.clear();
-
-        // QR 코드 URL을 백엔드로 전송
-        const sendQrCode = async () => {
-          try {
-            const response = await api.post(
-              // axios를 api로 변경
-              "/api/v1/photos/upload/qr",
-              { pageUrl: decodedText },
-              {
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                withCredentials: true,
-              }
-            );
-
-            if (response.data.status === "200") {
-              console.log("QR 코드가 성공적으로 등록되었습니다.");
-              alert("QR 코드가 성공적으로 등록되었습니다.");
-            }
-          } catch (error: any) {
-            if (error.response?.data?.status === "400") {
-              console.log("QR 코드가 이미 등록 실패 400");
-              alert(error.response.data.message || "QR 코드 등록에 실패했습니다.");
-            } else {
-              console.log("QR 코드가 이미 등록 실패 (다른 에러)");
-              alert("QR 코드 등록에 실패했습니다.");
-            }
-            console.error("Error:", error);
-          }
-        };
-
-        sendQrCode();
-      }
-
-      scanner.render(onScanSuccess, (error) => {
-        console.warn(error);
-      });
+      startScanning();
     }
 
     return () => {
-      if (scanner) {
-        scanner.clear();
-      }
+      controls?.stop();
     };
   }, [isScanning]);
 
-  const handleRetry = () => {
-    setScanResult(null);
-    setIsScanning(true);
-  };
-
   return (
-    <div className={styles.container}>
-      <div className={styles.qrContainer}>
-        <div id="reader" className={styles.reader}></div>
-        <p>
-          QR코드로
-          <br />
-          네컷사진 저장하기
-        </p>
-        {scanResult && (
-          <div className={styles.result}>
-            <p>스캔 완료!</p>
-            <p>URL: {scanResult}</p>
-            <button onClick={handleRetry} className={styles.retryButton}>
-              다시 스캔하기
-            </button>
-          </div>
+    <>
+      <div className={styles.QrScannerContainer}>
+        {!isScanning ? (
+          <button onClick={() => setIsScanning(true)} className={styles.scanButton}>
+            <div className={styles.qrIcon}>
+              <div className={styles.cornerTL}></div>
+              <div className={styles.cornerTR}></div>
+              <div className={styles.cornerBL}></div>
+              <div className={styles.cornerBR}></div>
+              <div className={styles.qrDots}></div>
+            </div>
+            <span>QR 코드로</span>
+            <span>네컷사진 저장하기</span>
+          </button>
+        ) : (
+          <video onClick={() => setIsScanning(false)} ref={videoRef} className={styles.videoContainer} />
         )}
       </div>
-    </div>
+    </>
   );
 }
