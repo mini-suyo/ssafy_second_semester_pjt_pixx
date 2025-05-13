@@ -59,10 +59,5 @@ public class Feed {
     @OneToMany(mappedBy = "feed", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Image> images;
 
-    // 대표 얼굴로 쓸 FaceDetection
-    @OneToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "rep_detection_id")
-    private FaceDetection repDetection;
-
 
 }
