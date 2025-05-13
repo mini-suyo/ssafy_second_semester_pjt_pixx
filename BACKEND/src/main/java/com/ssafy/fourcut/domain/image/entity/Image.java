@@ -1,11 +1,15 @@
 package com.ssafy.fourcut.domain.image.entity;
 
+import com.ssafy.fourcut.domain.faceDetection.entity.FaceDetection;
 import com.ssafy.fourcut.domain.image.entity.enums.ImageType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CurrentTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import static jakarta.persistence.CascadeType.ALL;
 
 @Entity
 @Table(name = "image")
@@ -38,5 +42,8 @@ public class Image {
     @Column(name = "is_thumbnail", nullable = false, columnDefinition = "boolean default false")
     @Builder.Default
     private Boolean isThumbnail = false;
+
+    @OneToMany(mappedBy = "image", cascade = ALL, orphanRemoval = true)
+    private List<FaceDetection> detections;
 
 }
