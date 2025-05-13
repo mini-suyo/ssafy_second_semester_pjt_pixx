@@ -52,4 +52,13 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FaceVector> faceVectors;
+
+    public void addFaceVector(FaceVector fv) {
+        faceVectors.add(fv);
+        fv.setUser(this);
+    }
+    public void removeFaceVector(FaceVector fv) {
+        faceVectors.remove(fv);
+        fv.setUser(null);
+    }
 }
