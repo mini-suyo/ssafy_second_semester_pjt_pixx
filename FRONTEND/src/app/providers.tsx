@@ -5,7 +5,6 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, ReactNode } from "react";
-import GTM from "@/components/common/GTM";
 import LayoutClient from "./LayoutClient";
 
 export default function Providers({ children }: { children: ReactNode }) {
@@ -13,7 +12,6 @@ export default function Providers({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GTM />
       <LayoutClient>{children}</LayoutClient>
     </QueryClientProvider>
   );
