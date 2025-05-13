@@ -13,6 +13,7 @@ import com.ssafy.fourcut.domain.image.repository.FeedRepository;
 import com.ssafy.fourcut.domain.image.repository.StoreRepository;
 import com.ssafy.fourcut.domain.user.entity.User;
 import com.ssafy.fourcut.domain.user.repository.UserRepository;
+import com.ssafy.fourcut.global.exception.CustomException;
 import com.ssafy.fourcut.global.s3.S3Uploader;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -52,13 +53,13 @@ public class StoreService {
     @Transactional
     public int createFeed(int userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 userId가 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(404, "해당 userId가 존재하지 않습니다."));
         log.info("userId : " + user.getUserId());
         Album album = albumRepository.findByUser_UserIdAndDefaultAlbumTrue(user.getUserId())
-                .orElseThrow(() -> new IllegalStateException("Default album not found"));
+                .orElseThrow(() -> new CustomException(404, "기본 앨범을 찾을 수 없습니다."));
         log.info("album : " + album.getAlbumId());
         Brand brand = brandRepository.findById(1)
-                .orElseThrow(() -> new IllegalStateException("Brand not found"));
+                .orElseThrow(() -> new CustomException(404, "기본 브랜드를 찾을 수 없습니다."));
         Feed feed = Feed.builder()
                 .user(user)
                 .album(album)
@@ -76,7 +77,7 @@ public class StoreService {
     private void updateBrand(Feed feed, int brandId, String logMessage) {
         log.info(logMessage);
         Brand brand = brandRepository.findById(brandId)
-                .orElseThrow(() -> new IllegalStateException("Brand " + brandId + " not found"));
+                .orElseThrow(() -> new CustomException(404, "해당 브랜드(" + brandId + ")를 찾을 수 없습니다."));
         feed.setBrand(brand);
         feedRepository.save(feed);
     }
@@ -88,7 +89,7 @@ public class StoreService {
     public void CrawlUploadAndSave(QRUploadRequestDto request) {
         try {
             Feed feed = feedRepository.findById(request.getFeedId())
-                    .orElseThrow(() -> new IllegalArgumentException("Feed를 찾을 수 없습니다."));
+                    .orElseThrow(() -> new CustomException(404, "Feed를 찾을 수 없습니다."));
 
             // 브랜드 별 크롤링 메서드 호출
             if (request.getPageUrl().contains("monomansion.net")) {
@@ -104,17 +105,19 @@ public class StoreService {
                 updateBrand(feed, 5, "인생네컷 크롤링");
                 crawlLife4cut(request);
             } else {
-                throw new IllegalArgumentException("지원하지 않는 브랜드입니다.");
+                throw new CustomException(400, "지원하지 않는 브랜드입니다.");
             }
+        } catch (CustomException e) {
+            throw e;
         } catch (Exception e) {
-            throw new RuntimeException("크롤링 및 다운로드 실패", e);
+            throw new CustomException(500, "크롤링 및 다운로드 중 오류가 발생했습니다.");
         }
     }
 
     // 모노맨션 크롤링
     private void crawlMonomansion(QRUploadRequestDto request) throws Exception {
         Feed feed = feedRepository.findById(request.getFeedId())
-                .orElseThrow(() -> new IllegalArgumentException("Feed를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(404, "Feed를 찾을 수 없습니다."));
 
         Document doc = Jsoup.connect(request.getPageUrl()).get();
         Elements links = doc.select("a");
@@ -130,7 +133,7 @@ public class StoreService {
     // 하루필름 크롤링
     private void crawlharu(QRUploadRequestDto request) throws Exception {
         Feed feed = feedRepository.findById(request.getFeedId())
-                .orElseThrow(() -> new IllegalArgumentException("Feed를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(404, "Feed를 찾을 수 없습니다."));
 
         Document doc = Jsoup.connect(request.getPageUrl()).get();
         Elements links = doc.select("a");
@@ -146,7 +149,7 @@ public class StoreService {
     // 포토이즘 크롤링
     private void crawlPhotoism(QRUploadRequestDto request) throws Exception {
         Feed feed = feedRepository.findById(request.getFeedId())
-                .orElseThrow(() -> new IllegalArgumentException("Feed를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(404, "Feed를 찾을 수 없습니다."));
 
         // 1. uid 파라미터 추출
         String uid = extractUidFromUrl(request.getPageUrl());
@@ -183,7 +186,7 @@ public class StoreService {
     // 인생네컷 크롤링
     private void crawlLife4cut(QRUploadRequestDto request) throws Exception {
         Feed feed = feedRepository.findById(request.getFeedId())
-                .orElseThrow(() -> new IllegalArgumentException("Feed를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(404, "Feed를 찾을 수 없습니다."));
 
         // 1. folderPath 파라미터 추출
         String folderPath = extractQueryParam(request.getPageUrl(), "folderPath");  // "/QRimage/20250508/770/UUID"
@@ -191,7 +194,7 @@ public class StoreService {
         // 2. 경로에서 각 구성 요소 추출
         String[] parts = folderPath.split("/");
         if (parts.length < 5) {
-            throw new IllegalArgumentException("folderPath 형식이 올바르지 않습니다.");
+            throw new CustomException(400, "folderPath 형식이 올바르지 않습니다.");
         }
 
         String folder = parts[2];
@@ -217,7 +220,7 @@ public class StoreService {
 
     private String extractUidFromUrl(String url) {
         int idx = url.indexOf("u=");
-        if (idx == -1) throw new IllegalArgumentException("uid 파라미터가 없습니다.");
+        if (idx == -1) throw new CustomException(400, "uid 파라미터가 URL에 없습니다.");
         return url.substring(idx + 2);
     }
 
@@ -259,7 +262,7 @@ public class StoreService {
                 );
             }
         } catch (Exception e) {
-            throw new RuntimeException("파일 다운로드 및 업로드 실패", e);
+            throw new CustomException(500, "파일 다운로드 및 업로드 중 오류가 발생했습니다.");
         }
     }
 
@@ -281,7 +284,7 @@ public class StoreService {
             else return ImageType.IMAGE;
         }
         if (contentType.startsWith("video/")) return ImageType.VIDEO;
-        throw new IllegalArgumentException("알 수 없는 파일 타입: " + contentType);
+        throw new CustomException(500, "알 수 없는 파일 타입: " + contentType);
     }
 
 
@@ -327,7 +330,7 @@ public class StoreService {
 
         // Feed 엔티티 조회 또는 생성 필요
         Feed feed = feedRepository.findById(request.getFeedId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid feedId: " + request.getFeedId()));
+                .orElseThrow(() -> new CustomException(404, "해당 피드(" + request.getFeedId() + ")를 찾을 수 없습니다."));
 
         for (MultipartFile file : files) {
             try (InputStream inputStream = file.getInputStream()) {
@@ -347,7 +350,7 @@ public class StoreService {
                 );
 
             } catch (Exception e) {
-                throw new RuntimeException("파일 업로드 실패: " + file.getOriginalFilename(), e);
+                throw new CustomException(500, "파일 업로드 실패: " + file.getOriginalFilename());
             }
         }
     }

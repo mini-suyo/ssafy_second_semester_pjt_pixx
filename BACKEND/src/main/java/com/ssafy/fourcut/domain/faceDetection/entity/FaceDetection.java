@@ -20,11 +20,11 @@ public class FaceDetection {
     @Column(name = "detection_id", length = 255)
     private String detectionId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "face_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "face_id")
     private FaceVector faceVector;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "image_id", nullable = false)
     private Image image;
 
@@ -38,4 +38,7 @@ public class FaceDetection {
     @Column(name = "detected_at", nullable = false)
     @CurrentTimestamp
     private LocalDateTime detectedAt;
+
+    @Column(name = "is_valid", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean valid = true;   // 잘못된 검출 무시 처리
 }

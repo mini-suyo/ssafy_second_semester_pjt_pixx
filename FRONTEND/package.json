@@ -10,12 +10,15 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.75.1",
+    "@zxing/browser": "^0.1.5",
+    "@zxing/library": "^0.21.3",
     "axios": "^1.9.0",
     "dayjs": "^1.11.13",
     "html5-qrcode": "^2.3.8",
     "js-cookie": "^3.0.5",
     "next": "15.3.1",
     "react": "^19.0.0",
+    "react-datepicker": "^8.3.0",
     "react-dom": "^19.0.0",
     "react-select": "^5.10.1"
   },

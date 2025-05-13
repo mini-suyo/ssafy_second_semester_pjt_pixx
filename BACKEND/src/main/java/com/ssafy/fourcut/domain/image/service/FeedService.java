@@ -69,20 +69,26 @@ public class FeedService {
     /** Feed → FeedItemResponse 변환 공통 */
     private FeedItemResponse toItem(Feed feed) {
         String thumbUrl = feed.getImages().stream()
-                // IMAGE 타입만 필터
-                .filter(img -> ImageType.IMAGE.equals(img.getImageType()))
-                // ID 기준 최소값(Image 객체) 선택
-                .min(Comparator.comparing(Image::getImageId))
-                // Image → URL
+                // 1) 썸네일 플래그가 true 인 이미지 우선
+                .filter(Image::getIsThumbnail)
+                .findFirst()
                 .map(Image::getImageUrl)
-                // URL → 서명된 CloudFront URL
-                .map(url -> cloudFrontService.generateSignedCloudFrontUrl(url, "get"))
-                // 없으면 빈 문자열
-                .orElse("");
+                // 2) 없으면 기존 로직: IMAGE 타입 중 ID 최소값
+                .orElseGet(() -> feed.getImages().stream()
+                        .filter(img -> ImageType.IMAGE.equals(img.getImageType()))
+                        .min(Comparator.comparing(Image::getImageId))
+                        .map(Image::getImageUrl)
+                        .orElse("")
+                );
+
+        // 3) URL → 서명된 CloudFront URL
+        String signedThumb = thumbUrl.isEmpty()
+                ? ""
+                : cloudFrontService.generateSignedCloudFrontUrl(thumbUrl, "get");
 
         return new FeedItemResponse(
                 feed.getFeedId(),
-                thumbUrl,
+                signedThumb,
                 feed.getFeedFavorite()
         );
     }
@@ -94,9 +100,9 @@ public class FeedService {
         Feed feed = feedRepository.findWithDetailsByFeedId(feedId)
                 .orElseThrow(() -> new EntityNotFoundException("피드를 찾을 수 없습니다. id=" + feedId));
 
-        // (선택) userId와 feed.getUser().getUserId() 비교해서 소유권 검증 가능
-
         List<FeedImageResponse> images = feed.getImages().stream()
+                // IMAGE 타입이면 false, 나머지는 true → false가 앞에 오므로 IMAGE가 제일 앞
+                .sorted(Comparator.comparing(img -> img.getImageType() != ImageType.IMAGE))
                 .map(img -> {
                     String signed = cloudFrontService.generateSignedCloudFrontUrl(img.getImageUrl(), "get");
                     return new FeedImageResponse(
