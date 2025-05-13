@@ -1,9 +1,16 @@
+// components/common/GTMHead.tsx
 "use client";
 import Script from "next/script";
 
-export default function GTM() {
+export default function GTMHead() {
   return (
     <>
+      {/* dataLayer 초기화는 반드시 GTM 스크립트보다 먼저 로드되어야 합니다 */}
+      <Script id="gtm-datalayer" strategy="beforeInteractive">
+        {`window.dataLayer = window.dataLayer || [];`}
+      </Script>
+
+      {/* GTM 메인 스크립트 */}
       <Script id="gtm-script" strategy="afterInteractive">
         {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
         new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],

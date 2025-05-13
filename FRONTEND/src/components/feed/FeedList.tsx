@@ -252,7 +252,7 @@ export default function FeedList() {
               >
                 <Image
                   // src={"/dummy-feed-thumbnail.png"}
-                  src={feed.feedThumbnailImgUrl || "/dummy-feed-thumbnail.png"}
+                  src={feed.feedThumbnailImgUrl}
                   alt={`Feed ${feed.feedId}`}
                   fill
                   className={styles.feedImage}
