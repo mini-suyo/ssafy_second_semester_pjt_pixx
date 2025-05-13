@@ -59,7 +59,7 @@ public class KakaoAuthService {
 
                     Album defaultAlbum = Album.builder()
                             .user(newUser)
-                            .albumName("기본 앨범")
+                            .albumName("미분류 앨범")
                             .albumMemo("")
                             .createdAt(LocalDateTime.now())
                             .defaultAlbum(true)
