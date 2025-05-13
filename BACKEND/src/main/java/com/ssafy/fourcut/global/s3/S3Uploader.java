@@ -32,4 +32,11 @@ public class S3Uploader {
         }
     }
 
+    public void delete(String s3Key) {
+        try {
+            amazonS3.deleteObject(bucketName, s3Key);
+        } catch (Exception e) {
+            throw new CustomException(500, "S3 파일 삭제 실패");
+        }
+    }
 }
