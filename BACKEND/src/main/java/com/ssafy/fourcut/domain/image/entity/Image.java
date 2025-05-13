@@ -36,5 +36,7 @@ public class Image {
     private LocalDateTime createdAt;
 
     @Column(name = "is_thumbnail", nullable = false, columnDefinition = "boolean default false")
-    private Boolean isThumbnail;
+    @Builder.Default
+    private Boolean isThumbnail = false;
+
 }
