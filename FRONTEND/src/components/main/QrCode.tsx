@@ -61,6 +61,7 @@ export default function QrCode() {
           }
         );
       } catch (err) {
+        console.log(err);
         try {
           controls = await codeReader.decodeFromConstraints(
             {
@@ -112,7 +113,8 @@ export default function QrCode() {
         ) : (
           <div className={styles.QrCameraContainer}>
             <h1 className={styles.title}>QR코드 스캔하기</h1>
-            <p>지원하지 않는 브랜드라면 웹사이트를 열어드려요</p>
+            <span>현재는 모노멘션, 하루필름, 포토이즘, 인생네컷</span>
+            <span> 브랜드만 지원 가능합니다.</span>
             <div onClick={() => setIsScanning(false)} className={styles.videoWrapper}>
               <video onClick={() => setIsScanning(false)} ref={videoRef} className={styles.videoContainer} />
               <div className={styles.scannerOverlay}>
