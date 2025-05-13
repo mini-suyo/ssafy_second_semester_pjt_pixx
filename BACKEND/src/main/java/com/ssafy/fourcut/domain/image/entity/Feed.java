@@ -1,6 +1,5 @@
 package com.ssafy.fourcut.domain.image.entity;
 
-import com.ssafy.fourcut.domain.faceDetection.entity.FaceDetection;
 import com.ssafy.fourcut.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
