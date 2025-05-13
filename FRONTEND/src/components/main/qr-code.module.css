@@ -17,6 +17,7 @@
 .title {
   padding-top: 1rem;
   margin: 0;
+  margin-bottom: 1rem;
 }
 
 .videoWrapper {
@@ -24,6 +25,7 @@
   width: 90%;
   max-width: min(80vh, 500px);
   z-index: 2;
+  margin-top: 1rem;
 }
 
 .scannerOverlay {
