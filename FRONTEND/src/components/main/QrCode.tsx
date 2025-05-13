@@ -45,12 +45,15 @@ export default function QrCode() {
             );
 
             if (response.data.status === "200") {
+              console.log("QR 코드가 성공적으로 등록되었습니다.");
               alert("QR 코드가 성공적으로 등록되었습니다.");
             }
           } catch (error: any) {
             if (error.response?.data?.status === "400") {
+              console.log("QR 코드가 이미 등록 실패 400");
               alert(error.response.data.message || "QR 코드 등록에 실패했습니다.");
             } else {
+              console.log("QR 코드가 이미 등록 실패 (다른 에러)");
               alert("QR 코드 등록에 실패했습니다.");
             }
             console.error("Error:", error);
