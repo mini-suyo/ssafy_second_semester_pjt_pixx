@@ -34,7 +34,7 @@ export default function AlbumFeedGrid({
       {mode === "select" && (
         <div className={styles.checkIcon}>
           <Image
-            src={isSelected ? "/icons/icon-checked.png" : "/icons/icon-unchecked.png"}
+            src={isSelected ? "/icons/icon-checked-purple.png" : "/icons/icon-unchecked-purple.png"}
             alt="선택 여부"
             width={40}
             height={40}

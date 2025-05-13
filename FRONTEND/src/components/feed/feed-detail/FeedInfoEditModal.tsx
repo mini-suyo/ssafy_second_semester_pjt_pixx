@@ -128,7 +128,8 @@ export default function FeedInfoEditModal({
         {/* 추후 실시간 포맷팅 `react-tag-input, react-tagsinput, react-select + isMulti` 도전전 */}
         <input
           className={styles.input}
-          value={[...tagList.map((t) => `#${t}`), rawInput].join(" ")}
+          // value={[...tagList.map((t) => `#${t}`), rawInput].join(" ")}
+          value={rawInput}
           onChange={(e) => {
             const input = e.target.value;
 
@@ -139,11 +140,9 @@ export default function FeedInfoEditModal({
             const lastWord = input.endsWith(" ") ? "" : (words.pop() ?? "");
 
             // 그 외 단어는 태그로 등록
-            const newTags = words
-              .map((w) => w.replace(/^#/, "").trim())
-              .filter((w) => w.length > 0 && !tagList.includes(w)); // 중복 방지
+            const newTags = words.map((w) => w.replace(/^#/, "").trim()).filter((w) => w.length > 0);
 
-            setTagList([...tagList, ...newTags]);
+            setTagList(newTags);
             setRawInput(lastWord);
           }}
           placeholder="해시태그 - #없이 띄어쓰기로 구분하세요"
