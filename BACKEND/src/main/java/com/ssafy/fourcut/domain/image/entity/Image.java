@@ -40,8 +40,10 @@ public class Image {
     private LocalDateTime createdAt;
 
     @Column(name = "is_thumbnail", nullable = false, columnDefinition = "boolean default false")
-    private Boolean isThumbnail;
+    @Builder.Default
+    private Boolean isThumbnail = false;
 
     @OneToMany(mappedBy = "image", cascade = ALL, orphanRemoval = true)
     private List<FaceDetection> detections;
+
 }
