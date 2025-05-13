@@ -37,6 +37,17 @@ services:
     volumes:
       - /home/ubuntu/aws:/app/aws
 
+  mysql:
+    image: mysql:8.0.41-oracle
+    container_name: ${MYSQL_CONTAINER_NAME}
+    restart: always
+    env_file:
+      - ./mysql/.env.mysql.dev
+    expose:
+      - "${MYSQL_CONTAINER_PORT}"
+    volumes:
+      - /home/ubuntu/docker-mysql/filmmoa_data:/var/lib/mysql
+
 networks:
   default:
     external: true
