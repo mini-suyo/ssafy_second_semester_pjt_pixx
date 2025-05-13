@@ -4,11 +4,13 @@ import { BrowserQRCodeReader } from "@zxing/browser";
 import styles from "./qr-code.module.css";
 import api from "@/app/lib/api/axios";
 import ErrorModal from "@/components/ErrorModal";
+import { useRouter } from "next/navigation";
 
 export default function QrCode() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleQrResult = async (qrUrl: string) => {
     try {
@@ -16,8 +18,9 @@ export default function QrCode() {
         pageUrl: qrUrl,
       });
 
-      if (response.data.status === "200") {
+      if (response.data.status === 200) {
         setIsScanning(false);
+        router.push(`/feed/${response.data.data.feedId}`);
       } else {
         setErrorMessage(response.data.message || "QR 코드 처리 중 오류가 발생했습니다.");
       }
