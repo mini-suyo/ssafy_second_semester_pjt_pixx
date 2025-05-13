@@ -9,7 +9,7 @@ export default function Inquiry() {
 
   return (
     <button className={styles.inquiryButton} onClick={handleInquiry}>
-      1:1 문의
+      피드백 남기기
     </button>
   );
 }
