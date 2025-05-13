@@ -6,12 +6,53 @@
   align-items: center;
 }
 
-.videoContainer {
-  width: 80%;
-  aspect-ratio: 1/1;
+.QrCameraContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.title {
+  padding-top: 1rem;
+  margin: 0;
+}
+
+.videoWrapper {
+  position: relative;
+  width: 90%;
   max-width: min(80vh, 500px);
-  object-fit: cover;
   z-index: 2;
+}
+
+.scannerOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.scannerWindow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: 70%;
+  border: 1.5px solid white;
+  border-radius: 16px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+}
+
+.videoContainer {
+  width: 100%;
+  border-radius: 16px;
+  aspect-ratio: 1/1;
+  object-fit: cover;
 }
 
 .scanButton {
@@ -28,8 +69,8 @@
 
 .qrIcon {
   position: relative;
-  width: 80px;
-  height: 80px;
+  width: 120px;
+  height: 120px;
   margin-bottom: 10px;
 }
 
@@ -38,8 +79,8 @@
 .cornerBL,
 .cornerBR {
   position: absolute;
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   border: 2px solid white;
 }
 
@@ -76,8 +117,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 40px;
-  height: 40px;
+  width: 55px;
+  height: 55px;
   background-image: radial-gradient(circle, white 2px, transparent 2px);
   background-size: 8px 8px;
 }

@@ -3,10 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import { BrowserQRCodeReader } from "@zxing/browser";
 import styles from "./qr-code.module.css";
 import api from "@/app/lib/api/axios";
+import ErrorModal from "@/components/ErrorModal";
 
 export default function QrCode() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleQrResult = async (qrUrl: string) => {
     try {
@@ -15,12 +17,20 @@ export default function QrCode() {
       });
 
       if (response.data.status === "200") {
-        setIsScanning(false); // 성공 시 스캐너 종료
+        setIsScanning(false);
       } else {
-        console.error("QR 업로드 실패:", response.data.message);
+        setErrorMessage(response.data.message || "QR 코드 처리 중 오류가 발생했습니다.");
       }
-    } catch (error) {
-      console.error("QR 업로드 에러:", error);
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        setErrorMessage(error.response.data.message);
+      } else if (error.response?.status === 400) {
+        setErrorMessage("지원하지 않는 브랜드입니다.");
+      } else if (error.response?.status === 500) {
+        setErrorMessage("서버 처리 중 오류가 발생했습니다.");
+      } else {
+        setErrorMessage("QR 코드 처리 중 오류가 발생했습니다.");
+      }
     }
   };
 
@@ -53,8 +63,6 @@ export default function QrCode() {
             {
               video: {
                 facingMode: "environment",
-                width: { min: 640, ideal: 1280, max: 1920 },
-                height: { min: 480, ideal: 720, max: 1080 },
               },
             },
             videoRef.current!,
@@ -99,9 +107,19 @@ export default function QrCode() {
             <span>네컷사진 저장하기</span>
           </button>
         ) : (
-          <video onClick={() => setIsScanning(false)} ref={videoRef} className={styles.videoContainer} />
+          <div className={styles.QrCameraContainer}>
+            <h1 className={styles.title}>QR코드 스캔하기</h1>
+            <p>지원하지 않는 브랜드라면 웹사이트를 열어드려요</p>
+            <div onClick={() => setIsScanning(false)} className={styles.videoWrapper}>
+              <video onClick={() => setIsScanning(false)} ref={videoRef} className={styles.videoContainer} />
+              <div className={styles.scannerOverlay}>
+                <div className={styles.scannerWindow}></div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
+      {errorMessage && <ErrorModal message={errorMessage} onClose={() => setErrorMessage(null)} />}
     </>
   );
 }
