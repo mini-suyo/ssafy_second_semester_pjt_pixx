@@ -1,5 +1,6 @@
 package com.ssafy.fourcut.domain.image.entity;
 
+import com.ssafy.fourcut.domain.faceDetection.entity.FaceDetection;
 import com.ssafy.fourcut.domain.faceDetection.entity.FaceVector;
 import com.ssafy.fourcut.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -34,7 +35,7 @@ public class Feed {
     @JoinColumn(name = "album_id", nullable = false)
     private Album album;
 
-    @Column(name = "feed_title", length = 100)
+    @Column(name = "feed_title", length = 32)
     private String feedTitle;
 
     @Column(name = "feed_location", length = 100)
@@ -58,6 +59,11 @@ public class Feed {
 
     @OneToMany(mappedBy = "feed", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Image> images;
+
+    // 대표 얼굴로 쓸 FaceDetection
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "rep_detection_id")
+    private FaceDetection repDetection;
 
 
 }
