@@ -39,7 +39,7 @@ public class Image {
     @CurrentTimestamp
     private LocalDateTime createdAt;
 
-    @Column(name = "is_thumbnail", nullable = false, columnDefinition = "boolean default false")
+    @Column(name = "is_thumbnail", nullable = true, columnDefinition = "boolean default false")
     private Boolean isThumbnail;
 
     @OneToMany(mappedBy = "image", cascade = ALL, orphanRemoval = true)
