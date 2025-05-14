@@ -146,7 +146,7 @@
   white-space: pre-wrap;
 }
 
-/* 달력 팝업 전체 */
+/* 달력 팝업 전체.. 근데 안먹음 ㅠ */
 .custom-calendar {
   background-color: #261b2d;
   color: #fffaf8;
@@ -157,4 +157,34 @@
 /* 일요일만 색상 다르게 */
 .sunday {
   color: #ff6b6b;
+}
+
+/* 태그 */
+.tagsDisplay {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: rgba(255, 250, 248, 0.15);
+  padding: 2px 8px;
+  border-radius: 16px;
+  font-size: 14px;
+}
+
+.removeTagBtn {
+  margin-left: 4px;
+  cursor: pointer;
+}
+
+.tagInput {
+  background: transparent;
+  border: none;
+  color: #fffaf8;
+  width: 100%;
+  outline: none;
 }
