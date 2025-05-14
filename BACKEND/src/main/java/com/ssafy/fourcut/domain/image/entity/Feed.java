@@ -1,6 +1,5 @@
 package com.ssafy.fourcut.domain.image.entity;
 
-import com.ssafy.fourcut.domain.faceDetection.entity.FaceVector;
 import com.ssafy.fourcut.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -35,7 +34,7 @@ public class Feed {
     @JoinColumn(name = "album_id", nullable = false)
     private Album album;
 
-    @Column(name = "feed_title", length = 100)
+    @Column(name = "feed_title", length = 32)
     private String feedTitle;
 
     @Column(name = "feed_location", length = 100)
