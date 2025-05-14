@@ -13,16 +13,7 @@ export default function Logout() {
 
   const handleLogout = async () => {
     try {
-      const response = await api.post(
-        "/api/v1/auth/logout",
-        {},
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-        }
-      );
+      const response = await api.post("/api/v1/auth/logout");
 
       if (response.data.status === 200) {
         Cookies.remove("accessToken", { path: "/" });
