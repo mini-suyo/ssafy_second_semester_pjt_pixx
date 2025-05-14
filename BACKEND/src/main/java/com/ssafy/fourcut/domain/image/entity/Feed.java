@@ -4,6 +4,7 @@ import com.ssafy.fourcut.domain.faceDetection.entity.FaceVector;
 import com.ssafy.fourcut.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.CurrentTimestamp;
 
 import java.time.LocalDateTime;
@@ -44,7 +45,7 @@ public class Feed {
     private Integer feedPopulation;
 
     @Column(name = "feed_date", nullable = false)
-    @CurrentTimestamp
+    @CreationTimestamp
     private LocalDateTime feedDate;
 
     @Column(name = "feed_memo")
