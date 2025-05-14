@@ -68,10 +68,6 @@ export default function FeedInfoEditModal({
   if (!isOpen || !feedDetail) return null;
 
   // 해시태그 핸들러(# 자동으로 붙여줌)
-  // const handleHashtagChange = (value: string) => {
-  //   setRawHashtagInput(value);
-  // };
-
   // const formatHashtags = (input: string) => {
   //   return input
   //     .split(/\s+/)
@@ -125,25 +121,20 @@ export default function FeedInfoEditModal({
         {/* <div className={styles.divider} /> */}
 
         {/* 해시태그 입력 */}
-        {/* 추후 실시간 포맷팅 `react-tag-input, react-tagsinput, react-select + isMulti` 도전전 */}
+        {/* 추후 실시간 포맷팅 `react-tag-input, react-tagsinput, react-select + isMulti` 도전 */}
         <input
           className={styles.input}
           // value={[...tagList.map((t) => `#${t}`), rawInput].join(" ")}
           value={rawInput}
           onChange={(e) => {
             const input = e.target.value;
+            setRawInput(input);
 
             // 전체 입력을 공백 기준으로 나눔
             const words = input.trim().split(/\s+/);
+            const tags = words.map((w) => w.replace(/^#/, "").trim()).filter((w) => w.length > 0);
 
-            // 마지막 단어만 입력 중인 rawInput으로 유지
-            const lastWord = input.endsWith(" ") ? "" : (words.pop() ?? "");
-
-            // 그 외 단어는 태그로 등록
-            const newTags = words.map((w) => w.replace(/^#/, "").trim()).filter((w) => w.length > 0);
-
-            setTagList(newTags);
-            setRawInput(lastWord);
+            setTagList(tags); // 항상 tagList를 최신으로 계산
           }}
           placeholder="해시태그 - #없이 띄어쓰기로 구분하세요"
         />
