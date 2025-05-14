@@ -47,7 +47,8 @@ export default function FeedInfoEditModal({
 
   // 해시 태그 # 설정
   const [tagList, setTagList] = useState<string[]>([]);
-  const [rawInput, setRawInput] = useState("");
+  // const [rawInput, setRawInput] = useState("");
+  const [currentTag, setCurrentTag] = useState("");
 
   //  feedDetail이 바뀔 때마다 상태 초기화
   useEffect(() => {
@@ -61,22 +62,43 @@ export default function FeedInfoEditModal({
 
     // 해시태그 상태 초기화
     const initialTags = feedDetail.feedHashtags || [];
-    setTagList(initialTags); // ex: ["고양이", "귀엽다"]
-    setRawInput(""); // 입력창은 비움
+    setTagList(initialTags);
+    setCurrentTag(""); // 입력 필드 초기화
   }, [feedDetail]);
-
   if (!isOpen || !feedDetail) return null;
 
   // 해시태그 핸들러(# 자동으로 붙여줌)
-  // const formatHashtags = (input: string) => {
-  //   return input
-  //     .split(/\s+/)
-  //     .map((word) => word.replace(/^#/, ""))
-  //     .filter(Boolean)
-  //     .map((word) => `#${word}`)
-  //     .join(" ");
-  // };
+  const formatHashtags = (input: string) => {
+    return input
+      .split(/\s+/)
+      .map((word) => word.replace(/^#/, ""))
+      .filter(Boolean)
+      .map((word) => `#${word}`)
+      .join(" ");
+  };
 
+  // 태그 추가 함수
+  const addTag = () => {
+    const tag = currentTag.trim().replace(/^#/, ""); // # 제거
+    if (tag && !tagList.includes(tag)) {
+      setTagList([...tagList, tag]);
+    }
+    setCurrentTag("");
+  };
+  // 태그 삭제 함수
+  const removeTag = (indexToRemove: number) => {
+    setTagList(tagList.filter((_, index) => index !== indexToRemove));
+  };
+
+  // 태그 입력 처리
+  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if ((e.key === "Enter" || e.key === " ") && currentTag.trim()) {
+      e.preventDefault();
+      addTag();
+    }
+  };
+
+  // 제출 함수
   const handleSubmit = async () => {
     try {
       const formattedDate = dayjs(date, "YYYY.MM.DD").format("YYYY-MM-DDTHH:mm:ss");
@@ -88,8 +110,9 @@ export default function FeedInfoEditModal({
         location,
         brandName: brand,
         feedMemo: memo,
-        hashtags: tagList,
+        hashtags: tagList, // 서버에는 # 기호 없이 저장
       });
+
       console.log("props.feedId:", feedId);
 
       alert("수정 완료!");
@@ -122,7 +145,28 @@ export default function FeedInfoEditModal({
 
         {/* 해시태그 입력 */}
         {/* 추후 실시간 포맷팅 `react-tag-input, react-tagsinput, react-select + isMulti` 도전 */}
-        <input
+        <div className={styles.input}>
+          <div className={styles.tagsDisplay}>
+            {tagList.map((tag, index) => (
+              <span key={index} className={styles.tag}>
+                #{tag}
+                <span className={styles.removeTagBtn} onClick={() => removeTag(index)}>
+                  ×
+                </span>
+              </span>
+            ))}
+          </div>
+          <input
+            className={styles.tagInput}
+            value={currentTag}
+            onChange={(e) => setCurrentTag(e.target.value)}
+            onKeyDown={handleTagKeyDown}
+            onBlur={() => currentTag.trim() && addTag()}
+            placeholder={tagList.length ? "" : "해시태그 - #없이 띄어쓰기로 구분하세요"}
+          />
+        </div>
+
+        {/* <input
           className={styles.input}
           // value={[...tagList.map((t) => `#${t}`), rawInput].join(" ")}
           value={rawInput}
@@ -137,7 +181,7 @@ export default function FeedInfoEditModal({
             setTagList(tags); // 항상 tagList를 최신으로 계산
           }}
           placeholder="해시태그 - #없이 띄어쓰기로 구분하세요"
-        />
+        /> */}
 
         {/* 날짜 / 장소 / 브랜드 입력 */}
         <div className={styles.infoRow}>
