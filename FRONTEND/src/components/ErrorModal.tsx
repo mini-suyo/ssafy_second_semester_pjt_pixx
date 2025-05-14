@@ -9,12 +9,7 @@ export default function ErrorModal({ message, onClose }: ErrorModalProps) {
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
-          <h2>오류 발생</h2>
-          <button className={styles.closeButton} onClick={onClose}>
-            ×
-          </button>
-        </div>
+        <div className={styles.modalHeader}></div>
         <div className={styles.modalBody}>
           <p>{message}</p>
         </div>

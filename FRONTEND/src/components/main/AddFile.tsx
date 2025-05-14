@@ -27,7 +27,7 @@ export default function AddFile() {
 
     // 각 타입별 파일 개수 검증
     if (jpgPngFiles.length === 0) {
-      setErrorMessage("JPG/PNG 이미지는 필수로 1장 업로드해야 합니다.");
+      setErrorMessage("이미지는 필수로 업로드해야 합니다.");
       return false;
     }
 
