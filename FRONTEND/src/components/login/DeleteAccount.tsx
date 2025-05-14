@@ -13,12 +13,7 @@ export default function DeleteAccount() {
 
   const handleDeleteAccount = async () => {
     try {
-      const response = await api.delete("/api/v1/users", {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      });
+      const response = await api.delete("/api/v1/auth/withdraw");
 
       if (response.data.status === 200) {
         setErrorMessage("회원 탈퇴가 완료되었습니다.");
