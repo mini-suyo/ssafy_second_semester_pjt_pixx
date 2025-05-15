@@ -2,7 +2,6 @@
 
 import "./globals.css";
 import Providers from "./providers";
-import Script from "next/script";
 // import type { Metadata } from "next";
 import { GoogleTagManager } from "@next/third-parties/google";
 
@@ -10,12 +9,6 @@ import { GoogleTagManager } from "@next/third-parties/google";
 //   title: "PIXX",
 //   description: "네컷 사진 아카이빙 서비스",
 // };
-
-export const metadata = {
-  title: "Pixx",
-  description: "QR 기반 네컷 사진·GIF·영상을 자동으로 정리하고 추억을 간편하게 보관할 수 있는 웹 아카이브 플랫폼",
-  generator: "SSAFY B208",
-};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
