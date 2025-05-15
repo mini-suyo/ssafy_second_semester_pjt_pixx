@@ -2,7 +2,6 @@
 
 import "./globals.css";
 import Providers from "./providers";
-import Script from "next/script";
 // import type { Metadata } from "next";
 import { GoogleTagManager } from "@next/third-parties/google";
 
