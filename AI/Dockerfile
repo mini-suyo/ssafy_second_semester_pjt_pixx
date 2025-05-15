@@ -10,16 +10,13 @@ RUN apt-get update && apt-get install -y \
     libsm6 \
     libxext6 \
     libxrender-dev \
-    ffmpeg \
-    libasound2-dev \
-    portaudio19-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements
 COPY requirements.txt .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
@@ -27,8 +24,6 @@ COPY . .
 # Create directories needed by the application
 RUN mkdir -p /app/logs /app/temp
 
-# Expose port
-EXPOSE 8000
-
 # Run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001", "--workers", "2"]
+CMD ["python", "main.py"]
