@@ -159,46 +159,47 @@ export default function AlbumList() {
         {albums.length === 0 ? (
           <div className={styles["empty-message"]}>앨범을 불러오는데 실패했어요</div>
         ) : (
-          albums.map((album, index) => (
-            <div
-              key={album.albumId}
-              onMouseDown={() => handleLongPressStart(album.albumId)}
-              onMouseUp={handleLongPressEnd}
-              onTouchStart={() => handleLongPressStart(album.albumId)}
-              onTouchEnd={handleLongPressEnd}
-              onClick={() => handleAlbumClick(album.albumId)}
-              className={styles.albumItem}
-            >
-              {/* ✅ 선택된 앨범일 때만 체크 아이콘 & 오버레이 렌더링 */}
-              {mode === "select" && selectedAlbumIds.includes(album.albumId) && (
-                <>
-                  <div className={styles.selectedOverlay} />
-                  <div className={styles.checkIcon}>
-                    <Image src="/icons/icon-checked-purple.png" alt="선택됨" width={32} height={32} />
+          albums.map((album, index) => {
+            const totalImages = 12;
+            const imageNumber = (album.albumId % totalImages) + 1;
+            const imagePath = `/constellations/${imageNumber}.png`;
+
+            return (
+              <div
+                key={album.albumId}
+                onMouseDown={() => handleLongPressStart(album.albumId)}
+                onMouseUp={handleLongPressEnd}
+                onTouchStart={() => handleLongPressStart(album.albumId)}
+                onTouchEnd={handleLongPressEnd}
+                onClick={() => handleAlbumClick(album.albumId)}
+                className={styles.albumItem}
+              >
+                {mode === "select" && selectedAlbumIds.includes(album.albumId) && (
+                  <>
+                    <div className={styles.selectedOverlay} />
+                    <div className={styles.checkIcon}>
+                      <Image src="/icons/icon-checked-purple.png" alt="선택됨" width={32} height={32} />
+                    </div>
+                  </>
+                )}
+
+                <div className={`${styles.albumContent} ${index % 2 === 0 ? styles.leftImage : styles.rightImage}`}>
+                  <Image src={imagePath} alt="별자리" className={styles.constellationImage} width={100} height={100} />
+                  <div className={`${styles.albumInfo} ${index % 2 === 0 ? styles.alignLeft : styles.alignRight}`}>
+                    <div className={styles.albumName}>{album.albumName}</div>
+                    <div className={styles.separator} />
+                    <div className={styles.albumDate}>{formatDate(album.albumDate)}</div>
                   </div>
-                </>
-              )}
-              <div className={`${styles.albumContent} ${index % 2 === 0 ? styles.leftImage : styles.rightImage}`}>
-                <Image
-                  src="/constellations/aries_1.png"
-                  alt="별자리"
-                  className={styles.constellationImage}
-                  width={100}
-                  height={100}
-                />
-                <div className={`${styles.albumInfo} ${index % 2 === 0 ? styles.alignLeft : styles.alignRight}`}>
-                  <div className={styles.albumName}>{album.albumName}</div>
-                  <div className={styles.separator} />
-                  <div className={styles.albumDate}>{formatDate(album.albumDate)}</div>
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
-        {/* 무한 스크롤을 위한 로딩 표시기 */}
-        <div ref={loadMoreRef} className={styles.loadMoreTrigger}>
-          {isFetchingNextPage && <p>앨범을 더 불러오는 중...</p>}
-        </div>
+      </div>
+
+      {/* 무한 스크롤을 위한 로딩 표시기 */}
+      <div ref={loadMoreRef} className={styles.loadMoreTrigger}>
+        {isFetchingNextPage && <p>앨범을 더 불러오는 중...</p>}
       </div>
 
       {/* 플로팅 버튼 추가 */}
