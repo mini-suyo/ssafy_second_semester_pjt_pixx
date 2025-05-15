@@ -7,14 +7,17 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteFeed, getFeeds } from "@/app/lib/api/feedApi";
 import { addPhotosToAlbum, createAlbum } from "@/app/lib/api/albumApi";
-import styles from "./feed-list.module.css";
-import Image from "next/image";
-import { Feed } from "@/app/types/feed";
+import { FavoriteResponse, Feed } from "@/app/types/feed";
+import { useMutation } from "@tanstack/react-query";
+import { toggleFavorite } from "@/app/lib/api/feedApi";
+
 import FloatingButton from "../common/FloatingButton";
 import FeedSelectBar from "./FeedSelectBar";
 import FeedAlbumCreateModal from "./FeedAlbumCreateModal";
 import FeedAlbumAdd from "./FeedAlbumAdd";
 import SortDropdown from "../common/SortDropdown";
+import Image from "next/image";
+import styles from "./feed-list.module.css";
 
 export default function FeedList() {
   const router = useRouter();
@@ -75,6 +78,20 @@ export default function FeedList() {
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
+  // 피드 좋아요 Optimistic update
+  const { mutate: toggleFavoriteMutation } = useMutation<FavoriteResponse, Error, number>({
+    mutationFn: toggleFavorite,
+    onSuccess: ({ feedId, isFavorite }) => {
+      setFavorite((prev) => ({
+        ...prev,
+        [feedId]: isFavorite,
+      }));
+    },
+    onError: () => {
+      alert("즐겨찾기 변경에 실패했습니다.");
+    },
+  });
+
   // 이미지 로드 성공 핸들러
   const handleImageLoad = (feedId: number) => {
     setImageLoaded((prev) => ({ ...prev, [feedId]: true }));
@@ -126,14 +143,6 @@ export default function FeedList() {
     longPressTimer.current = setTimeout(() => {
       setMode("select");
     }, 800); // 800ms 이상 누르면 선택 모드로
-  };
-
-  // 피드 좋아요
-  const toggleFavorite = (feedId: number) => {
-    setFavorite((prev) => ({
-      ...prev,
-      [feedId]: !prev[feedId],
-    }));
   };
 
   // 정렬
@@ -277,7 +286,7 @@ export default function FeedList() {
                   className={styles.favoriteIcon}
                   onClick={(e) => {
                     e.stopPropagation(); // 상세 페이지 이동 방지
-                    toggleFavorite(feed.feedId);
+                    toggleFavoriteMutation(feed.feedId);
                   }}
                 >
                   <Image
