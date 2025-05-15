@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "@/app/lib/api/axios";
 import styles from "./add-file.module.css";
 import { useQueryClient } from "@tanstack/react-query";
@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 
 export default function AddFile() {
   const [files, setFiles] = useState<FileList | null>(null);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [uploadedFeedId, setUploadedFeedId] = useState<string | null>(null);
@@ -32,21 +33,6 @@ export default function AddFile() {
       return false;
     }
 
-    if (jpgPngFiles.length > 1) {
-      setErrorMessage("JPG/PNG 이미지는 1장만 업로드할 수 있습니다.");
-      return false;
-    }
-
-    if (gifFiles.length > 1) {
-      setErrorMessage("GIF 파일은 최대 1개만 업로드할 수 있습니다.");
-      return false;
-    }
-
-    if (mp4Files.length > 1) {
-      setErrorMessage("MP4 파일은 최대 1개만 업로드할 수 있습니다.");
-      return false;
-    }
-
     // 지원하지 않는 파일 형식 체크
     const unsupportedFiles = allFiles.filter(
       (file) => !["image/jpeg", "image/jpg", "image/png", "image/gif", "video/mp4"].includes(file.type)
@@ -64,7 +50,6 @@ export default function AddFile() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       if (validateFiles(event.target.files)) {
-        // 기존 파일과 새 파일을 병합
         const currentFiles = Array.from(event.target.files);
         const previousFiles = files ? Array.from(files) : [];
         const mergedFiles = [...previousFiles, ...currentFiles];
@@ -73,6 +58,10 @@ export default function AddFile() {
         const dataTransfer = new DataTransfer();
         mergedFiles.forEach((file) => dataTransfer.items.add(file));
         setFiles(dataTransfer.files);
+
+        // 미리보기 URL 생성
+        const newPreviews = mergedFiles.map((file) => URL.createObjectURL(file));
+        setPreviews(newPreviews);
 
         // DOM 업데이트 후 스크롤 실행
         setTimeout(() => {
@@ -150,6 +139,7 @@ export default function AddFile() {
 
     if (newFiles.length === 0) {
       setFiles(null);
+      setPreviews([]);
       const fileInput = document.getElementById("fileInput") as HTMLInputElement;
       if (fileInput) fileInput.value = "";
       return;
@@ -158,7 +148,18 @@ export default function AddFile() {
     const dataTransfer = new DataTransfer();
     newFiles.forEach((file) => dataTransfer.items.add(file));
     setFiles(dataTransfer.files);
+
+    // 미리보기 URL 업데이트
+    URL.revokeObjectURL(previews[indexToRemove]); // 이전 URL 해제
+    setPreviews(previews.filter((_, index) => index !== indexToRemove));
   };
+
+  // 컴포넌트가 언마운트될 때 미리보기 URL 정리
+  useEffect(() => {
+    return () => {
+      previews.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [previews]);
 
   return (
     <>
@@ -176,9 +177,15 @@ export default function AddFile() {
         />
         {files && files.length > 0 && (
           <div className={styles.fileList}>
-            <p>선택된 파일 ({files.length}개):</p>
+            <p>선택된 파일 ({files.length}개)</p>
             {Array.from(files).map((file, index) => (
               <div key={index} className={styles.fileItem}>
+                {file.type.startsWith("image/") && (
+                  <img src={previews[index]} alt={file.name} className={styles.previewImage} />
+                )}
+                {file.type.startsWith("video/") && (
+                  <video src={previews[index]} className={styles.previewVideo} muted />
+                )}
                 <p className={styles.fileName}>{file.name}</p>
                 <button onClick={() => handleRemoveFile(index)} className={styles.removeButton} type="button">
                   ✕
