@@ -20,6 +20,9 @@ export default function FeedList() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
+  // 피드 즐겨찾기
+  const [favorite, setFavorite] = useState<{ [feedId: number]: boolean }>({});
+
   // 앨범 생성
   const [mode, setMode] = useState<"default" | "select">("default"); // 앨범 생성 플로팅버튼 상태 관리
   const longPressTimer = useRef<NodeJS.Timeout | null>(null); // 썸네일 오래 누르는거 상태 관리
@@ -123,6 +126,14 @@ export default function FeedList() {
     longPressTimer.current = setTimeout(() => {
       setMode("select");
     }, 800); // 800ms 이상 누르면 선택 모드로
+  };
+
+  // 피드 좋아요
+  const toggleFavorite = (feedId: number) => {
+    setFavorite((prev) => ({
+      ...prev,
+      [feedId]: !prev[feedId],
+    }));
   };
 
   // 정렬
@@ -260,6 +271,24 @@ export default function FeedList() {
                   onLoad={() => handleImageLoad(feed.feedId)}
                   onError={() => handleImageError(feed.feedId)}
                 />
+
+                {/*  즐겨찾기 토글 버튼 */}
+                <div
+                  className={styles.favoriteIcon}
+                  onClick={(e) => {
+                    e.stopPropagation(); // 상세 페이지 이동 방지
+                    toggleFavorite(feed.feedId);
+                  }}
+                >
+                  <Image
+                    src={
+                      favorite[feed.feedId] ? "/icons/icon-star-fill-yellow.png" : "/icons/icon-star-empty-yellow.png"
+                    }
+                    alt="즐겨찾기"
+                    width={28}
+                    height={28}
+                  />
+                </div>
                 {/* 선택된 피드 약간 어둡게 처리 */}
                 {mode === "select" && selectedFeedIds.includes(feed.feedId) && (
                   <div className={styles.selectedOverlay}></div>
