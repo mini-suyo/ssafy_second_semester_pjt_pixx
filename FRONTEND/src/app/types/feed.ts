@@ -37,3 +37,8 @@ export interface FeedDetailUpdate {
   feedMemo: string;
   hashtags: string[];
 }
+
+export interface FavoriteResponse {
+  feedId: number;
+  isFavorite: boolean;
+}

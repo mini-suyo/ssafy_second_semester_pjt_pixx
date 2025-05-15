@@ -1,6 +1,6 @@
 // app/lib/api/feedApi.ts
 
-import { Feed, DeleteFeedResponse, FeedDetailUpdate } from "@/app/types/feed";
+import { Feed, DeleteFeedResponse, FeedDetailUpdate, FavoriteResponse } from "@/app/types/feed";
 
 // import axiosInstance from "./axiosInstance";
 import api from "./axios";
@@ -38,7 +38,7 @@ export const downloadImageFile = async (imageId: number) => {
 };
 
 // 피드 좋아요
-export const favoriteFeed = async (feedId: number) => {
+export const toggleFavorite = async (feedId: number): Promise<FavoriteResponse> => {
   const response = await api.get(`/api/v1/feed/${feedId}/favorite`);
-  return response.data;
+  return response.data.data;
 };
