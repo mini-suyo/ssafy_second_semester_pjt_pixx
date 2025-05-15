@@ -143,3 +143,10 @@
   background-color: rgba(0, 0, 0, 0.4); /* 어둡게 처리 */
   z-index: 5;
 }
+
+.favoriteIcon {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 15;
+}
