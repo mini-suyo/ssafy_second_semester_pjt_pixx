@@ -36,3 +36,9 @@ export const downloadImageFile = async (imageId: number) => {
   if (!fileUrl) throw new Error("signedUrl이 응답에 없습니다.");
   return fileUrl;
 };
+
+// 피드 좋아요
+export const favoriteFeed = async (feedId: number) => {
+  const response = await api.get(`/api/v1/feed/${feedId}/favorite`);
+  return response.data;
+};
