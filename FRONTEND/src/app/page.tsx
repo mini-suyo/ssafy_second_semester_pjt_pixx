@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { GoogleTagManager } from "@next/third-parties/google";
 
 export default function Page() {
   const router = useRouter();
@@ -15,5 +16,5 @@ export default function Page() {
     }
   }, [router, token]);
 
-  return null; // 리다이렉트 되는 동안 아무것도 표시하지 않음
+  return <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID!} />;
 }
