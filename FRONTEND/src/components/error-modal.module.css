@@ -40,6 +40,8 @@
 
 .modalBody p {
   margin: 0;
+  white-space: pre-line;
+  line-height: 1.2;
 }
 
 .modalFooter {

@@ -10,6 +10,7 @@ export default function AddFile() {
   const [files, setFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [uploadedFeedId, setUploadedFeedId] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const router = useRouter();
 
@@ -72,6 +73,14 @@ export default function AddFile() {
         const dataTransfer = new DataTransfer();
         mergedFiles.forEach((file) => dataTransfer.items.add(file));
         setFiles(dataTransfer.files);
+
+        // DOM 업데이트 후 스크롤 실행
+        setTimeout(() => {
+          const submitButton = document.querySelector(`.${styles.submitButton}`);
+          if (submitButton) {
+            submitButton.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }, 500);
       } else {
         event.target.value = "";
       }
@@ -110,8 +119,9 @@ export default function AddFile() {
           predicate: (query) => query.queryKey[0] === "feeds",
         });
 
-        // 피드 상세 페이지로 라우팅
-        router.push(`/feed/${response.data.data.feedId}`);
+        // 업로드 성공 시 feedId 저장 및 성공 메시지 표시
+        setUploadedFeedId(response.data.data.feedId);
+        setErrorMessage("파일 업로드에 성공했습니다.\n확인 버튼을 누르면 해당 피드로 이동합니다.");
       }
     } catch (error: any) {
       if (error.response?.data?.status === "400") {
@@ -122,6 +132,14 @@ export default function AddFile() {
       console.error("Error:", error);
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleModalClose = () => {
+    setErrorMessage(null);
+    if (uploadedFeedId) {
+      router.push(`/feed/${uploadedFeedId}`);
+      setUploadedFeedId(null);
     }
   };
 
@@ -173,7 +191,7 @@ export default function AddFile() {
           </div>
         )}
       </div>
-      {errorMessage && <ErrorModal message={errorMessage} onClose={() => setErrorMessage(null)} />}
+      {errorMessage && <ErrorModal message={errorMessage} onClose={handleModalClose} />}
     </>
   );
 }
