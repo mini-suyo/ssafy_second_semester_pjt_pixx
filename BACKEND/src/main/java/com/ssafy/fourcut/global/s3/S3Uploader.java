@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.ssafy.fourcut.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
@@ -14,7 +15,9 @@ import java.time.LocalDate;
 public class S3Uploader {
 
     private final AmazonS3 amazonS3;
-    private final String bucketName = "filmmoa"; // 너희 S3 버킷 이름
+
+    @Value("${BUCKET_NAME}")
+    private String bucketName;
 
     public String upload(int userId, InputStream inputStream, String originalFilename, String contentType, Long contentLength) {
         try {
@@ -32,4 +35,11 @@ public class S3Uploader {
         }
     }
 
+    public void delete(String s3Key) {
+        try {
+            amazonS3.deleteObject(bucketName, s3Key);
+        } catch (Exception e) {
+            throw new CustomException(500, "S3 파일 삭제 실패");
+        }
+    }
 }

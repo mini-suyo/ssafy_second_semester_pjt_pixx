@@ -14,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -30,7 +32,7 @@ public class StoreController {
      * QR 업로드
      */
     @PostMapping("/qr")
-    public ResponseEntity<ApiResponse<Void>> uploadQr(
+    public ResponseEntity<ApiResponse<Map<String, Integer>>> uploadQr(
             Principal principal,
             @RequestBody QRUploadRequestDto request) {
         log.info("/api/v1/photos/upload/qr");
@@ -47,16 +49,19 @@ public class StoreController {
         // 크롤링을 하여, 파일들 저장 및 DB에 데이터 삽입
         storeService.CrawlUploadAndSave(request);
 
+        Map<String, Integer> data = new HashMap<>();
+        data.put("feedId", feedId);
+
         List<Image> images = imageRepository.findByFeed_FeedId(feedId);
         for (Image img : images) {
             faceDetectionService.processImage(img.getImageId(), img.getImageUrl());
         }
 
         return ResponseEntity.ok(
-                ApiResponse.<Void>builder()
+                ApiResponse.<Map<String, Integer>>builder()
                         .status(200)
                         .message("QR 업로드 성공")
-                        .data(null)
+                        .data(data)
                         .build()
         );
     }
@@ -65,7 +70,7 @@ public class StoreController {
      * 파일 업로드
      */
     @PostMapping("/file")
-    public ResponseEntity<ApiResponse<Void>> uploadFile(
+    public ResponseEntity<ApiResponse<Map<String, Integer>>> uploadFile(
             Principal principal,
             @RequestPart("files") List<MultipartFile> files) {
         log.info("/api/v1/photos/upload/file");
@@ -86,7 +91,14 @@ public class StoreController {
 
         log.info("userId: {}, feedId: {}", request.getUserId(), request.getFeedId());
         log.info("업로드된 파일 수: {}", files.size());
+        log.info("업로드된 파일 목록:");
+        for (MultipartFile file : files) {
+            log.info(" - {}", file.getOriginalFilename());
+        }
         storeService.uploadFile(request, files);
+
+        Map<String, Integer> data = new HashMap<>();
+        data.put("feedId", feedId);
 
         List<Image> images = imageRepository.findByFeed_FeedId(feedId);
         for (Image img : images) {
@@ -94,10 +106,10 @@ public class StoreController {
         }
 
         return ResponseEntity.ok(
-                ApiResponse.<Void>builder()
+                ApiResponse.<Map<String, Integer>>builder()
                         .status(200)
                         .message("파일 업로드 성공")
-                        .data(null)
+                        .data(data)
                         .build()
         );
     }

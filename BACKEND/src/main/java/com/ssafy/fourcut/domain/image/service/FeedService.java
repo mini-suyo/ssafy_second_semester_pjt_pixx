@@ -5,11 +5,9 @@ import com.amazonaws.services.cloudfront.model.EntityNotFoundException;
 import com.ssafy.fourcut.domain.image.dto.*;
 import com.ssafy.fourcut.domain.image.entity.*;
 import com.ssafy.fourcut.domain.image.entity.enums.ImageType;
-import com.ssafy.fourcut.domain.image.repository.AlbumRepository;
-import com.ssafy.fourcut.domain.image.repository.BrandRepository;
-import com.ssafy.fourcut.domain.image.repository.FeedRepository;
-import com.ssafy.fourcut.domain.image.repository.HashtagRepository;
+import com.ssafy.fourcut.domain.image.repository.*;
 import com.ssafy.fourcut.domain.user.repository.UserRepository;
+import com.ssafy.fourcut.global.s3.S3Uploader;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,6 +29,8 @@ public class FeedService {
     private final UserRepository userRepository;
     private final CloudFrontService cloudFrontService;
     private final AlbumRepository albumRepository;
+    private final StoreRepository storeRepository;
+    private final S3Uploader s3Uploader;
 
     /** 0,1: 페이징 정렬된 단일 리스트 (unchanged) */
     public List<FeedItemResponse> getFeedsSorted(
@@ -176,26 +176,6 @@ public class FeedService {
     }
 
     /**
-     * 피드 삭제: 관련 이미지, 해시피드 등도 cascade 삭제됩니다.
-     */
-    @Transactional
-    public void deleteFeed(Integer userId, Integer feedId) {
-        // (선택) 사용자 존재 확인
-        userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다. id=" + userId));
-
-        // 피드 조회 및 소유권 검증
-        Feed feed = feedRepository.findById(feedId)
-                .orElseThrow(() -> new EntityNotFoundException("피드를 찾을 수 없습니다. id=" + feedId));
-        if (!feed.getUser().getUserId().equals(userId)) {
-            throw new EntityNotFoundException("해당 사용자의 피드가 아닙니다. id=" + feedId);
-        }
-
-        // 삭제
-        feedRepository.delete(feed);
-    }
-
-    /**
      * feed.favorite 토글 + album 재배치
      */
     @Transactional
@@ -214,14 +194,14 @@ public class FeedService {
         feed.setFeedFavorite(updated);
 
         // 4) 새 상태에 따라 앨범 이동
-        Album targetAlbum = updated
-                // 좋아요(true) → favorite_album=true 인 앨범으로
-                ? albumRepository.findByUserUserIdAndFavoriteAlbumTrue(userId)
-                .orElseThrow(() -> new EntityNotFoundException("favorite_album=true 인 앨범이 없습니다."))
-                // 좋아요(false) → default_album=true 인 앨범으로
-                : albumRepository.findByUserUserIdAndDefaultAlbumTrue(userId)
-                .orElseThrow(() -> new EntityNotFoundException("default_album=true 인 앨범이 없습니다."));
-        feed.setAlbum(targetAlbum);
+//        Album targetAlbum = updated
+//                // 좋아요(true) → favorite_album=true 인 앨범으로
+//                ? albumRepository.findByUserUserIdAndFavoriteAlbumTrue(userId)
+//                .orElseThrow(() -> new EntityNotFoundException("favorite_album=true 인 앨범이 없습니다."))
+//                // 좋아요(false) → default_album=true 인 앨범으로
+//                : albumRepository.findByUserUserIdAndDefaultAlbumTrue(userId)
+//                .orElseThrow(() -> new EntityNotFoundException("default_album=true 인 앨범이 없습니다."));
+//        feed.setAlbum(targetAlbum);
 
         // 5) 변경 내용은 트랜잭션 커밋 시 자동 반영
         return new ToggleFavoriteResponse(feedId, updated);
@@ -232,6 +212,14 @@ public class FeedService {
     public void deleteFeeds(Integer userId, List<Integer> feedIds) {
         //피드들 조회
         List<Feed> feeds = feedRepository.findAllById(feedIds);
+
+        // S3에 있는 파일 삭제
+        for(Feed feed : feeds) {
+            List<Image> images = storeRepository.findByFeedFeedId(feed.getFeedId());
+            for(Image image : images) {
+                s3Uploader.delete(image.getImageUrl());
+            }
+        }
 
         //삭제
         feedRepository.deleteAll(feeds);
