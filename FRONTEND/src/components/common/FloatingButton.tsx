@@ -4,6 +4,7 @@
 
 import { MouseEventHandler } from "react";
 import styles from "./floating-button.module.css";
+import Image from "next/image";
 
 interface FloatingButtonProps {
   mode: "default" | "select";
@@ -16,7 +17,12 @@ export default function FloatingButton({ mode, onClick }: FloatingButtonProps) {
       className={`${styles.floatingButton} ${mode === "default" ? styles.floatingButtonDefault : styles.floatingButtonSelect}`}
       onClick={onClick}
     >
-      {mode === "default" ? "Edit" : "Cancel"}
+      <Image
+        src={mode === "default" ? "/icons/icon-edit.png" : "/icons/icon-close.png"}
+        alt={mode === "default" ? "편집" : "닫기"}
+        width={36}
+        height={36}
+      />
     </button>
   );
 }

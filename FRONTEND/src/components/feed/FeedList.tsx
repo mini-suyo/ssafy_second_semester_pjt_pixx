@@ -276,84 +276,90 @@ export default function FeedList() {
       </div>
       <div className={styles["feed-grid-wrapper"]}>
         <div className={styles["feed-grid"]}>
-          {data?.pages.map((page, pageIndex) =>
-            page.map((feed: Feed, feedIndex: number) => (
-              <div
-                key={feed.feedId}
-                className={styles["feed-item"]}
-                onClick={() => handleFeedClick(feed.feedId)}
-                onTouchStart={handlePressStart} // 모바일 longPress
-                onTouchEnd={handlePressEnd} // 모바일 longPress
-                onTouchCancel={handlePressEnd} // 모바일 longPress
-                onMouseDown={handlePressStart} // 웹 longPress
-                onMouseUp={handlePressEnd} // 웹 longPress
-                onMouseLeave={handlePressEnd} // 웹 longPress
-              >
-                <Image
-                  // src={"/dummy-feed-thumbnail.png"}
-                  src={feed.feedThumbnailImgUrl}
-                  alt={`Feed ${feed.feedId}`}
-                  fill
-                  className={styles.feedImage}
-                  priority={pageIndex === 0 && feedIndex < 6} // 처음 6개는 priority
-                  onLoad={() => handleImageLoad(feed.feedId)}
-                  onError={() => handleImageError(feed.feedId)}
-                />
-
-                {/*  즐겨찾기 토글 버튼 */}
+          {data?.pages.map((page) =>
+            // {data?.pages.map((page, pageIndex) =>
+            // page.map((feed: Feed, feedIndex: number) => (
+            page.map((feed: Feed) => {
+              console.log("썸네일 URL", feed.feedThumbnailImgUrl);
+              return (
                 <div
-                  className={styles.favoriteIcon}
-                  onClick={(e) => {
-                    e.stopPropagation(); // 상세 페이지 이동 방지
-                    toggleFavoriteMutation(feed.feedId);
-                  }}
+                  key={feed.feedId}
+                  className={styles["feed-item"]}
+                  onClick={() => handleFeedClick(feed.feedId)}
+                  onTouchStart={handlePressStart} // 모바일 longPress
+                  onTouchEnd={handlePressEnd} // 모바일 longPress
+                  onTouchCancel={handlePressEnd} // 모바일 longPress
+                  onMouseDown={handlePressStart} // 웹 longPress
+                  onMouseUp={handlePressEnd} // 웹 longPress
+                  onMouseLeave={handlePressEnd} // 웹 longPress
                 >
-                  <Image
-                    src={
-                      favorite[feed.feedId] ? "/icons/icon-star-fill-yellow.png" : "/icons/icon-star-empty-yellow.png"
-                    }
-                    alt="즐겨찾기"
-                    width={28}
-                    height={28}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    // src={"/dummy-feed-thumbnail.png"}
+                    src={feed.feedThumbnailImgUrl}
+                    alt={`Feed ${feed.feedId}`}
+                    // fill
+                    className={styles.feedImage}
+                    // priority={pageIndex === 0 && feedIndex < 6} // 처음 6개는 priority 사용할거면 위에서 pageIndex,feedIndex  넘겨받아야함
+                    onLoad={() => handleImageLoad(feed.feedId)}
+                    onError={() => handleImageError(feed.feedId)}
                   />
-                </div>
-                {/* 선택된 피드 약간 어둡게 처리 */}
-                {mode === "select" && selectedFeedIds.includes(feed.feedId) && (
-                  <div className={styles.selectedOverlay}></div>
-                )}
 
-                {/* 로딩 표시 */}
-                {!imageLoaded[feed.feedId] && !imageErrors[feed.feedId] && (
-                  <div className={styles.imageLoading}>로딩중...</div>
-                )}
-
-                {/* 에러 표시 및 재시도 버튼 */}
-                {imageErrors[feed.feedId] && (
-                  <div className={styles.imageError}>
-                    <p>이미지 로드 실패</p>
-                    <button className={styles.retryButton} onClick={(e) => handleRetryRequest(feed.feedId, e)}>
-                      다시 시도
-                    </button>
-                  </div>
-                )}
-
-                {/* 선택 모드일 때만 체크 아이콘 렌더링 */}
-                {mode === "select" && (
-                  <div className={styles.checkIcon}>
+                  {/*  즐겨찾기 토글 버튼 */}
+                  <div
+                    className={styles.favoriteIcon}
+                    onClick={(e) => {
+                      e.stopPropagation(); // 상세 페이지 이동 방지
+                      toggleFavoriteMutation(feed.feedId);
+                    }}
+                  >
                     <Image
                       src={
-                        selectedFeedIds.includes(feed.feedId)
-                          ? "/icons/icon-checked-purple.png"
-                          : "/icons/icon-unchecked-purple.png"
+                        favorite[feed.feedId] ? "/icons/icon-star-fill-yellow.png" : "/icons/icon-star-empty-yellow.png"
                       }
-                      alt="선택 여부"
-                      width={32}
-                      height={32}
+                      alt="즐겨찾기"
+                      width={28}
+                      height={28}
                     />
                   </div>
-                )}
-              </div>
-            ))
+                  {/* 선택된 피드 약간 어둡게 처리 */}
+                  {mode === "select" && selectedFeedIds.includes(feed.feedId) && (
+                    <div className={styles.selectedOverlay}></div>
+                  )}
+
+                  {/* 로딩 표시 */}
+                  {!imageLoaded[feed.feedId] && !imageErrors[feed.feedId] && (
+                    <div className={styles.imageLoading}>로딩중...</div>
+                  )}
+
+                  {/* 에러 표시 및 재시도 버튼 */}
+                  {imageErrors[feed.feedId] && (
+                    <div className={styles.imageError}>
+                      <p>이미지 로드 실패</p>
+                      <button className={styles.retryButton} onClick={(e) => handleRetryRequest(feed.feedId, e)}>
+                        다시 시도
+                      </button>
+                    </div>
+                  )}
+
+                  {/* 선택 모드일 때만 체크 아이콘 렌더링 */}
+                  {mode === "select" && (
+                    <div className={styles.checkIcon}>
+                      <Image
+                        src={
+                          selectedFeedIds.includes(feed.feedId)
+                            ? "/icons/icon-checked-purple.png"
+                            : "/icons/icon-unchecked-purple.png"
+                        }
+                        alt="선택 여부"
+                        width={32}
+                        height={32}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })
           )}
         </div>
 
