@@ -4,6 +4,8 @@ import com.ssafy.fourcut.domain.faceDetection.service.FaceDetectionService;
 import com.ssafy.fourcut.domain.image.dto.FileUploadRequestDto;
 import com.ssafy.fourcut.domain.image.dto.QRUploadRequestDto;
 import com.ssafy.fourcut.domain.image.entity.Image;
+import com.ssafy.fourcut.domain.image.repository.ImageRepository;
+import com.ssafy.fourcut.domain.image.entity.Image;
 import com.ssafy.fourcut.domain.image.entity.enums.ImageType;
 import com.ssafy.fourcut.domain.image.repository.ImageRepository;
 import com.ssafy.fourcut.domain.image.service.CloudFrontService;
