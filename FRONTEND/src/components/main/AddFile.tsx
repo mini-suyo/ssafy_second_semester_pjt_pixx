@@ -24,8 +24,9 @@ export default function AddFile() {
     const jpgPngFiles = allFiles.filter(
       (file) => file.type === "image/jpeg" || file.type === "image/png" || file.type === "image/jpg"
     );
-    const gifFiles = allFiles.filter((file) => file.type === "image/gif");
-    const mp4Files = allFiles.filter((file) => file.type === "video/mp4");
+    // 승용아 아래 두 변수 사용 안하는데 있어서 build error 나고있어 일단 주석처리해둘게
+    // const gifFiles = allFiles.filter((file) => file.type === "image/gif");
+    // const mp4Files = allFiles.filter((file) => file.type === "video/mp4");
 
     // 각 타입별 파일 개수 검증
     if (jpgPngFiles.length === 0) {
@@ -221,6 +222,7 @@ export default function AddFile() {
                 } ${index === 0 ? styles.firstFile : ""}`}
                 onClick={() => handleThumbnailSelect(index)}
               >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 {file.type.startsWith("image/") && (
                   <img src={previews[index]} alt={file.name} className={styles.previewImage} />
                 )}
