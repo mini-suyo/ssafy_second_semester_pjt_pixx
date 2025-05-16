@@ -8,6 +8,7 @@ from PIL import Image
 import numpy as np
 import requests
 from io import BytesIO
+import uvicorn
 
 app = FastAPI()
 
@@ -77,5 +78,4 @@ async def detect(
 
 
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
