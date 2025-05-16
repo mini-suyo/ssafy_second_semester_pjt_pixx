@@ -1,4 +1,6 @@
 # FastAPI: main.py
+import uvicorn
+import os
 from fastapi import FastAPI, HTTPException, Path
 from pydantic import BaseModel
 from typing import List
@@ -8,7 +10,6 @@ from PIL import Image
 import numpy as np
 import requests
 from io import BytesIO
-import uvicorn
 
 app = FastAPI()
 
@@ -76,6 +77,10 @@ async def detect(
 
     return DetectResponse(status=200, message="얼굴 검출 성공", data=data)
 
+@app.get("/")
+async def root():
+    return {"message": "test입니당"}
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
