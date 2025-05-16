@@ -16,3 +16,6 @@ spring:
 
 cookie:
   secure: true
+
+face-api:
+  url: https://ai-dev.film-moa.com
