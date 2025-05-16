@@ -39,6 +39,6 @@ export const downloadImageFile = async (imageId: number) => {
 
 // 피드 좋아요
 export const toggleFavorite = async (feedId: number): Promise<FavoriteResponse> => {
-  const response = await api.get(`/api/v1/feed/${feedId}/favorite`);
+  const response = await api.post(`/api/v1/feed/${feedId}/favorite`);
   return response.data.data;
 };
