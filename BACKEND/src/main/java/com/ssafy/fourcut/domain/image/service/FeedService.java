@@ -194,14 +194,14 @@ public class FeedService {
         feed.setFeedFavorite(updated);
 
         // 4) 새 상태에 따라 앨범 이동
-        Album targetAlbum = updated
-                // 좋아요(true) → favorite_album=true 인 앨범으로
-                ? albumRepository.findByUserUserIdAndFavoriteAlbumTrue(userId)
-                .orElseThrow(() -> new EntityNotFoundException("favorite_album=true 인 앨범이 없습니다."))
-                // 좋아요(false) → default_album=true 인 앨범으로
-                : albumRepository.findByUserUserIdAndDefaultAlbumTrue(userId)
-                .orElseThrow(() -> new EntityNotFoundException("default_album=true 인 앨범이 없습니다."));
-        feed.setAlbum(targetAlbum);
+//        Album targetAlbum = updated
+//                // 좋아요(true) → favorite_album=true 인 앨범으로
+//                ? albumRepository.findByUserUserIdAndFavoriteAlbumTrue(userId)
+//                .orElseThrow(() -> new EntityNotFoundException("favorite_album=true 인 앨범이 없습니다."))
+//                // 좋아요(false) → default_album=true 인 앨범으로
+//                : albumRepository.findByUserUserIdAndDefaultAlbumTrue(userId)
+//                .orElseThrow(() -> new EntityNotFoundException("default_album=true 인 앨범이 없습니다."));
+//        feed.setAlbum(targetAlbum);
 
         // 5) 변경 내용은 트랜잭션 커밋 시 자동 반영
         return new ToggleFavoriteResponse(feedId, updated);
