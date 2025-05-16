@@ -33,6 +33,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/auth/withdraw").authenticated()
                         // 2) 그 외 카카오/로그인/로그아웃 관련은 풀어주고
                         .requestMatchers(
+                                "/oauth/kakao/callback",
                                 "/auth/kakao/callback",
                                 "/auth/kakao/login",
                                 "/auth/kakao/jwt",

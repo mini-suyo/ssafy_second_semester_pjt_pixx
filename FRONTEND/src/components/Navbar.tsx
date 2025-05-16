@@ -1,11 +1,14 @@
 "use client";
 import Link from "next/link";
 import styles from "./navbar.module.css";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
+  const pathname = usePathname();
+
   return (
     <nav className={styles.navbar}>
-      <Link href="/feed" className={styles.navItem}>
+      <Link href="/feed" className={`${styles.navItem} ${pathname === "/feed" ? styles.active : ""}`}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -25,7 +28,7 @@ export default function Navbar() {
         <span>Photo</span>
       </Link>
 
-      <Link href="/main" className={styles.navItem}>
+      <Link href="/main" className={`${styles.navItem} ${pathname === "/main" ? styles.active : ""}`}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -44,7 +47,7 @@ export default function Navbar() {
         </svg>
       </Link>
 
-      <Link href="/profile" className={styles.navItem}>
+      <Link href="/profile" className={`${styles.navItem} ${pathname === "/profile" ? styles.active : ""}`}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"

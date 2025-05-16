@@ -12,34 +12,35 @@ export default function QrCode() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleQrResult = async (qrUrl: string) => {
-    try {
-      const response = await api.post("/api/v1/photos/upload/qr", {
-        pageUrl: qrUrl,
-      });
-
-      if (response.data.status === 200) {
-        setIsScanning(false);
-        router.push(`/feed/${response.data.data.feedId}`);
-      } else {
-        setErrorMessage(response.data.message || "QR 코드 처리 중 오류가 발생했습니다.");
-      }
-    } catch (error: any) {
-      if (error.response?.data?.message) {
-        setErrorMessage(error.response.data.message);
-      } else if (error.response?.status === 400) {
-        setErrorMessage("지원하지 않는 브랜드입니다.");
-      } else if (error.response?.status === 500) {
-        setErrorMessage("서버 처리 중 오류가 발생했습니다.");
-      } else {
-        setErrorMessage("QR 코드 처리 중 오류가 발생했습니다.");
-      }
-    }
-  };
-
   useEffect(() => {
     const codeReader = new BrowserQRCodeReader();
     let controls: { stop: () => void } | undefined;
+
+    // handleQrResult 함수를 useEffect 안으로 이동
+    const handleQrResult = async (qrUrl: string) => {
+      try {
+        const response = await api.post("/api/v1/photos/upload/qr", {
+          pageUrl: qrUrl,
+        });
+
+        if (response.data.status === 200) {
+          setIsScanning(false);
+          router.push(`/feed/${response.data.data.feedId}`);
+        } else {
+          setErrorMessage(response.data.message || "QR 코드 처리 중 오류가 발생했습니다.");
+        }
+      } catch (error: any) {
+        if (error.response?.data?.message) {
+          setErrorMessage(error.response.data.message);
+        } else if (error.response?.status === 400) {
+          setErrorMessage("지원하지 않는 브랜드입니다.");
+        } else if (error.response?.status === 500) {
+          setErrorMessage("서버 처리 중 오류가 발생했습니다.");
+        } else {
+          setErrorMessage("QR 코드 처리 중 오류가 발생했습니다.");
+        }
+      }
+    };
 
     const startScanning = async () => {
       try {
@@ -93,7 +94,7 @@ export default function QrCode() {
     return () => {
       controls?.stop();
     };
-  }, [isScanning]);
+  }, [isScanning, router]); // router만 의존성으로 남김
 
   return (
     <>
