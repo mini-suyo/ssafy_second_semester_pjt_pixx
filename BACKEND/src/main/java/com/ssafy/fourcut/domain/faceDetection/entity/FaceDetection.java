@@ -17,8 +17,9 @@ import java.time.LocalDateTime;
 public class FaceDetection {
 
     @Id
-    @Column(name = "detection_id", length = 255)
-    private String detectionId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "detection_id")
+    private Integer detectionId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "face_id")
