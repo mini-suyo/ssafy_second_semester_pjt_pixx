@@ -1,6 +1,6 @@
 // app/lib/api/feedApi.ts
 
-import { Feed, DeleteFeedResponse, FeedDetailUpdate } from "@/app/types/feed";
+import { Feed, DeleteFeedResponse, FeedDetailUpdate, FavoriteResponse } from "@/app/types/feed";
 
 // import axiosInstance from "./axiosInstance";
 import api from "./axios";
@@ -35,4 +35,10 @@ export const downloadImageFile = async (imageId: number) => {
   const fileUrl = response.data.signedUrl;
   if (!fileUrl) throw new Error("signedUrl이 응답에 없습니다.");
   return fileUrl;
+};
+
+// 피드 좋아요
+export const toggleFavorite = async (feedId: number): Promise<FavoriteResponse> => {
+  const response = await api.post(`/api/v1/feed/${feedId}/favorite`);
+  return response.data.data;
 };

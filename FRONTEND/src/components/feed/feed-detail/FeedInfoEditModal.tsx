@@ -67,16 +67,6 @@ export default function FeedInfoEditModal({
   }, [feedDetail]);
   if (!isOpen || !feedDetail) return null;
 
-  // 해시태그 핸들러(# 자동으로 붙여줌)
-  const formatHashtags = (input: string) => {
-    return input
-      .split(/\s+/)
-      .map((word) => word.replace(/^#/, ""))
-      .filter(Boolean)
-      .map((word) => `#${word}`)
-      .join(" ");
-  };
-
   // 태그 추가 함수
   const addTag = () => {
     const tag = currentTag.trim().replace(/^#/, ""); // # 제거

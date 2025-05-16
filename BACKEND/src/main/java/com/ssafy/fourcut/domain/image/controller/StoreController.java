@@ -81,6 +81,10 @@ public class StoreController {
 
         log.info("userId: {}, feedId: {}", request.getUserId(), request.getFeedId());
         log.info("업로드된 파일 수: {}", files.size());
+        log.info("업로드된 파일 목록:");
+        for (MultipartFile file : files) {
+            log.info(" - {}", file.getOriginalFilename());
+        }
         storeService.uploadFile(request, files);
 
         Map<String, Integer> data = new HashMap<>();

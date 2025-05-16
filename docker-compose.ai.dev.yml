@@ -1,0 +1,17 @@
+services:
+  ai-dev-app:
+    build:
+      context: ./AI
+      dockerfile: Dockerfile
+    image: ${FASTAPI_DEV_IMAGE_NAME}:latest
+    container_name: ${FASTAPI_DEV_CONTAINER_NAME}
+    environment:
+      - PORT=${FASTAPI_DEV_CONTAINER_PORT}   # FastAPI에 전달
+    expose:
+      - "${FASTAPI_DEV_CONTAINER_PORT}"
+    restart: always
+
+networks:
+  default:
+    external: true
+    name: app-network

@@ -165,7 +165,7 @@ public class FeedController {
      * POST /api/v1/feed/{feedId}/favorite
      * 피드 좋아요(on/off) 토글
      */
-    @GetMapping("/{feedId}/favorite")
+    @PostMapping("/{feedId}/favorite")
     public ResponseEntity<ApiResponse<ToggleFavoriteResponse>> toggleFavorite(
             Principal principal,
             @PathVariable Integer feedId
