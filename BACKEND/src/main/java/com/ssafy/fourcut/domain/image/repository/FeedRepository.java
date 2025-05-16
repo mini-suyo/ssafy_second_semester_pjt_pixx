@@ -15,6 +15,7 @@ import java.util.Optional;
 public interface FeedRepository extends JpaRepository<Feed, Integer> {
     Page<Feed> findByUserUserIdOrderByFeedDateDesc(Integer userId, Pageable pageable);
     Page<Feed> findByUserUserIdOrderByFeedDateAsc(Integer userId, Pageable pageable);
+    List<Feed> findByFeedFavoriteTrueAndUser_UserId(Integer userId);
 
     // (1) 사용자의 피드에 등장하는 브랜드명을 중복 없이 조회
     @Query("SELECT DISTINCT f.brand.brandName FROM Feed f WHERE f.user.userId = :userId")
@@ -32,6 +33,11 @@ public interface FeedRepository extends JpaRepository<Feed, Integer> {
 
     /** 앨범 속 피드 중 가장 과거인 하나만 뽑아오기 (albumDate 계산용) */
     Feed findTop1ByAlbumAlbumIdOrderByFeedDateAsc(Integer albumId);
+
+    // 좋아요 앨범 전용
+    Page<Feed> findByFeedFavoriteTrueAndUser_UserIdOrderByFeedDateDesc(Integer userId, Pageable pageable);
+    Page<Feed> findByFeedFavoriteTrueAndUser_UserIdOrderByFeedDateAsc(Integer userId, Pageable pageable);
+    Feed findTop1ByFeedFavoriteTrueAndUser_UserIdOrderByFeedDateAsc(Integer userId);
 
     /**
      * 상세조회용: images, hashFeeds → hashtag, brand 연관관계까지 한 번에 fetch
