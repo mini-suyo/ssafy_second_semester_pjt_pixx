@@ -61,7 +61,7 @@ public class StoreController {
                     String signedUrl = cloudFrontService.generateSignedCloudFrontUrl(
                             img.getImageUrl(), "get"
                     );
-                    faceDetectionService.processImage(img.getImageId(), signedUrl);
+                    faceDetectionService.processImageAsync(img.getImageId(), signedUrl);
                 });
 
         return ResponseEntity.ok(
@@ -106,14 +106,14 @@ public class StoreController {
 
         imageRepository
                 .findFirstByFeed_FeedIdAndImageTypeOrderByImageIdAsc(
-                        request.getFeedId(),
+                        feedId,
                         ImageType.IMAGE      // IMAGE 타입 중에서
                 )
                 .ifPresent(img -> {
                     String signedUrl = cloudFrontService.generateSignedCloudFrontUrl(
                             img.getImageUrl(), "get"
                     );
-                    faceDetectionService.processImage(img.getImageId(), signedUrl);
+                    faceDetectionService.processImageAsync(img.getImageId(), signedUrl);
                 });
 
         return ResponseEntity.ok(

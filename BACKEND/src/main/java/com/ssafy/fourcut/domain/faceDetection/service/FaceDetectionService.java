@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
@@ -28,6 +29,7 @@ import java.io.*;
 import java.net.URL;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +43,6 @@ public class FaceDetectionService {
 
     @Value("${face-api.url}")
     private String faceApiUrl;
-
 
     /**
      * 1) FastAPI에 이미지 보내서 얼굴 검출 → face_detection 저장
@@ -109,7 +110,7 @@ public class FaceDetectionService {
                         .user(det.getImage().getFeed().getUser())
                         .faceVectorData(det.getDetectionVectorData())
                         .detectionCount(1)
-                        .repDetection(det)                      // ← 여기 추가
+                        .repDetection(det)
                         .build();
 
                 // 바운딩 박스 기반 크롭 → 썸네일 S3 업로드
@@ -132,6 +133,12 @@ public class FaceDetectionService {
 
         // 4) 결과 DTO 반환
         return body.getData();
+    }
+    @Async
+    @Transactional
+    public CompletableFuture<Void> processImageAsync(Integer imageId, String imgUrl) {
+        processImage(imageId, imgUrl);
+        return CompletableFuture.completedFuture(null);
     }
 
     /** 클러스터 이름 변경 (face_cluster_name) */
@@ -168,7 +175,16 @@ public class FaceDetectionService {
                     box[0], box[1],
                     box[2] - box[0], box[3] - box[1]
             );
-            BufferedImage thumb = Thumbnails.of(faceCrop)
+
+            // 2) 얼굴 영역에서 정사각형으로 센터 크롭
+            int w = faceCrop.getWidth();
+            int h = faceCrop.getHeight();
+            int size = Math.min(w, h);
+            int x = (w - size) / 2;
+            int y = (h - size) / 2;
+            BufferedImage squareCrop = faceCrop.getSubimage(x, y, size, size);
+
+            BufferedImage thumb = Thumbnails.of(squareCrop)
                     .size(150, 150)
                     .outputQuality(0.8)
                     .asBufferedImage();
