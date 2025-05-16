@@ -35,6 +35,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/oauth/kakao/callback",
                                 "/auth/kakao/callback",
+                                "/oauth/kakao/callback",
                                 "/auth/kakao/login",
                                 "/auth/kakao/jwt",
                                 "/auth/logout",
