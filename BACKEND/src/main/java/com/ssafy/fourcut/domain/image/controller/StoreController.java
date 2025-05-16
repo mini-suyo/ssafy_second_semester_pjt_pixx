@@ -37,7 +37,7 @@ public class StoreController {
      * QR 업로드
      */
     @PostMapping("/qr")
-    public ResponseEntity<ApiResponse<Map<String, Integer>>> uploadQr(
+    public ResponseEntity<ApiResponse<Void>> uploadQr(
             Principal principal,
             @RequestBody QRUploadRequestDto request) {
         log.info("/api/v1/photos/upload/qr");
