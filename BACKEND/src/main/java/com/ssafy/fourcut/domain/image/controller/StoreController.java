@@ -1,7 +1,10 @@
 package com.ssafy.fourcut.domain.image.controller;
 
+import com.ssafy.fourcut.domain.faceDetection.service.FaceDetectionService;
 import com.ssafy.fourcut.domain.image.dto.FileUploadRequestDto;
 import com.ssafy.fourcut.domain.image.dto.QRUploadRequestDto;
+import com.ssafy.fourcut.domain.image.entity.Image;
+import com.ssafy.fourcut.domain.image.repository.ImageRepository;
 import com.ssafy.fourcut.domain.image.service.StoreService;
 import com.ssafy.fourcut.global.dto.ApiResponse;
 import com.ssafy.fourcut.global.exception.CustomException;
@@ -20,6 +23,8 @@ import java.util.List;
 public class StoreController {
 
     private final StoreService storeService;
+    private final FaceDetectionService faceDetectionService;
+    private final ImageRepository imageRepository;
 
     /*
      * QR 업로드
@@ -41,6 +46,11 @@ public class StoreController {
 
         // 크롤링을 하여, 파일들 저장 및 DB에 데이터 삽입
         storeService.CrawlUploadAndSave(request);
+
+        List<Image> images = imageRepository.findByFeed_FeedId(feedId);
+        for (Image img : images) {
+            faceDetectionService.processImage(img.getImageId(), img.getImageUrl());
+        }
 
         return ResponseEntity.ok(
                 ApiResponse.<Void>builder()
@@ -77,6 +87,11 @@ public class StoreController {
         log.info("userId: {}, feedId: {}", request.getUserId(), request.getFeedId());
         log.info("업로드된 파일 수: {}", files.size());
         storeService.uploadFile(request, files);
+
+        List<Image> images = imageRepository.findByFeed_FeedId(feedId);
+        for (Image img : images) {
+            faceDetectionService.processImage(img.getImageId(), img.getImageUrl());
+        }
 
         return ResponseEntity.ok(
                 ApiResponse.<Void>builder()
