@@ -35,6 +35,19 @@ public class S3Uploader {
         }
     }
 
+    public String uploadThumbnail(int userId, InputStream inputStream, String thumbnailKey, String contentType, Long contentLength) {
+        try {
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(contentType);
+            metadata.setContentLength(contentLength);
+
+            amazonS3.putObject(bucketName, thumbnailKey, inputStream, metadata);
+            return thumbnailKey;
+        } catch (Exception e) {
+            throw new CustomException(500, "S3 파일 업로드 실패");
+        }
+    }
+
     public void delete(String s3Key) {
         try {
             amazonS3.deleteObject(bucketName, s3Key);
