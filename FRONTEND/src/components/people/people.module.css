@@ -1,0 +1,64 @@
+.peopleGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 140px);
+    gap: 2rem 2.5rem;  /* 첫 번째 값이 row gap, 두 번째 값이 column gap */
+    padding: 1rem;
+    margin-top: 2rem;
+    justify-content: center;
+  }
+  
+  .profileContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .profileWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .profileCircle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: transparent;
+    position: relative;
+  }
+  
+  .profileCircle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: linear-gradient(to bottom right, #621A8F, #FFFFFF) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+  }
+  
+  .profileImage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    height: 90%;
+    object-fit: cover;
+    border-radius: 50%;
+    background-color: white;
+  }
+  
+  .profileName {
+    font-size: 1.2rem;
+    color: #FFFFFF;
+    font-weight: 500;
+    text-align: center;
+  }
