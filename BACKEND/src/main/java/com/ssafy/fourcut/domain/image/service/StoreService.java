@@ -257,12 +257,15 @@ public class StoreService {
                 String originalFilename = UUID.randomUUID().toString() + extension;
                 String s3Key = s3Uploader.upload(userId, inputStream, originalFilename, contentType, contentLength);
 
+                boolean isThumbnail = isImageTypeForThumbnail(extension); // 사진인 경우 : true, 아닐 경우, false
+
                 storeRepository.save(
                         Image.builder()
                                 .feed(feed)
                                 .imageUrl(s3Key)
                                 .imageType(detectImageType(feed.getFeedId(), contentType))
                                 .createdAt(LocalDateTime.now())
+                                .isThumbnail(isThumbnail)
                                 .build()
                 );
             }
@@ -271,6 +274,13 @@ public class StoreService {
             throw new CustomException(500, "파일 다운로드 및 S3 업로드 중 오류가 발생했습니다.");
         }
     }
+
+    private boolean isImageTypeForThumbnail(String extension) {
+        if (extension == null) return false;
+        String ext = extension.toLowerCase();
+        return ext.equals(".jpg") || ext.equals(".jpeg") || ext.equals(".png") || ext.equals(".webp");
+    }
+
 
     private String getExtensionByContentType(String contentType) {
         if (contentType == null) return "";
@@ -339,7 +349,8 @@ public class StoreService {
         Feed feed = feedRepository.findById(request.getFeedId())
                 .orElseThrow(() -> new CustomException(404, "해당 피드(" + request.getFeedId() + ")를 찾을 수 없습니다."));
 
-        for (MultipartFile file : files) {
+        for (int i = 0; i < files.size(); i++) {
+            MultipartFile file = files.get(i);
             try (InputStream inputStream = file.getInputStream()) {
                 String contentType = file.getContentType();
                 String extension = getExtensionByContentType(contentType);
@@ -353,6 +364,7 @@ public class StoreService {
                                 .imageUrl(s3Key)
                                 .imageType(detectImageType(feed.getFeedId(), contentType)) // photo, gif, video 등
                                 .createdAt(LocalDateTime.now())
+                                .isThumbnail(i == 0)  // 첫 번째 파일만 true
                                 .build()
                 );
 

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "@/app/lib/api/axios";
 import styles from "./add-file.module.css";
 import { useQueryClient } from "@tanstack/react-query";
@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 
 export default function AddFile() {
   const [files, setFiles] = useState<FileList | null>(null);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [uploadedFeedId, setUploadedFeedId] = useState<string | null>(null);
@@ -23,27 +24,13 @@ export default function AddFile() {
     const jpgPngFiles = allFiles.filter(
       (file) => file.type === "image/jpeg" || file.type === "image/png" || file.type === "image/jpg"
     );
-    const gifFiles = allFiles.filter((file) => file.type === "image/gif");
-    const mp4Files = allFiles.filter((file) => file.type === "video/mp4");
+    // 승용아 아래 두 변수 사용 안하는데 있어서 build error 나고있어 일단 주석처리해둘게
+    // const gifFiles = allFiles.filter((file) => file.type === "image/gif");
+    // const mp4Files = allFiles.filter((file) => file.type === "video/mp4");
 
     // 각 타입별 파일 개수 검증
     if (jpgPngFiles.length === 0) {
       setErrorMessage("이미지는 필수로 업로드해야 합니다.");
-      return false;
-    }
-
-    if (jpgPngFiles.length > 1) {
-      setErrorMessage("JPG/PNG 이미지는 1장만 업로드할 수 있습니다.");
-      return false;
-    }
-
-    if (gifFiles.length > 1) {
-      setErrorMessage("GIF 파일은 최대 1개만 업로드할 수 있습니다.");
-      return false;
-    }
-
-    if (mp4Files.length > 1) {
-      setErrorMessage("MP4 파일은 최대 1개만 업로드할 수 있습니다.");
       return false;
     }
 
@@ -60,19 +47,30 @@ export default function AddFile() {
     return true;
   };
 
-  // handleFileChange 메서드도 수정
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       if (validateFiles(event.target.files)) {
-        // 기존 파일과 새 파일을 병합
         const currentFiles = Array.from(event.target.files);
         const previousFiles = files ? Array.from(files) : [];
-        const mergedFiles = [...previousFiles, ...currentFiles];
+        const allFiles = [...previousFiles, ...currentFiles];
+
+        // 파일 타입별로 분류
+        const jpgPngFiles = allFiles.filter(
+          (file) => file.type === "image/jpeg" || file.type === "image/png" || file.type === "image/jpg"
+        );
+        const otherFiles = allFiles.filter((file) => file.type === "image/gif" || file.type === "video/mp4");
+
+        // JPG/PNG 파일을 리스트 맨 앞으로 정렬
+        const sortedFiles = [...jpgPngFiles, ...otherFiles];
 
         // FileList 객체로 변환
         const dataTransfer = new DataTransfer();
-        mergedFiles.forEach((file) => dataTransfer.items.add(file));
+        sortedFiles.forEach((file) => dataTransfer.items.add(file));
         setFiles(dataTransfer.files);
+
+        // 미리보기 URL 생성
+        const newPreviews = sortedFiles.map((file) => URL.createObjectURL(file));
+        setPreviews(newPreviews);
 
         // DOM 업데이트 후 스크롤 실행
         setTimeout(() => {
@@ -85,6 +83,33 @@ export default function AddFile() {
         event.target.value = "";
       }
     }
+  };
+
+  const handleThumbnailSelect = (index: number) => {
+    if (!files) return;
+
+    const selectedFile = files[index];
+    if (selectedFile.type === "image/gif" || selectedFile.type === "video/mp4") {
+      setErrorMessage("JPG/PNG 형식의 이미지만 대표 이미지로 설정할 수 있습니다.");
+      return;
+    }
+
+    // 선택된 파일을 맨 앞으로 이동
+    const fileArray = Array.from(files);
+    const [movedFile] = fileArray.splice(index, 1);
+    fileArray.unshift(movedFile);
+
+    // FileList 객체로 변환
+    const dataTransfer = new DataTransfer();
+    fileArray.forEach((file) => dataTransfer.items.add(file));
+    setFiles(dataTransfer.files);
+
+    // 기존 미리보기 URL들을 해제
+    previews.forEach((url) => URL.revokeObjectURL(url));
+
+    // 새로운 순서대로 미리보기 URL 생성
+    const newPreviews = fileArray.map((file) => URL.createObjectURL(file));
+    setPreviews(newPreviews);
   };
 
   const handleUpload = async () => {
@@ -150,6 +175,7 @@ export default function AddFile() {
 
     if (newFiles.length === 0) {
       setFiles(null);
+      setPreviews([]);
       const fileInput = document.getElementById("fileInput") as HTMLInputElement;
       if (fileInput) fileInput.value = "";
       return;
@@ -158,7 +184,18 @@ export default function AddFile() {
     const dataTransfer = new DataTransfer();
     newFiles.forEach((file) => dataTransfer.items.add(file));
     setFiles(dataTransfer.files);
+
+    // 미리보기 URL 업데이트
+    URL.revokeObjectURL(previews[indexToRemove]); // 이전 URL 해제
+    setPreviews(previews.filter((_, index) => index !== indexToRemove));
   };
+
+  // 컴포넌트가 언마운트될 때 미리보기 URL 정리
+  useEffect(() => {
+    return () => {
+      previews.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [previews]);
 
   return (
     <>
@@ -176,11 +213,31 @@ export default function AddFile() {
         />
         {files && files.length > 0 && (
           <div className={styles.fileList}>
-            <p>선택된 파일 ({files.length}개):</p>
+            <p>대표이미지를 선택해주세요</p>
             {Array.from(files).map((file, index) => (
-              <div key={index} className={styles.fileItem}>
+              <div
+                key={index}
+                className={`${styles.fileItem} ${
+                  file.type === "image/gif" || file.type === "video/mp4" ? styles.disabled : ""
+                } ${index === 0 ? styles.firstFile : ""}`}
+                onClick={() => handleThumbnailSelect(index)}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {file.type.startsWith("image/") && (
+                  <img src={previews[index]} alt={file.name} className={styles.previewImage} />
+                )}
+                {file.type.startsWith("video/") && (
+                  <video src={previews[index]} className={styles.previewVideo} muted />
+                )}
                 <p className={styles.fileName}>{file.name}</p>
-                <button onClick={() => handleRemoveFile(index)} className={styles.removeButton} type="button">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveFile(index);
+                  }}
+                  className={styles.removeButton}
+                  type="button"
+                >
                   ✕
                 </button>
               </div>

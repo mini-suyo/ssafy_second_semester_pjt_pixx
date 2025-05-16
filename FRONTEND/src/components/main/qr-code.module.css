@@ -1,6 +1,6 @@
 .QrScannerContainer {
-  min-height: 300px;
-  height: 50vh;
+  /* min-height: 300px; */
+  height: 35vh;
   display: flex;
   justify-content: center;
   align-items: center;

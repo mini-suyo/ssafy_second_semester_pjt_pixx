@@ -106,37 +106,55 @@ public class AlbumService {
         }
 
         // 2) albumDate 계산 (가장 오래된 피드 한 건)
-        Feed oldestFeed = feedRepository
-                .findTop1ByAlbumAlbumIdOrderByFeedDateAsc(albumId);
-        LocalDateTime albumDate = (oldestFeed != null)
-                ? oldestFeed.getFeedDate()
-                : null;
+        LocalDateTime albumDate;
+        if (Boolean.TRUE.equals(album.getFavoriteAlbum())) {
+            Feed oldestFavorite =
+                    feedRepository.findTop1ByFeedFavoriteTrueAndUser_UserIdOrderByFeedDateAsc(userId);
+            albumDate = (oldestFavorite != null) ? oldestFavorite.getFeedDate() : null;
+        } else {
+            Feed oldestInAlbum =
+                    feedRepository.findTop1ByAlbumAlbumIdOrderByFeedDateAsc(albumId);
+            albumDate = (oldestInAlbum != null) ? oldestInAlbum.getFeedDate() : null;
+        }
 
         // 3) 페이지 요청 생성
         PageRequest pr = PageRequest.of(page, size);
 
         // 4) 피드 페이징 조회 (정렬: type==0 최신, type==1 오래된)
-        Page<Feed> feedPage = (type == 0)
-                ? feedRepository.findByAlbumAlbumIdOrderByFeedDateDesc(albumId, pr)
-                : feedRepository.findByAlbumAlbumIdOrderByFeedDateAsc(albumId, pr);
+        Page<Feed> feedPage;
+        if (Boolean.TRUE.equals(album.getFavoriteAlbum())) {
+            // 좋아요 앨범인 경우
+            if (type == 0) {
+                feedPage = feedRepository
+                        .findByFeedFavoriteTrueAndUser_UserIdOrderByFeedDateDesc(userId, pr);
+            } else {
+                feedPage = feedRepository
+                        .findByFeedFavoriteTrueAndUser_UserIdOrderByFeedDateAsc(userId, pr);
+            }
+        } else {
+            // 일반 앨범인 경우
+            if (type == 0) {
+                feedPage = feedRepository
+                        .findByAlbumAlbumIdOrderByFeedDateDesc(albumId, pr);
+            } else {
+                feedPage = feedRepository
+                        .findByAlbumAlbumIdOrderByFeedDateAsc(albumId, pr);
+            }
+        }
 
-        // 5) Feed → FeedItemResponse 매핑
+        // 5) Feed → FeedItemResponse 매핑 (기존 로직 그대로)
         List<FeedItemResponse> feedItems = feedPage.stream()
                 .map(f -> {
-                    // 1) isThumbnail=true 인 이미지 우선 탐색
                     String rawUrl = f.getImages().stream()
                             .filter(img -> Boolean.TRUE.equals(img.getIsThumbnail()))
                             .map(Image::getImageUrl)
                             .findFirst()
-                            // 2) 없으면 IMAGE 타입 중 ID가 가장 작은 것
                             .orElseGet(() -> f.getImages().stream()
                                     .filter(img -> ImageType.IMAGE.equals(img.getImageType()))
                                     .min(Comparator.comparing(Image::getImageId))
                                     .map(Image::getImageUrl)
-                                    .orElse("")
-                            );
+                                    .orElse(""));
 
-                    // 3) CloudFront signed URL 생성
                     String thumbUrl = rawUrl.isEmpty()
                             ? ""
                             : cloudFrontService.generateSignedCloudFrontUrl(rawUrl, "get");
