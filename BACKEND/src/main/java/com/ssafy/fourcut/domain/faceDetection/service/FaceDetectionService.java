@@ -196,9 +196,8 @@ public class FaceDetectionService {
             String filename = UUID.randomUUID() + ".jpg";
             String keyInFolder = "users/" + userId + "/thumbnail/" + filename;
 
-            // 4) S3 업로드 (ContentType, length 지정)
-            return s3Uploader.upload(
-                    Integer.valueOf(userId),
+            return s3Uploader.uploadThumbnail(
+                    Integer.parseInt(userId),
                     new ByteArrayInputStream(bytes),
                     keyInFolder,
                     "image/jpeg",
