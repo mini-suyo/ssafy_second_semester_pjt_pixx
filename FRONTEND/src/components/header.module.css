@@ -1,0 +1,42 @@
+.headerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.title {
+  height: 2rem;
+  margin: 1rem;
+  font-size: 24px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.inquiryButton {
+  width: auto;
+  padding: 1rem;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: float 3s ease-in-out infinite;
+}
+
+.inquiryButton img {
+  filter: brightness(0) invert(1);
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0px, 0px);
+  }
+  50% {
+    transform: translate(2px, -2px);
+  }
+  100% {
+    transform: translate(0px, 0px);
+  }
+}

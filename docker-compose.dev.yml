@@ -1,0 +1,61 @@
+services:
+  frontend:
+    build:
+      context: ./FRONTEND
+      dockerfile: Dockerfile
+    # 빌드한 이미지의 이름 설정
+    image: ${NEXTJS_DEV_IMAGE_NAME}
+    container_name: ${NEXTJS_DEV_CONTAINER_NAME}
+    restart: always
+    expose:
+      - "${NEXTJS_DEV_CONTAINER_PORT}"
+    # 운영환경 명시 : 항상 production으로 설정(성능 저하 방지)
+    environment:
+    - NODE_ENV=production
+    - PORT=${NEXTJS_DEV_CONTAINER_PORT}
+    - HOSTNAME=0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      interval: 30s # 검사 간 간격
+      timeout: 10s # 검사 최대 실행 시간
+      retries: 3 # 실패 시 재시도 횟수 (모두 실패 시 unhealthy)
+      start_period: 30s # 컨테이너 시작 후 검사 시작까지 대기 시간
+
+  backend:
+    # Dockerfile로 백엔드 프로젝트를 이미지로 빌드
+    build:
+      context: ./BACKEND
+      dockerfile: Dockerfile
+    # 빌드한 이미지의 이름 설정정
+    image: ${SPRING_DEV_IMAGE_NAME}
+    container_name: ${SPRING_DEV_CONTAINER_NAME}
+    restart: always
+    environment:
+      - SERVER_PORT=${SPRING_DEV_CONTAINER_PORT}
+    expose:
+      - "${SPRING_DEV_CONTAINER_PORT}"
+    volumes:
+      - /home/ubuntu/aws:/app/aws
+    depends_on:
+      mysql:
+        condition: service_healthy   # 에러 방지를 위해 mysql healthcheck 통과 후 시작
+
+  mysql:
+    image: mysql:8.0.41-oracle
+    container_name: ${MYSQL_CONTAINER_NAME}
+    restart: always
+    env_file:
+      - ./mysql/.env.mysql.dev
+    ports:
+      - "${MYSQL_CONTAINER_PORT}:${MYSQL_CONTAINER_PORT}"
+    volumes:
+      - /home/ubuntu/docker-mysql/filmmoa_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping"]
+      interval: 5s # 5초 간격으로 체크
+      retries: 10 # 10번까지 재시도
+
+networks:
+  default:
+    external: true
+    name: app-network

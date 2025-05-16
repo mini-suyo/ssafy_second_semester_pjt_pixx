@@ -1,0 +1,190 @@
+.backdrop {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  max-width: 412px;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  z-index: 11110;
+  padding: 0;
+  box-sizing: border-box;
+
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.modal {
+  background: #261b2d;
+  color: #fffaf8;
+  width: 100%;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  padding: 2rem 1.5rem;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.modalActions {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.buttonRow {
+  display: flex;
+  justify-content: center; /* 가로 가운데 정렬 */
+  gap: 1rem; /* 버튼 사이 간격 */
+  margin-top: 2rem; /* 위쪽 여백 */
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.input {
+  background-color: transparent;
+  box-sizing: border-box;
+  color: #fffaf8;
+  border: none;
+  border-bottom: 1px solid #fffaf83a;
+  padding: 0.5rem 1rem;
+
+  font-size: 0.9rem;
+  width: 80%;
+  margin-bottom: 0.75rem;
+}
+
+.textarea {
+  width: 90%;
+  height: 6rem;
+  background-color: transparent;
+  box-sizing: border-box;
+  color: #fffaf8;
+  border: none;
+  border-bottom: 1px solid #fffaf83a;
+  padding: 0.75rem 1rem;
+
+  font-size: 0.9rem;
+  resize: none;
+}
+
+.cancelButton,
+.submitButton {
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.cancelButton {
+  background: #bbb;
+  color: white;
+}
+
+.submitButton {
+  background: #4b436e;
+  color: white;
+}
+
+.closeButton Image {
+  width: 24px;
+  height: 24px;
+}
+
+.content {
+  margin-top: 1rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.divider {
+  width: 100%;
+  height: 0.1px;
+  background-color: #fffaf87b; /* 또는 rgba(255,255,255,0.3) 같은 투명도 */
+  margin: 0.5rem 0 1rem 0; /* 위·아래 여백 */
+}
+
+.hashtags {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  gap: 0.7rem;
+}
+
+.memo {
+  margin-top: 1.5rem;
+}
+
+.memo h3 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.memo p {
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+}
+
+/* 달력 팝업 전체.. 근데 안먹음 ㅠ */
+.custom-calendar {
+  background-color: #261b2d;
+  color: #fffaf8;
+  border-radius: 0;
+  border: none;
+}
+
+/* 일요일만 색상 다르게 */
+.sunday {
+  color: #ff6b6b;
+}
+
+/* 태그 */
+.tagsDisplay {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: rgba(255, 250, 248, 0.15);
+  padding: 2px 8px;
+  border-radius: 16px;
+  font-size: 14px;
+}
+
+.removeTagBtn {
+  margin-left: 4px;
+  cursor: pointer;
+}
+
+.tagInput {
+  background: transparent;
+  border: none;
+  color: #fffaf8;
+  width: 100%;
+  outline: none;
+}

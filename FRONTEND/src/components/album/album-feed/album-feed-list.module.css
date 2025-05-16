@@ -1,0 +1,24 @@
+.albumToolbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 1rem;
+  margin-top: 0.5rem;
+}
+
+.toolbarWrapper {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 1rem;
+  margin-top: 0.5rem;
+}
+
+.gridWrapper {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 0 1rem;
+}
+
+.infiniteScrollTrigger {
+  height: 1px;
+}

@@ -1,0 +1,10 @@
+.logo {
+  width: 300px;
+  height: auto;
+  object-fit: contain;
+  animation: fadeIn 1s ease-in;
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

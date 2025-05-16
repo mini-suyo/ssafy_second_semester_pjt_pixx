@@ -23,8 +23,5 @@ WORKDIR /app
 # 빌드된 JAR 파일 복사 (builder 스테이지에서 가져옴)
 COPY --from=builder /app/build/libs/*.jar app.jar
 
-# 8081 포트 오픈 (SpringBoot 내부 포트)
-EXPOSE 8080
-
 # SpringBoot 애플리케이션 실행
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

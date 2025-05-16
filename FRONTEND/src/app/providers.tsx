@@ -1,0 +1,18 @@
+// app/providers.tsx
+// React Query 및 GA 적용을 위한 provider
+
+"use client";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useState, ReactNode } from "react";
+import LayoutClient from "./LayoutClient";
+
+export default function Providers({ children }: { children: ReactNode }) {
+  const [queryClient] = useState(() => new QueryClient());
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <LayoutClient>{children}</LayoutClient>
+    </QueryClientProvider>
+  );
+}
