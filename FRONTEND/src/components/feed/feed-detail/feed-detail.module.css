@@ -87,6 +87,13 @@
   border-color: var(--primary);
 }
 
+.thumbnailContent {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 짧은 변에 맞게, 넘치는 부분 자르기 */
+  object-position: center; /* 중앙 정렬 */
+  display: block;
+}
 /* 
 .mainMedia {
   width: 96%;
