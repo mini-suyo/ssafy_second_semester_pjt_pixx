@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class FaceDetection {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)   // ← 여기를 추가
     @Column(name = "detection_id")
     private Integer detectionId;
 

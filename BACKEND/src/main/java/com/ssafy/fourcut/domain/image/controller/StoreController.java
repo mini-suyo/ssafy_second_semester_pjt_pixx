@@ -5,6 +5,10 @@ import com.ssafy.fourcut.domain.image.dto.FileUploadRequestDto;
 import com.ssafy.fourcut.domain.image.dto.QRUploadRequestDto;
 import com.ssafy.fourcut.domain.image.entity.Image;
 import com.ssafy.fourcut.domain.image.repository.ImageRepository;
+import com.ssafy.fourcut.domain.image.entity.Image;
+import com.ssafy.fourcut.domain.image.entity.enums.ImageType;
+import com.ssafy.fourcut.domain.image.repository.ImageRepository;
+import com.ssafy.fourcut.domain.image.service.CloudFrontService;
 import com.ssafy.fourcut.domain.image.service.StoreService;
 import com.ssafy.fourcut.global.dto.ApiResponse;
 import com.ssafy.fourcut.global.exception.CustomException;
@@ -27,6 +31,7 @@ public class StoreController {
     private final StoreService storeService;
     private final FaceDetectionService faceDetectionService;
     private final ImageRepository imageRepository;
+    private final CloudFrontService cloudFrontService;
 
     /*
      * QR 업로드
@@ -49,19 +54,23 @@ public class StoreController {
         // 크롤링을 하여, 파일들 저장 및 DB에 데이터 삽입
         storeService.CrawlUploadAndSave(request);
 
-        Map<String, Integer> data = new HashMap<>();
-        data.put("feedId", feedId);
-
-        List<Image> images = imageRepository.findByFeed_FeedId(feedId);
-        for (Image img : images) {
-            faceDetectionService.processImage(img.getImageId(), img.getImageUrl());
-        }
+        imageRepository
+                .findFirstByFeed_FeedIdAndImageTypeOrderByImageIdAsc(
+                        request.getFeedId(),
+                        ImageType.IMAGE      // IMAGE 타입 중에서
+                )
+                .ifPresent(img -> {
+                    String signedUrl = cloudFrontService.generateSignedCloudFrontUrl(
+                            img.getImageUrl(), "get"
+                    );
+                    faceDetectionService.processImage(img.getImageId(), signedUrl);
+                });
 
         return ResponseEntity.ok(
-                ApiResponse.<Map<String, Integer>>builder()
+                ApiResponse.<Void>builder()
                         .status(200)
                         .message("QR 업로드 성공")
-                        .data(data)
+                        .data(null)
                         .build()
         );
     }
@@ -70,7 +79,7 @@ public class StoreController {
      * 파일 업로드
      */
     @PostMapping("/file")
-    public ResponseEntity<ApiResponse<Map<String, Integer>>> uploadFile(
+    public ResponseEntity<ApiResponse<Void>> uploadFile(
             Principal principal,
             @RequestPart("files") List<MultipartFile> files) {
         log.info("/api/v1/photos/upload/file");
@@ -97,19 +106,23 @@ public class StoreController {
         }
         storeService.uploadFile(request, files);
 
-        Map<String, Integer> data = new HashMap<>();
-        data.put("feedId", feedId);
-
-        List<Image> images = imageRepository.findByFeed_FeedId(feedId);
-        for (Image img : images) {
-            faceDetectionService.processImage(img.getImageId(), img.getImageUrl());
-        }
+        imageRepository
+                .findFirstByFeed_FeedIdAndImageTypeOrderByImageIdAsc(
+                        request.getFeedId(),
+                        ImageType.IMAGE      // IMAGE 타입 중에서
+                )
+                .ifPresent(img -> {
+                    String signedUrl = cloudFrontService.generateSignedCloudFrontUrl(
+                            img.getImageUrl(), "get"
+                    );
+                    faceDetectionService.processImage(img.getImageId(), signedUrl);
+                });
 
         return ResponseEntity.ok(
-                ApiResponse.<Map<String, Integer>>builder()
+                ApiResponse.<Void>builder()
                         .status(200)
                         .message("파일 업로드 성공")
-                        .data(data)
+                        .data(null)
                         .build()
         );
     }

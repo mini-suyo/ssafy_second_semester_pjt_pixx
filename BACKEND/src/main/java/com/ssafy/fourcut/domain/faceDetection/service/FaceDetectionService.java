@@ -3,8 +3,11 @@ package com.ssafy.fourcut.domain.faceDetection.service;
 import com.ssafy.fourcut.domain.faceDetection.dto.FaceApiDtos;
 import com.ssafy.fourcut.domain.faceDetection.entity.FaceDetection;
 import com.ssafy.fourcut.domain.faceDetection.entity.FaceVector;
+
 import com.ssafy.fourcut.domain.faceDetection.repository.FaceDetectionRepository;
 import com.ssafy.fourcut.domain.faceDetection.repository.FaceVectorRepository;
+
+
 import com.ssafy.fourcut.domain.image.entity.Image;
 import com.ssafy.fourcut.domain.image.repository.ImageRepository;
 import com.ssafy.fourcut.global.exception.CustomException;
@@ -39,6 +42,7 @@ public class FaceDetectionService {
     @Value("${face-api.url}")
     private String faceApiUrl;
 
+
     /**
      * 1) FastAPI에 이미지 보내서 얼굴 검출 → face_detection 저장
      * 2) 새로 저장된 face_detection 전부에 대해 유사도 검사 → face_vector 생성/갱신 + 썸네일
@@ -46,7 +50,7 @@ public class FaceDetectionService {
      */
     @Transactional
     public List<FaceApiDtos.FaceDetectDto> processImage(Integer imageId, String imgUrl) {
-        // 1) FastAPI 호출
+        // --- 1) FastAPI 호출 & face_detection 저장 ---
         String url = faceApiUrl + "/api/v1/detect/" + imageId;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -99,20 +103,19 @@ public class FaceDetectionService {
                 det.setFaceVector(best);
                 updateCentroid(best, det);
                 vectorRepo.save(best);
-                detectionRepo.save(det);
-
             } else {
-                // 신규 클러스터 생성 (thumbnail 세팅 전에는 저장하지 않음)
+                // 신규 클러스터 & 썸네일 생성
                 FaceVector fv = FaceVector.builder()
                         .user(det.getImage().getFeed().getUser())
                         .faceVectorData(det.getDetectionVectorData())
                         .detectionCount(1)
+                        .repDetection(det)                      // ← 여기 추가
                         .build();
 
                 // 바운딩 박스 기반 크롭 → 썸네일 S3 업로드
                 String userId = String.valueOf(det.getImage().getFeed().getUser().getUserId());
                 String s3Key = uploadThumbnailToS3(
-                        det.getImage().getImageUrl(),
+                        imgUrl,
                         det.getBoundingBox(),
                         userId
                 );
@@ -123,8 +126,8 @@ public class FaceDetectionService {
 
                 // face_detection 에 연관짓고 저장
                 det.setFaceVector(fv);
-                detectionRepo.save(det);
             }
+            detectionRepo.save(det);
         }
 
         // 4) 결과 DTO 반환
@@ -189,11 +192,13 @@ public class FaceDetectionService {
         }
     }
 
+
     private FaceVector findBestMatch(FaceDetection det) {
+        List<FaceVector> vectors = vectorRepo.findByUser_UserId(det.getImage().getFeed().getUser().getUserId());
         double[] emb = parseVector(det.getDetectionVectorData());
         FaceVector best = null;
-        double bestSim = 0;
-        for (FaceVector fv : vectorRepo.findByUser_UserId(det.getImage().getFeed().getUser().getUserId())) {
+        double bestSim = 0.0;
+        for (FaceVector fv : vectors) {
             double sim = cosineSimilarity(emb, parseVector(fv.getFaceVectorData()));
             if (sim > 0.7 && sim > bestSim) {
                 bestSim = sim;
@@ -214,7 +219,11 @@ public class FaceDetectionService {
         fv.setFaceVectorData(vectorToJson(current));
     }
 
+
+    // ──── Vector/BBox 파싱 & 유틸 ────────────────────────────────────────────────
+
     private double[] parseVector(String json) {
+        // e.g. "[0.12, -0.34, …]" 형태 → double[]
         String body = json.replaceAll("[\\[\\]\\s]", "");
         String[] parts = body.split(",");
         double[] arr = new double[parts.length];
