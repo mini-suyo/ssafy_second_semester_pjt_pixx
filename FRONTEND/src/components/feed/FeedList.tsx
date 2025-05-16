@@ -78,7 +78,7 @@ export default function FeedList() {
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  // 피드 좋아요 Optimistic update
+  // 피드 즐겨찾기
   const { mutate: toggleFavoriteMutation } = useMutation<FavoriteResponse, Error, number>({
     mutationFn: toggleFavorite,
     onSuccess: ({ feedId, isFavorite }) => {
@@ -86,11 +86,30 @@ export default function FeedList() {
         ...prev,
         [feedId]: isFavorite,
       }));
+
+      // 즐겨찾기 앨범 캐시 무효과
+      queryClient.invalidateQueries({
+        queryKey: ["albumFeeds", 2, "recent"],
+      });
     },
+
     onError: () => {
       alert("즐겨찾기 변경에 실패했습니다.");
     },
   });
+
+  useEffect(() => {
+    if (!data) return;
+
+    const initialFavorite: { [feedId: number]: boolean } = {};
+    data.pages.forEach((page) => {
+      page.forEach((feed: Feed) => {
+        initialFavorite[feed.feedId] = feed.feedFavorite;
+      });
+    });
+
+    setFavorite(initialFavorite);
+  }, [data]);
 
   // 이미지 로드 성공 핸들러
   const handleImageLoad = (feedId: number) => {
