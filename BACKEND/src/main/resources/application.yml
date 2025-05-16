@@ -16,3 +16,7 @@ spring:
 
 cookie:
   secure: true
+
+face-api:
+  url: http://localhost:8000
+
