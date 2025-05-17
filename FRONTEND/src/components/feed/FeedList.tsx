@@ -27,8 +27,8 @@ export default function FeedList() {
   const [favorite, setFavorite] = useState<{ [feedId: number]: boolean }>({});
 
   // 앨범 생성
-  const [mode, setMode] = useState<"default" | "select">("default"); // 앨범 생성 플로팅버튼 상태 관리
   const longPressTimer = useRef<NodeJS.Timeout | null>(null); // 썸네일 오래 누르는거 상태 관리
+  const [mode, setMode] = useState<"default" | "select">("default"); // 앨범 생성 플로팅버튼 상태 관리
   const [selectedFeedIds, setSelectedFeedIds] = useState<number[]>([]); // 선택된 피드 관리
 
   // 앨범 생성 모달
@@ -318,8 +318,8 @@ export default function FeedList() {
                         favorite[feed.feedId] ? "/icons/icon-star-fill-yellow.png" : "/icons/icon-star-empty-yellow.png"
                       }
                       alt="즐겨찾기"
-                      width={28}
-                      height={28}
+                      width={32}
+                      height={32}
                     />
                   </div>
                   {/* 선택된 피드 약간 어둡게 처리 */}
@@ -352,8 +352,8 @@ export default function FeedList() {
                             : "/icons/icon-unchecked-purple.png"
                         }
                         alt="선택 여부"
-                        width={32}
-                        height={32}
+                        width={36}
+                        height={39}
                       />
                     </div>
                   )}
