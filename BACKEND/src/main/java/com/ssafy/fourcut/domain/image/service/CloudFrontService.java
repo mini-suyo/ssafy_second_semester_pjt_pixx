@@ -33,8 +33,8 @@ public class CloudFrontService {
             }
 
             Date expiration = new Date(System.currentTimeMillis() + time);
-            File privateKey = new ClassPathResource(privateKeyPath).getFile(); // 로컬 실험용
-//            File privateKey = new File(privateKeyPath); // 서버용
+            // File privateKey = new ClassPathResource(privateKeyPath).getFile(); // 로컬 실험용
+            File privateKey = new File(privateKeyPath); // 서버용
 
             return CloudFrontUrlSigner.getSignedURLWithCannedPolicy(
                     SignerUtils.Protocol.https,
