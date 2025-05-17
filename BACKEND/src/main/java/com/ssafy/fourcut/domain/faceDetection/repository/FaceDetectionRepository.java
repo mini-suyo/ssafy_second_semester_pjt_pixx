@@ -15,4 +15,7 @@ public interface FaceDetectionRepository extends JpaRepository<FaceDetection, In
     // 에 해당하는 FaceDectection 리스트를 가져옴.
     List<FaceDetection> findByFaceVectorIsNullAndValidTrueAndImage_ImageId(Integer imageId);
     Optional<FaceDetection> findByDetectionIdAndValidTrue(Integer detectionId);
+
+    // face_id 에 매핑된 유효한 검출만 꺼내오기
+    List<FaceDetection> findByFaceVector_FaceIdAndValidTrue(Integer faceId);
 }
