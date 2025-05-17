@@ -1,6 +1,11 @@
 // src/main/java/com/ssafy/fourcut/domain/image/controller/FeedController.java
 package com.ssafy.fourcut.domain.image.controller;
 
+import com.ssafy.fourcut.domain.faceDetection.dto.FaceFeedDetailDto;
+import com.ssafy.fourcut.domain.faceDetection.dto.FaceFeedRequestDto;
+import com.ssafy.fourcut.domain.faceDetection.dto.FaceListRequestDto;
+import com.ssafy.fourcut.domain.faceDetection.dto.FaceListResponseDto;
+import com.ssafy.fourcut.domain.faceDetection.service.FaceVectorService;
 import com.ssafy.fourcut.domain.image.dto.*;
 import com.ssafy.fourcut.domain.image.service.AlbumService;
 import com.ssafy.fourcut.domain.image.service.FeedService;
@@ -19,6 +24,7 @@ public class FeedController {
 
     private final FeedService feedService;
     private final AlbumService albumService;
+    private final FaceVectorService faceVectorService;
 
     /**
      * POST /api/v1/feed
@@ -178,5 +184,41 @@ public class FeedController {
                 .data(data)
                 .build();
         return ResponseEntity.ok(resp);
+    }
+
+    @PostMapping("/face")
+    public ResponseEntity<ApiResponse<FaceListResponseDto>> getFaceList(
+            @RequestBody FaceListRequestDto req,
+            Principal principal
+    ) {
+        // Principal.getName() 에 로그인된 userId 가 들어 있다고 가정
+        Integer userId = Integer.parseInt(principal.getName());
+
+        FaceListResponseDto data = faceVectorService.getFaceList(userId, req);
+        return ResponseEntity.ok(
+                ApiResponse.<FaceListResponseDto>builder()
+                        .status(200)
+                        .message("얼굴 불러오기 성공")
+                        .data(data)
+                        .build()
+        );
+    }
+
+    @PostMapping("/face/{faceId}")
+    public ResponseEntity<ApiResponse<FaceFeedDetailDto>> getFeedsByFace(
+            @PathVariable Integer faceId,
+            @RequestBody FaceFeedRequestDto req,
+            Principal principal
+    ) {
+        Integer userId = Integer.parseInt(principal.getName());
+        FaceFeedDetailDto data = faceVectorService.getFeedsByFace(userId, faceId, req);
+
+        return ResponseEntity.ok(
+                ApiResponse.<FaceFeedDetailDto>builder()
+                        .status(200)
+                        .message("앨범 디테일 보기 성공")
+                        .data(data)
+                        .build()
+        );
     }
 }
