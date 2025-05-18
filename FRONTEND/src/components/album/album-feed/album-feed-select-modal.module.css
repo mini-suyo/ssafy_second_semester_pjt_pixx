@@ -1,0 +1,93 @@
+.modalOverlay {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  max-width: 412px;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  z-index: 11110;
+  padding: 0;
+  box-sizing: border-box;
+
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.modalContent {
+  background: var(--night_sky, linear-gradient(180deg, #21203e 2.85%, #231b4b 40.69%, #312a53 100%));
+  overflow: auto;
+  border-radius: 16px;
+  padding: 1.5rem 1rem;
+  width: 100%;
+  height: 80%;
+  box-sizing: border-box;
+  position: relative;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  padding-bottom: 80px;
+}
+
+.gridWrapper {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 1rem;
+}
+
+.thumbnailWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 3px solid white;
+}
+
+.thumbnailImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.checkIcon {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 10;
+}
+
+.loading,
+.error {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 0.875rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.selectedOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 5;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0rem 1rem;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}

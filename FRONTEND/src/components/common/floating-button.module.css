@@ -1,7 +1,7 @@
 .floatingButton {
   position: fixed;
   bottom: 100px; /* 하단 네비게이션바를 고려한 위치 조정 */
-  left: 53%;
+  left: 50%;
   transform: translateX(60px);
   padding: 10px 10px;
   border-radius: 300px; /* 모서리가 둥근 캡슐 모양 */
@@ -29,6 +29,17 @@
 .floatingButtonSelect {
   background-color: #3c3c3c;
   color: #fffaf8;
+}
+
+/* 텍스트 모드 */
+.floatingButtonText {
+  background-color: #6366f1;
+  color: #fffaf8;
+  padding: 0.75rem 1.2rem;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* 화면 가로폭이 360px 이상이면 */
