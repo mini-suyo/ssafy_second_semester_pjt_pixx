@@ -1,10 +1,13 @@
+//src/components/people/PeopleList.tsx
+
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getFaces } from '@/app/lib/api/faceApi';
+import { getFaces } from '@/app/lib/api/peopleApi';
 import PeopleItem from './PeopleItem';
+import Link from 'next/link';
 import styles from './people.module.css';
-import type { FaceType } from '@/app/types/face';
+import type { FaceType } from '@/app/types/people';
 
 export default function PeopleList() {
   const [faces, setFaces] = useState<FaceType[]>([]);
@@ -34,7 +37,13 @@ export default function PeopleList() {
   return (
     <div className={styles.peopleGrid}>
       {faces.map(f => (
-        <PeopleItem key={f.faceId} name={f.faceName} imageUrl={f.faceThumbnail} />
+        <Link
+          key={f.faceId}
+          href={`/people/${f.faceId}`}
+          className={styles.profileContainer}  // optional: 링크 전체 영역 클릭
+        >
+          <PeopleItem name={f.faceName} imageUrl={f.faceThumbnail} />
+        </Link>
       ))}
     </div>
   );

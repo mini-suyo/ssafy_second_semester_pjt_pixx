@@ -1,0 +1,25 @@
+/* src/components/people/people-feed/people-feed-list.module.css */
+
+.gridWrapper {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 0 1rem;
+}
+
+.toolbarWrapper {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 1rem;
+  margin-top: 0.5rem;
+}
+
+.infiniteScrollTrigger {
+  height: 1px;
+}
+
+.emptyMessage {
+  text-align: center;
+  padding: 2rem;
+  color: #fffaf8;
+}

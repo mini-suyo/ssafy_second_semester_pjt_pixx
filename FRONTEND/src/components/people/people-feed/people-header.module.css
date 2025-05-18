@@ -1,0 +1,45 @@
+.headerWrapper {
+  display: flex;
+  flex-direction: column; /* 한 줄씩 배치 */
+  align-items: flex-start;
+  padding: 3%;
+}
+
+.peopleTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.peopleName {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.selectWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 5%; /* 오른쪽 여백 */
+}
+
+/* .sortSelect {
+  background-color: transparent;
+  color: #fffaf8;
+  border: none;
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  appearance: none; 
+  outline: none;
+  font-family: "SEJONG";
+} */
