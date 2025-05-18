@@ -1,4 +1,4 @@
-// components/people/people-grid/PeopleFeedGrid.tsx
+// components/people/people-feed/PeopleFeedGrid.tsx
 
 'use client';
 

@@ -1,4 +1,4 @@
-// src/app/lib/api/faceApi.ts
+// src/app/lib/api/peopleApi.ts
 
 import api from './axios';
 import type { 

@@ -1,3 +1,5 @@
+/* src/components/people/people-feed/people-header.css */
+
 .headerWrapper {
   display: flex;
   flex-direction: column; /* 한 줄씩 배치 */
