@@ -172,7 +172,7 @@ export default function AlbumList() {
   const handleCloseFeedSelectModal = () => {
     setIsSelectModalOpen(false); // 모달 닫기
     setMode("default"); // 모드 초기화
-    setSelectedAlbumIds([]); // 선택된 앨범도 초기화
+    setSelectedFeedIds([]); // 선택된 피드도 초기화
   };
 
   // 앨범 생성 시  제목 모달 닫기
@@ -269,6 +269,7 @@ export default function AlbumList() {
       {/* 앨범 생성용 피드 선택 모달 */}
       <AlbumFeedSelectModal
         isOpen={isSelectModalOpen}
+        label="Create"
         onClose={handleCloseFeedSelectModal}
         onNext={(selectedIds) => {
           if (selectedIds.length === 0) {
