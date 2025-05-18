@@ -46,11 +46,6 @@ export default function FeedDetail({ feedId }: FeedDetailProps) {
     }
   };
 
-  // 사진 좋아요 임시
-  const handleUnfinished = () => {
-    alert("Coming soon");
-  };
-
   const handleFavorite = () => {
     setIsFavorite(!isFavorite);
     alert("Coming soon");
