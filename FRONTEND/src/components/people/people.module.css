@@ -1,3 +1,5 @@
+/* src/components/people/people.module.css */
+
 .peopleGrid {
     display: grid;
     grid-template-columns: repeat(2, 140px);
