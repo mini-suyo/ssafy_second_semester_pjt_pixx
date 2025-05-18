@@ -6,7 +6,7 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { addPhotosToAlbum, deleteAlbumPhotos, getAlbumDetail } from "@/app/lib/api/albumApi";
+import { addPhotosToAlbum, createAlbum, deleteAlbumPhotos, getAlbumDetail } from "@/app/lib/api/albumApi";
 
 import AlbumHeader from "./AlbumHeader";
 import AlbumFeedGrid from "./AlbumFeedGrid";
@@ -14,11 +14,14 @@ import AlbumFeedSelectBar from "./AlbumFeedSelectBar";
 import styles from "./album-feed-list.module.css";
 import FloatingButton from "@/components/common/FloatingButton";
 import FeedAlbumAdd from "@/components/feed/FeedAlbumAdd";
+import FeedAlbumCreateModal from "@/components/feed/FeedAlbumCreateModal";
+import AlbumFeedSelectModal from "./AlbumFeedSelectModal";
 
 export default function AlbumFeedList() {
   const params = useParams();
   const router = useRouter();
   const albumId = parseInt(params.id as string);
+
   const [sortType, setSortType] = useState<"recent" | "oldest">("recent"); // 정렬 UI 상태값
   const apiType = sortType === "recent" ? 0 : 1; // 정렬 매핑
   const queryClient = useQueryClient();
@@ -33,8 +36,18 @@ export default function AlbumFeedList() {
   const [mode, setMode] = useState<"default" | "select">("default");
   const [selectedFeedIds, setSelectedFeedIds] = useState<number[]>([]);
 
+  // 앨범 이동 및 생성 모달 관리
+  const [isAlbumAddOpen, setIsAlbumAddOpen] = useState(false);
+  const [isAlbumCreateOpen, setIsAlbumCreateOpen] = useState(false);
+
+  // 앨범에 피드 추가 모달
+  const [isSelectModalOpen, setIsSelectModalOpen] = useState(false); // 피드 선택 모달
+
+  // 앨범 생성 시 제목 관리
+  const [albumTitle, setAlbumTitle] = useState("");
+
   // 피드 앨범 이동 - 앨범 선택 모달
-  const [isAlbumModalOpen, setIsAlbumModalOpen] = useState(false);
+  // const [isAlbumModalOpen, setIsAlbumModalOpen] = useState(false);
 
   // long-press 감지
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -48,6 +61,22 @@ export default function AlbumFeedList() {
     initialPageParam: 0,
     staleTime: 1000 * 60 * 5,
   });
+
+  // 앨범에 피드 추가 API
+  const handleAddPhotos = async (ids: number[]) => {
+    try {
+      await addPhotosToAlbum({ albumId, imageList: ids }); // 서버에 선택된 ID 전송
+      queryClient.invalidateQueries({ queryKey: ["albumFeeds", albumId] }); // 피드 목록 캐시 무효화 → 자동 리페치
+      alert("앨범에 사진이 추가되었습니다."); // 사용자 알림
+    } catch (error) {
+      console.error(error);
+      alert("사진 추가에 실패했습니다."); // 오류 알림
+    } finally {
+      setSelectedFeedIds([]); // 선택 초기화
+      setIsSelectModalOpen(false); // 모달 닫기
+      setMode("default"); // 모드 복귀
+    }
+  };
 
   // 무한스크롤
   const observerRef = useRef<HTMLDivElement>(null);
@@ -68,6 +97,41 @@ export default function AlbumFeedList() {
   const handleImageLoad = (feedId: number) => {
     setImageLoaded((prev) => ({ ...prev, [feedId]: true }));
     setImageErrors((prev) => ({ ...prev, [feedId]: false }));
+  };
+
+  // 앨범 생성
+  const handleCreateAlbum = async () => {
+    if (albumTitle.trim() === "" || selectedFeedIds.length === 0) {
+      alert("앨범 이름을 입력해주세요.");
+      return;
+    }
+    try {
+      const res = await createAlbum({
+        albumTitle: albumTitle.trim(),
+        imageList: selectedFeedIds,
+      });
+      alert("앨범 생성되었습니다");
+      await queryClient.invalidateQueries({
+        predicate: (query) => query.queryKey[0] === "albums",
+      });
+
+      router.push(`/album/${res.data.data.albumId}`);
+    } catch (error) {
+      alert("오류가 발생하여 앨범 생성에 실패했습니다");
+      console.log(error);
+    } finally {
+      setIsAlbumCreateOpen(false);
+      setMode("default");
+      setSelectedFeedIds([]);
+      setAlbumTitle("");
+    }
+  };
+
+  // 앨범 생성 시 피드 선택 모달 닫기
+  const handleCloseFeedSelectModal = () => {
+    setIsSelectModalOpen(false); // 모달 닫기
+    setMode("default"); // 모드 초기화
+    setSelectedFeedIds([]); // 선택된 피드도 초기화
   };
 
   // long-press 감지
@@ -149,13 +213,14 @@ export default function AlbumFeedList() {
       console.error(error);
     }
   };
+
   // 앨범에 피드 추가
   const handleAlbumFeedMove = () => {
     if (selectedFeedIds.length === 0) {
       alert("추가할 사진을 먼저 선택해주세요.");
       return;
     }
-    setIsAlbumModalOpen(true);
+    setIsAlbumAddOpen(true);
   };
 
   const handleAlbumSelect = async (albumId: number) => {
@@ -173,10 +238,17 @@ export default function AlbumFeedList() {
       alert("사진 추가에 실패했습니다.");
       console.error(error);
     } finally {
-      setIsAlbumModalOpen(false);
+      setIsAlbumAddOpen(false);
       setMode("default");
       setSelectedFeedIds([]);
     }
+  };
+
+  // 피드 이동 Close
+  const handleCloseAlbumAddModal = () => {
+    setIsAlbumAddOpen(false); // 모달 닫기
+    setMode("default"); // 모드 초기화
+    setSelectedFeedIds([]); // 선택된 피드도 초기화
   };
 
   return (
@@ -191,10 +263,7 @@ export default function AlbumFeedList() {
       {/* 선택용 Navbar 렌더링 (선택 모드일 때만 노출) */}
       {mode === "select" && (
         <AlbumFeedSelectBar
-          onCancel={() => {
-            setMode("default");
-            setSelectedFeedIds([]);
-          }}
+          onAdd={() => setIsSelectModalOpen(true)}
           onDelete={handleDeletePhotos}
           onMove={handleAlbumFeedMove}
         />
@@ -237,7 +306,35 @@ export default function AlbumFeedList() {
       />
 
       {/* 피드 앨범 이동 - 앨범 선택 모달 */}
-      <FeedAlbumAdd isOpen={isAlbumModalOpen} onClose={() => setIsAlbumModalOpen(false)} onSelect={handleAlbumSelect} />
+      {/* <FeedAlbumAdd isOpen={isAlbumModalOpen} onClose={() => setIsAlbumModalOpen(false)} onSelect={handleAlbumSelect} /> */}
+      {isAlbumAddOpen && (
+        <FeedAlbumAdd
+          isOpen={isAlbumAddOpen}
+          onClose={handleCloseAlbumAddModal}
+          onSelect={handleAlbumSelect}
+          onCreateNewAlbum={() => setIsAlbumCreateOpen(true)}
+        />
+      )}
+
+      {isAlbumCreateOpen && (
+        <FeedAlbumCreateModal
+          isOpen={isAlbumCreateOpen}
+          onClose={() => setIsAlbumCreateOpen(false)}
+          albumTitle={albumTitle}
+          setAlbumTitle={setAlbumTitle}
+          onSubmit={handleCreateAlbum}
+        />
+      )}
+
+      {/* 앨범 생성용 피드 선택 모달 */}
+      {isSelectModalOpen && (
+        <AlbumFeedSelectModal
+          label="Add"
+          isOpen={isSelectModalOpen}
+          onClose={handleCloseFeedSelectModal}
+          onNext={handleAddPhotos}
+        />
+      )}
 
       {/* 선택 사항 렌더링 */}
       <div ref={observerRef} style={{ height: 1 }} />

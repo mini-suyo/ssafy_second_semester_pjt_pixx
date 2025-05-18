@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: 11111;
   padding: 1rem; /* 양쪽 여백 확보 (모달이 화면 넘지 않게) */
   box-sizing: border-box;
 }

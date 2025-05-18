@@ -222,8 +222,8 @@ export default function AddFile() {
                 } ${index === 0 ? styles.firstFile : ""}`}
                 onClick={() => handleThumbnailSelect(index)}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 {file.type.startsWith("image/") && (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img src={previews[index]} alt={file.name} className={styles.previewImage} />
                 )}
                 {file.type.startsWith("video/") && (
