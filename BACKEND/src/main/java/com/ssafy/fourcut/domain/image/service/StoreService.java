@@ -270,6 +270,7 @@ public class StoreService {
                 );
             }
         } catch (Exception e) {
+            log.error("QRuploadAndSave 실패 - URL: {}", fileUrl, e);
             feedRepository.deleteById(feed.getFeedId());
             throw new CustomException(500, "파일 다운로드 및 S3 업로드 중 오류가 발생했습니다.");
         }
