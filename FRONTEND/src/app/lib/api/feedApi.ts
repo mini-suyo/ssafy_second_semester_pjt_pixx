@@ -11,6 +11,8 @@ export const getFeeds = async (params: { type: number; page: number; size: numbe
   return response.data.data; // data 안에 data
 };
 
+// 브랜드별 피드 목록 조회 API
+
 // 피드 상세 조회 API
 export async function getFeedDetail(feedId: number) {
   const response = await api.get(`/api/v1/feed/${feedId}`);
@@ -37,7 +39,7 @@ export const downloadImageFile = async (imageId: number) => {
   return fileUrl;
 };
 
-// 피드 좋아요
+// 피드 즐겨찾기
 export const toggleFavorite = async (feedId: number): Promise<FavoriteResponse> => {
   const response = await api.post(`/api/v1/feed/${feedId}/favorite`);
   return response.data.data;
