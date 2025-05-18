@@ -2,23 +2,28 @@
 
 "use client";
 
-import { getAlbums } from "@/app/lib/api/albumApi";
+import { createAlbum, getAlbums } from "@/app/lib/api/albumApi";
 import styles from "./feed-album-add.module.css";
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import dayjs from "dayjs";
+import FloatingButton from "../common/FloatingButton";
 
 type FeedAlbumAddProps = {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (albumId: number) => void;
+  onCreateNewAlbum: () => void;
 };
 
-export default function FeedAlbumAdd({ isOpen, onClose, onSelect }: FeedAlbumAddProps) {
+export default function FeedAlbumAdd({ isOpen, onClose, onSelect, onCreateNewAlbum }: FeedAlbumAddProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  // isOpen이 false면 null 리턴
+  if (!isOpen) return null;
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ["albums"],
@@ -31,20 +36,21 @@ export default function FeedAlbumAdd({ isOpen, onClose, onSelect }: FeedAlbumAdd
     staleTime: 1000 * 60 * 5,
   });
 
-  // 모달 바깥 클릭 시 닫힘
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-        onClose();
-      }
-    };
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen, onClose]);
+  // 앨범 생성 플로팅 버튼과 충돌나서 주석처리함
+  // 모달 바깥 클릭 시 닫힘 기능
+  // useEffect(() => {
+  //   const handleClickOutside = (e: MouseEvent) => {
+  //     if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+  //       onClose();
+  //     }
+  //   };
+  //   if (isOpen) {
+  //     document.addEventListener("mousedown", handleClickOutside);
+  //   }
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, [isOpen, onClose]);
 
   // 무한스크롤 감지
   const handleObserver = useCallback(
@@ -76,8 +82,6 @@ export default function FeedAlbumAdd({ isOpen, onClose, onSelect }: FeedAlbumAdd
     };
   }, [handleObserver]);
 
-  if (!isOpen) return null;
-
   const albums = data?.pages.flatMap((page) => page.data?.albumList || []) || [];
 
   const formatDate = (dateString: string) => {
@@ -91,7 +95,6 @@ export default function FeedAlbumAdd({ isOpen, onClose, onSelect }: FeedAlbumAdd
         <button className={styles.closeButton} onClick={onClose}>
           <Image src="/icons/icon-close.png" alt="닫기" width={28} height={28} />
         </button>
-
         <div className={styles.albumListWrapper}>
           {albums.map((album, index) => (
             <div key={album.albumId} className={styles.albumItem} onClick={() => onSelect(album.albumId)}>
@@ -112,10 +115,11 @@ export default function FeedAlbumAdd({ isOpen, onClose, onSelect }: FeedAlbumAdd
             </div>
           ))}
         </div>
-
         <div ref={loadMoreRef} className={styles.loadMoreTrigger}>
           {isFetchingNextPage && <p>앨범을 더 불러오는 중...</p>}
         </div>
+        {/* 플로팅 버튼 추가 */}
+        <FloatingButton mode="default" onClick={onCreateNewAlbum} label="만들기" />
       </div>
     </div>
   );
