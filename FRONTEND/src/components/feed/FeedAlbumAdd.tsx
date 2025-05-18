@@ -2,9 +2,9 @@
 
 "use client";
 
-import { createAlbum, getAlbums } from "@/app/lib/api/albumApi";
+import { getAlbums } from "@/app/lib/api/albumApi";
 import styles from "./feed-album-add.module.css";
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import dayjs from "dayjs";
@@ -22,9 +22,6 @@ export default function FeedAlbumAdd({ isOpen, onClose, onSelect, onCreateNewAlb
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  // isOpen이 false면 null 리턴
-  if (!isOpen) return null;
-
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ["albums"],
     queryFn: async ({ pageParam = 0 }) => await getAlbums({ type: 0, page: pageParam, size: 20 }),
@@ -37,7 +34,7 @@ export default function FeedAlbumAdd({ isOpen, onClose, onSelect, onCreateNewAlb
   });
 
   // 앨범 생성 플로팅 버튼과 충돌나서 주석처리함
-  // 모달 바깥 클릭 시 닫힘 기능
+  // 모달 바깥 클릭 시 닫힘
   // useEffect(() => {
   //   const handleClickOutside = (e: MouseEvent) => {
   //     if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
@@ -87,6 +84,9 @@ export default function FeedAlbumAdd({ isOpen, onClose, onSelect, onCreateNewAlb
   const formatDate = (dateString: string) => {
     return dayjs(dateString).format("YYYY. MM. DD ~");
   };
+
+  // isOpen이 false면 null 리턴
+  if (!isOpen) return null;
 
   return (
     <div className={styles.modalOverlay}>

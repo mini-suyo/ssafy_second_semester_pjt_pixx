@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { getFeeds } from "@/app/lib/api/feedApi";
 import Image from "next/image";
 import styles from "./album-feed-select-modal.module.css";
@@ -11,12 +11,12 @@ type Props = {
   isOpen: boolean;
   onClose: () => void;
   onNext: (selectedFeedIds: number[]) => void;
+  label: string;
 };
 
-export default function AlbumFeedSelectModal({ isOpen, onClose, onNext }: Props) {
+export default function AlbumFeedSelectModal({ isOpen, onClose, onNext, label }: Props) {
   const [feeds, setFeeds] = useState<Feed[]>([]);
   const [selectedFeedIds, setSelectedFeedIds] = useState<number[]>([]);
-  const [mode, setMode] = useState<"default" | "select">("select");
 
   const [imageLoaded, setImageLoaded] = useState<{ [key: number]: boolean }>({});
   const [imageErrors, setImageErrors] = useState<{ [key: number]: boolean }>({});
@@ -94,6 +94,7 @@ export default function AlbumFeedSelectModal({ isOpen, onClose, onNext }: Props)
               </div>
 
               {/* 이미지 */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={feed.feedThumbnailImgUrl}
                 alt={`Feed ${feed.feedId}`}
@@ -125,7 +126,7 @@ export default function AlbumFeedSelectModal({ isOpen, onClose, onNext }: Props)
       {/* 하단 플로팅 버튼 */}
       <FloatingButton
         mode="select"
-        label="Create"
+        label={label}
         onClick={() => {
           if (selectedFeedIds.length === 0) {
             alert("피드를 한 개 이상 선택해주세요.");
