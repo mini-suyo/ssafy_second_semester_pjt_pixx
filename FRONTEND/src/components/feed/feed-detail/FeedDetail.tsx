@@ -57,7 +57,12 @@ export default function FeedDetail({ feedId }: FeedDetailProps) {
   };
 
   if (isLoading) return <div>로딩 중...</div>;
-  if (isError || !data) return <div>피드를 불러오는데 실패했습니다.</div>;
+  if (isError || !data)
+    return (
+      <div>
+        피드를 불러오는데 <br /> 실패했습니다.
+      </div>
+    );
 
   return (
     <div>
@@ -79,12 +84,12 @@ export default function FeedDetail({ feedId }: FeedDetailProps) {
             />
           </button>
           {/* <button onClick={() => currentFile && handleDownload(currentFile.imageId)}> */}
-          <button>
+          {/* <button>
             <Image src="/icons/icon-download.png" alt="다운로드" width={22} height={22} />
           </button>
           <button onClick={handleUnfinished}>
             <Image src="/icons/icon-send.png" alt="공유" width={22} height={20} />
-          </button>
+          </button> */}
         </div>
       </div>
 
