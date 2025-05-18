@@ -62,6 +62,7 @@ export default function FeedMainMedia({ file, onSwipeLeft, onSwipeRight }: FeedM
           onLoadedMetadata={handleMetadata}
         />
       ) : (
+        // eslint-disable-next-line @next/next/no-img-element
         <img src={file.imageUrl} alt="피드 미디어" className={styles["fixed-aspect-ratio-image"]} sizes="100vw" />
       )}
     </div>

@@ -192,7 +192,7 @@ export default function FeedList() {
     }
   };
 
-  // 앨범 생성 🔥
+  // 앨범 생성
   const handleCreateAlbum = async () => {
     if (albumTitle.trim() === "" || selectedFeedIds.length === 0) {
       alert("앨범 이름을 입력해주세요.");
@@ -389,19 +389,7 @@ export default function FeedList() {
         }}
       />
 
-      {/* 앨범 생성 모달 */}
-      {/* <FeedAlbumCreateModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        albumTitle={albumTitle}
-        setAlbumTitle={setAlbumTitle}
-        onSubmit={handleCreateAlbum}
-      /> */}
-
-      {/* 앨범에 피드 추가 */}
-      {/* <FeedAlbumAdd isOpen={isAlbumModalOpen} onClose={() => setIsAlbumModalOpen(false)} onSelect={handleAlbumSelect} /> */}
-
-      {/* 🔥🔥🔥🔥🔥🔥 */}
+      {/* 앨범 생성 및 앨범 피드 추가 */}
       {isAlbumAddOpen && (
         <FeedAlbumAdd
           isOpen={isAlbumAddOpen}
