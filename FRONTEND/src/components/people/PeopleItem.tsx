@@ -10,10 +10,7 @@ export interface PeopleItemProps {
   imageUrl?: string;
 }
 
-export default function PeopleItem({
-  name,
-  imageUrl = "/dummy-feed-thumbnail.png",
-}: PeopleItemProps) {
+export default function PeopleItem({ name, imageUrl = "/dummy-feed-thumbnail.png" }: PeopleItemProps) {
   return (
     <div className={styles.profileContainer}>
       <div className={styles.profileWrapper}>

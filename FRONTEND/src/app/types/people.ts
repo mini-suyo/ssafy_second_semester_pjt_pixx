@@ -43,8 +43,9 @@ export interface FaceFeedType {
   feedId: number;
   feedThumbnailImgUrl: string;
   feedFavorite: boolean;
-  detectionId: number;    // ← 반드시 추가
+  detectionId: number; // ← 반드시 추가
 }
+
 export interface PatchResponseType {
   status: number;
   message: string;
@@ -61,7 +62,7 @@ export interface FeedThumbnailItemProps {
   onError: () => void;
   onRetry: (e: React.MouseEvent) => void;
   isSelected: boolean;
-  mode: 'default' | 'select';
+  mode: "default" | "select";
   onLongPressStart?: () => void;
   onLongPressEnd?: () => void;
 }

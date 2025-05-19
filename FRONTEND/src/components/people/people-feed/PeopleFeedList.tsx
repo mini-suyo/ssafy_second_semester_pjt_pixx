@@ -19,48 +19,32 @@ export default function PeopleFeedList() {
   const faceId = Number(id);
   const router = useRouter();
 
-  // 정렬 상태 관리
   const [sortType, setSortType] = useState<"recent" | "oldest">("recent");
   const apiType = sortType === "recent" ? 0 : 1;
 
-  // 선택 모드 상태 관리
   const [mode, setMode] = useState<"default" | "select">("default");
   const [selectedFeedIds, setSelectedFeedIds] = useState<number[]>([]);
 
-  // 모달 상태
   const [message, setMessage] = useState<string | null>(null);
   const [confirmUnclassify, setConfirmUnclassify] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  // long-press 용 타이머
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 무한 스크롤용 React Query
-  const {
-    data,
-    isLoading,
-    isError,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    refetch,
-  } = useInfiniteQuery({
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
     queryKey: ["faceFeeds", faceId, apiType] as const,
-    queryFn: ({ pageParam = 0 }) =>
-      getFaceFeeds(faceId, { type: apiType, page: pageParam, size: 10 }),
-    getNextPageParam: (lastPage, pages) =>
-      lastPage.data.faceFeedList.length < 10 ? undefined : pages.length,
+    queryFn: ({ pageParam = 0 }) => getFaceFeeds(faceId, { type: apiType, page: pageParam, size: 10 }),
+    getNextPageParam: (lastPage, pages) => (lastPage.data.faceFeedList.length < 10 ? undefined : pages.length),
     initialPageParam: 0,
     staleTime: 1000 * 60 * 5,
   });
 
-  // long-press 시작
   const handlePressStart = () => {
     if (mode === "default") {
       longPressTimerRef.current = setTimeout(() => setMode("select"), 1000);
     }
   };
-  // long-press 종료
+
   const handlePressEnd = () => {
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
@@ -68,27 +52,21 @@ export default function PeopleFeedList() {
     }
   };
 
-  // 로딩/에러 처리
   if (isLoading) return <div>불러오는 중...</div>;
   if (isError) return <div>에러가 발생했어요</div>;
 
-  // data 보장 이후
   const firstPageData = data!.pages[0].data;
-  const faceName = firstPageData.faceName;  // 클러스터 이름
-  const allFeeds = data!.pages.flatMap(page => page.data.faceFeedList);
+  const faceName = firstPageData.faceName;
+  const allFeeds = data!.pages.flatMap((page) => page.data.faceFeedList);
 
-  // 썸네일 클릭
   const handleThumbnailClick = (feedId: number) => {
     if (mode === "select") {
-      setSelectedFeedIds(prev =>
-        prev.includes(feedId) ? prev.filter(id => id !== feedId) : [...prev, feedId]
-      );
+      setSelectedFeedIds((prev) => (prev.includes(feedId) ? prev.filter((id) => id !== feedId) : [...prev, feedId]));
     } else {
       router.push(`/feed/${feedId}`);
     }
   };
 
-  // "Not This Person" 버튼 → 무효화 확인 모달
   const handleUnclassify = () => {
     if (selectedFeedIds.length === 0) {
       setMessage("잘못 분류된 사진을 선택해주세요.");
@@ -96,6 +74,7 @@ export default function PeopleFeedList() {
     }
     setConfirmUnclassify(true);
   };
+
   const executeUnclassify = async () => {
     try {
       await invalidateDetections(selectedFeedIds);
@@ -110,7 +89,6 @@ export default function PeopleFeedList() {
     setConfirmUnclassify(false);
   };
 
-  // "Delete" 버튼 → 삭제 확인 모달
   const handleDeletePhotos = () => {
     if (selectedFeedIds.length === 0) {
       setMessage("삭제할 사진을 선택해주세요.");
@@ -118,9 +96,9 @@ export default function PeopleFeedList() {
     }
     setConfirmDelete(true);
   };
+
   const executeDeletePhotos = async () => {
     try {
-      // TODO: 실제 삭제 API 호출
       setMessage("선택한 사진이 삭제되었습니다.");
       setMode("default");
       setSelectedFeedIds([]);
@@ -133,11 +111,7 @@ export default function PeopleFeedList() {
 
   return (
     <>
-      <PeopleHeader
-        faceName={faceName}
-        sortType={sortType}
-        onSortChange={setSortType}
-      />
+      <PeopleHeader faceName={faceName} sortType={sortType} onSortChange={setSortType} />
 
       <div className={styles.gridWrapper}>
         {allFeeds.map((feed: FaceFeedType) => (
@@ -145,7 +119,7 @@ export default function PeopleFeedList() {
             key={feed.feedId}
             feedId={feed.feedId}
             imageUrl={feed.feedThumbnailImgUrl}
-            isLoaded={true}
+            isLoaded
             isError={false}
             onClick={() => handleThumbnailClick(feed.feedId)}
             onLoad={() => {}}
@@ -158,7 +132,7 @@ export default function PeopleFeedList() {
           />
         ))}
         <div
-          ref={el => {
+          ref={(el) => {
             if (!el || !hasNextPage || isFetchingNextPage) return;
             new IntersectionObserver(([entry]) => {
               if (entry.isIntersecting) fetchNextPage();
@@ -193,7 +167,6 @@ export default function PeopleFeedList() {
 
       {isFetchingNextPage && <p className="text-center mt-4">더 불러오는 중...</p>}
 
-      {/* 무효화 확인 모달 */}
       {confirmUnclassify && (
         <ErrorModal
           message={`이 사진을 "${faceName}"에서 제거하시겠습니까?`}
@@ -202,7 +175,6 @@ export default function PeopleFeedList() {
         />
       )}
 
-      {/* 삭제 확인 모달 */}
       {confirmDelete && (
         <ErrorModal
           message="선택한 피드를 완전히 삭제하시겠습니까?"
@@ -211,13 +183,7 @@ export default function PeopleFeedList() {
         />
       )}
 
-      {/* 처리 결과 메시지 모달 */}
-      {message && (
-        <ErrorModal
-          message={message}
-          onClose={() => setMessage(null)}
-        />
-      )}
+      {message && <ErrorModal message={message} onClose={() => setMessage(null)} />}
     </>
   );
 }

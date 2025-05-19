@@ -12,7 +12,7 @@ type PeopleHeaderProps = {
   onSortChange: (value: "recent" | "oldest") => void;
 };
 
-export default function PeopleHeader({faceName,sortType,onSortChange,}: PeopleHeaderProps) {
+export default function PeopleHeader({ faceName, sortType, onSortChange }: PeopleHeaderProps) {
   return (
     <div className={styles.headerWrapper}>
       {/* 인물 이름 + 뒤로가기 */}

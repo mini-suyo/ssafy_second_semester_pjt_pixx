@@ -11,11 +11,7 @@ type PeopleFeedSelectBarProps = {
   onUnclassify: () => void;
 };
 
-export default function PeopleFeedSelectBar({
-  onCancel,
-  onDelete,
-  onUnclassify,
-}: PeopleFeedSelectBarProps) {
+export default function PeopleFeedSelectBar({ onCancel, onDelete, onUnclassify }: PeopleFeedSelectBarProps) {
   return (
     <div className={styles.selectModeBar}>
       <button onClick={onCancel}>
