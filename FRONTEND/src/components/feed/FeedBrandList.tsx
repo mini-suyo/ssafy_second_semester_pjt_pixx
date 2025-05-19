@@ -25,6 +25,15 @@ export default function FeedBrandList({ brandList }: FeedBrandListProps) {
   const [retryCount, setRetryCount] = useState<{ [key: number]: number }>({});
   const MAX_RETRY_ATTEMPTS = 3;
 
+  // 브랜드 이름 - 아이디 매핑
+  const BRAND_NAME_TO_ID: Record<string, number> = {
+    기타: 1,
+    모노맨션: 2,
+    하루필름: 3,
+    포토이즘: 4,
+    인생네컷: 5,
+  };
+
   // 즐겨찾기 초기화
   useEffect(() => {
     if (!brandList) return;
@@ -123,59 +132,70 @@ export default function FeedBrandList({ brandList }: FeedBrandListProps) {
               {/* "더보기" 버튼 - 이 브랜드의 모든 피드로 이동 */}
               <div
                 className={styles.viewMoreButton}
-                onClick={() => router.push(`/feed/brand/${encodeURIComponent(brand.brandName)}`)}
+                onClick={() => {
+                  const brandId = BRAND_NAME_TO_ID[brand.brandName];
+                  if (brandId) {
+                    router.push(`/feed/brand/${brandId}`);
+                  } else {
+                    alert("해당 브랜드 ID를 찾을 수 없습니다.");
+                  }
+                }}
               >
                 <span>더보기 + </span>
               </div>
             </div>
 
             <div className={styles.brandFeeds}>
-              {brand.feeds.map((feed) => (
-                <div key={feed.feedId} className={styles.feedItem} onClick={() => handleFeedClick(feed.feedId)}>
-                  {/* 피드 이미지 */}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={feed.feedThumbnailImgUrl}
-                    alt={`${brand.brandName} Feed ${feed.feedId}`}
-                    className={styles.feedImage}
-                    onLoad={() => handleImageLoad(feed.feedId)}
-                    onError={() => handleImageError(feed.feedId)}
-                  />
-
-                  {/* 즐겨찾기 버튼 */}
-                  <div
-                    className={styles.favoriteIcon}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavoriteMutation(feed.feedId);
-                    }}
-                  >
-                    <Image
-                      src={
-                        favorite[feed.feedId] ? "/icons/icon-star-fill-yellow.png" : "/icons/icon-star-empty-yellow.png"
-                      }
-                      alt="즐겨찾기"
-                      width={32}
-                      height={32}
+              {brand.feeds.map((feed) =>
+                feed ? (
+                  <div key={feed.feedId} className={styles.feedItem} onClick={() => handleFeedClick(feed.feedId)}>
+                    {/* 피드 이미지 */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={feed.feedThumbnailImgUrl || "/pixx-logo-dummy.png"}
+                      alt={`${brand.brandName} Feed ${feed.feedId}`}
+                      className={styles.feedImage}
+                      onLoad={() => handleImageLoad(feed.feedId)}
+                      onError={() => handleImageError(feed.feedId)}
                     />
-                  </div>
 
-                  {/* 로딩 표시 */}
-                  {!imageLoaded[feed.feedId] && !imageErrors[feed.feedId] && (
-                    <div className={styles.imageLoading}>로딩중...</div>
-                  )}
-
-                  {/* 에러 표시 및 재시도 버튼 */}
-                  {imageErrors[feed.feedId] && (
-                    <div className={styles.imageError}>
-                      <p>이미지 로드 실패</p>
-                      <button className={styles.retryButton} onClick={(e) => handleRetryRequest(feed.feedId, e)}>
-                        다시 시도
-                      </button>
+                    {/* 즐겨찾기 버튼 */}
+                    <div
+                      className={styles.favoriteIcon}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavoriteMutation(feed.feedId);
+                      }}
+                    >
+                      <Image
+                        src={
+                          favorite[feed.feedId]
+                            ? "/icons/icon-star-fill-yellow.png"
+                            : "/icons/icon-star-empty-yellow.png"
+                        }
+                        alt="즐겨찾기"
+                        width={32}
+                        height={32}
+                      />
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    {/* 로딩 표시 */}
+                    {!imageLoaded[feed.feedId] && !imageErrors[feed.feedId] && (
+                      <div className={styles.imageLoading}>로딩중...</div>
+                    )}
+
+                    {/* 에러 표시 및 재시도 버튼 */}
+                    {imageErrors[feed.feedId] && (
+                      <div className={styles.imageError}>
+                        <p>이미지 로드 실패</p>
+                        <button className={styles.retryButton} onClick={(e) => handleRetryRequest(feed.feedId, e)}>
+                          다시 시도
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : null
+              )}
             </div>
           </div>
         ))
