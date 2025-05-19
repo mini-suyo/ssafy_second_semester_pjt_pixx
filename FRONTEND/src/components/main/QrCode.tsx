@@ -5,6 +5,7 @@ import styles from "./qr-code.module.css";
 import api from "@/app/lib/api/axios";
 import ErrorModal from "@/components/ErrorModal";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function QrCode() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -13,6 +14,9 @@ export default function QrCode() {
   const [isProcessing, setIsProcessing] = useState(false); // QR 처리 상태 추가
   const lastScannedRef = useRef<string>(""); // 마지막으로 스캔된 QR 코드 값 저장
   const router = useRouter();
+
+  // QR 업로드 후 피드 목록 캐시 무효화
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const codeReader = new BrowserQRCodeReader();
@@ -34,6 +38,8 @@ export default function QrCode() {
 
         if (response.data.status === 200) {
           setIsScanning(false);
+          // QR 업로드 후 피드 목록 캐시 무효화
+          await queryClient.invalidateQueries({ queryKey: ["feeds"] });
           router.push(`/feed/${response.data.data.feedId}`);
         } else {
           setErrorMessage(response.data.message || "QR 코드 처리 중 오류가 발생했습니다.");
@@ -109,7 +115,7 @@ export default function QrCode() {
     return () => {
       controls?.stop();
     };
-  }, [isScanning, router, isProcessing]);
+  }, [isScanning, router, isProcessing, queryClient]); // router만 의존성으로 남김
 
   return (
     <>
