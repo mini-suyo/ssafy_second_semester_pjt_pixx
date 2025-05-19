@@ -1,0 +1,26 @@
+/* src/components/people/people-select-bar.module.css */
+
+.selectModeBar {
+    position: fixed;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 1rem 2.5rem;
+    bottom: 0;
+    height: 5rem;
+    width: 100%;
+    max-width: clamp(344px, 100vw, 412px);
+    background: #4b436e;
+    z-index: 9999;
+  }
+  
+  .selectModeBar button {
+    background: none;
+    border: none;
+    color: #fffaf8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.875rem;
+  }
