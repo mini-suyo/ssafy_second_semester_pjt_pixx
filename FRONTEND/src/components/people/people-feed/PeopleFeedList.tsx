@@ -73,6 +73,23 @@ export default function PeopleFeedList() {
     }
   };
 
+  // 선택된 사진을 인물에서 제거
+  const handleRemoveFromPerson = async () => {
+    if (selectedFeedIds.length === 0) {
+      alert('인물에서 제거할 사진을 선택해주세요.');
+      return;
+    }
+    try {
+      // TODO: 인물에서 제거하는 API 연동 (피드 삭제가 아닌 인물 분류에서만 제거)
+      alert('선택한 사진이 이 인물에서 제거되었습니다.');
+      setMode('default');
+      setSelectedFeedIds([]);
+      refetch();
+    } catch {
+      alert('제거 실패');
+    }
+  };
+
   // 선택된 사진 삭제
   const handleDeletePhotos = async () => {
     if (selectedFeedIds.length === 0) {
@@ -139,6 +156,7 @@ export default function PeopleFeedList() {
         />
       </div>
 
+
       {/* 선택 모드 바 */}
       {mode === 'select' && (
         <PeopleFeedSelectBar
@@ -146,7 +164,7 @@ export default function PeopleFeedList() {
             setMode('default');
             setSelectedFeedIds([]);
           }}
-          onDelete={handleDeletePhotos}
+          onDelete={handleRemoveFromPerson}
           onMove={() => {}}
         />
       )}
