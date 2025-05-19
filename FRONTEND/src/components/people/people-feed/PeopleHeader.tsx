@@ -4,7 +4,7 @@ import React from "react";
 import styles from "./people-header.module.css";
 import Link from "next/link";
 import Image from "next/image";
-import SortDropdown from "@/components/common/SortDropdown";
+import SortDropdown, { OptionType } from "@/components/common/SortDropdown";
 
 type PeopleHeaderProps = {
   faceName: string;
@@ -13,6 +13,12 @@ type PeopleHeaderProps = {
 };
 
 export default function PeopleHeader({ faceName, sortType, onSortChange }: PeopleHeaderProps) {
+  // SortDropdown에 넘겨줄 옵션 정의
+  const sortOptions: OptionType<"recent" | "oldest">[] = [
+    { value: "recent", label: "최신순" },
+    { value: "oldest", label: "오래된 순" },
+  ];
+
   return (
     <div className={styles.headerWrapper}>
       {/* 인물 이름 + 뒤로가기 */}
@@ -24,7 +30,7 @@ export default function PeopleHeader({ faceName, sortType, onSortChange }: Peopl
       </div>
       {/* 정렬 */}
       <div className={styles.selectWrapper}>
-        <SortDropdown value={sortType} onChange={onSortChange} />
+        <SortDropdown value={sortType} onChange={onSortChange} options={sortOptions} />
       </div>
     </div>
   );
