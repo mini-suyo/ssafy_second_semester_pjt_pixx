@@ -33,11 +33,11 @@ export default function FeedInfoEditModal({
 
   // 브랜드 선택
   const brandOptions = [
-    { value: "인생네컷", label: "인생네컷" },
-    { value: "포토이즘", label: "포토이즘" },
+    { value: "기타", label: "기타" },
     { value: "모노맨션", label: "모노맨션" },
     { value: "하루필름", label: "하루필름" },
-    { value: "기타", label: "기타" },
+    { value: "포토이즘", label: "포토이즘" },
+    { value: "인생네컷", label: "인생네컷" },
   ];
 
   const selectedBrandOption = brandOptions.find((opt) => opt.value === brand) ?? null;

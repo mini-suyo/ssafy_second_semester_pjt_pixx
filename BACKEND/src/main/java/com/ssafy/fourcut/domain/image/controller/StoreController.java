@@ -1,7 +1,14 @@
 package com.ssafy.fourcut.domain.image.controller;
 
+import com.ssafy.fourcut.domain.faceDetection.service.FaceDetectionService;
 import com.ssafy.fourcut.domain.image.dto.FileUploadRequestDto;
 import com.ssafy.fourcut.domain.image.dto.QRUploadRequestDto;
+import com.ssafy.fourcut.domain.image.entity.Image;
+import com.ssafy.fourcut.domain.image.repository.ImageRepository;
+import com.ssafy.fourcut.domain.image.entity.Image;
+import com.ssafy.fourcut.domain.image.entity.enums.ImageType;
+import com.ssafy.fourcut.domain.image.repository.ImageRepository;
+import com.ssafy.fourcut.domain.image.service.CloudFrontService;
 import com.ssafy.fourcut.domain.image.service.StoreService;
 import com.ssafy.fourcut.global.dto.ApiResponse;
 import com.ssafy.fourcut.global.exception.CustomException;
@@ -22,6 +29,9 @@ import java.util.Map;
 public class StoreController {
 
     private final StoreService storeService;
+    private final FaceDetectionService faceDetectionService;
+    private final ImageRepository imageRepository;
+    private final CloudFrontService cloudFrontService;
 
     /*
      * QR 업로드
@@ -43,6 +53,18 @@ public class StoreController {
 
         // 크롤링을 하여, 파일들 저장 및 DB에 데이터 삽입
         storeService.CrawlUploadAndSave(request);
+
+        imageRepository
+                .findFirstByFeed_FeedIdAndImageTypeOrderByImageIdAsc(
+                        request.getFeedId(),
+                        ImageType.IMAGE      // IMAGE 타입 중에서
+                )
+                .ifPresent(img -> {
+                    String signedUrl = cloudFrontService.generateSignedCloudFrontUrl(
+                            img.getImageUrl(), "get"
+                    );
+                    faceDetectionService.processImageAsync(img.getImageId(), signedUrl);
+                });
 
         Map<String, Integer> data = new HashMap<>();
         data.put("feedId", feedId);
@@ -86,6 +108,18 @@ public class StoreController {
             log.info(" - {}", file.getOriginalFilename());
         }
         storeService.uploadFile(request, files);
+
+        imageRepository
+                .findFirstByFeed_FeedIdAndImageTypeOrderByImageIdAsc(
+                        feedId,
+                        ImageType.IMAGE      // IMAGE 타입 중에서
+                )
+                .ifPresent(img -> {
+                    String signedUrl = cloudFrontService.generateSignedCloudFrontUrl(
+                            img.getImageUrl(), "get"
+                    );
+                    faceDetectionService.processImageAsync(img.getImageId(), signedUrl);
+                });
 
         Map<String, Integer> data = new HashMap<>();
         data.put("feedId", feedId);

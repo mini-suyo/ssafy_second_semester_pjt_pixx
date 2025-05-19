@@ -8,9 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.HashMap;
@@ -103,6 +103,18 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.<Void>builder()
                         .status(e.getStatusCode())
                         .message(e.getMessage())
+                        .data(null)
+                        .build());
+    }
+
+    @ExceptionHandler(HttpClientErrorException.class)
+    public ResponseEntity<ApiResponse<Void>> handleHttpClientError(HttpClientErrorException ex) {
+        int status = ex.getStatusCode().value();
+        String message = ex.getResponseBodyAsString();
+        return ResponseEntity.status(status)
+                .body(ApiResponse.<Void>builder()
+                        .status(status)
+                        .message(message)
                         .data(null)
                         .build());
     }

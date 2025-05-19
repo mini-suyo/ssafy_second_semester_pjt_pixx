@@ -17,8 +17,9 @@ import java.time.LocalDateTime;
 public class FaceDetection {
 
     @Id
-    @Column(name = "detection_id", length = 255)
-    private String detectionId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)   // ← 여기를 추가
+    @Column(name = "detection_id")
+    private Integer detectionId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "face_id")
@@ -39,6 +40,6 @@ public class FaceDetection {
     @CurrentTimestamp
     private LocalDateTime detectedAt;
 
-    @Column(name = "is_valid", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private Boolean valid = true;   // 잘못된 검출 무시 처리
+    @Column(name = "is_valid", nullable = false, columnDefinition = "TINYINT(1) default 1")
+    private boolean valid = true;
 }
