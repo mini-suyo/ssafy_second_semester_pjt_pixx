@@ -3,23 +3,19 @@
 
 import Select, { StylesConfig } from "react-select";
 
-interface OptionType {
-  value: "recent" | "oldest";
+export interface OptionType<T> {
+  value: T;
   label: string;
 }
 
-const options: OptionType[] = [
-  { value: "recent", label: "최신순" },
-  { value: "oldest", label: "오래된순" },
-];
-
-interface Props {
-  value: "recent" | "oldest";
-  onChange: (value: "recent" | "oldest") => void;
+interface Props<T extends string> {
+  value: T;
+  onChange: (value: T) => void;
+  options: OptionType<T>[];
 }
 
-export default function SortDropdown({ value, onChange }: Props) {
-  const customStyles: StylesConfig<OptionType> = {
+export default function SortDropdown<T extends string>({ value, onChange, options }: Props<T>) {
+  const customStyles: StylesConfig<OptionType<T>> = {
     control: (base) => ({
       ...base,
       display: "flex",
@@ -49,6 +45,7 @@ export default function SortDropdown({ value, onChange }: Props) {
       backgroundColor: state.isFocused ? "#312a53" : "transparent",
       color: "#fffaf8",
       cursor: "pointer",
+      fontFamily: "SEJONG",
     }),
     dropdownIndicator: (base) => ({
       ...base,
@@ -62,10 +59,11 @@ export default function SortDropdown({ value, onChange }: Props) {
     indicatorSeparator: () => ({ display: "none" }),
   };
 
-  const selectedOption = options.find((opt) => opt.value === value);
+  const selectedOption = options?.find((opt) => opt.value === value);
+  // console.log("SortDropdown props:", { value, options });
 
   return (
-    <Select<OptionType>
+    <Select<OptionType<T>>
       options={options}
       value={selectedOption}
       onChange={(selected) => {

@@ -9,7 +9,7 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import dayjs from "dayjs";
-import SortDropdown from "../common/SortDropdown";
+import SortDropdown, { OptionType } from "../common/SortDropdown";
 import AlbumSelectBar from "./AlbumSelectBar";
 import FloatingButton from "../common/FloatingButton";
 import AlbumFeedSelectModal from "./album-feed/AlbumFeedSelectModal";
@@ -34,6 +34,12 @@ export default function AlbumList() {
   // 정렬
   const [sortType, setSortType] = useState<"recent" | "oldest">("recent");
   const apiSortType = sortType === "recent" ? 0 : 1;
+
+  // 정렬옵션
+  const albumSortOptions: OptionType<"recent" | "oldest">[] = [
+    { value: "recent", label: "최신순" },
+    { value: "oldest", label: "오래된순" },
+  ] as const;
 
   // React Query의 useInfiniteQuery 훅을 사용하여 무한 스크롤 구현
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status, refetch } = useInfiniteQuery({
@@ -203,7 +209,7 @@ export default function AlbumList() {
   return (
     <div>
       <div className={styles.selectWrapper}>
-        <SortDropdown value={sortType} onChange={handleSortChange} />
+        <SortDropdown value={sortType} onChange={handleSortChange} options={albumSortOptions} />
       </div>
 
       <div className={styles.albumListWrapper}>

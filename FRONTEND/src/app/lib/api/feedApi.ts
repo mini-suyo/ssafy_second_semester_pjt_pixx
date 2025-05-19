@@ -1,17 +1,21 @@
 // app/lib/api/feedApi.ts
 
-import { Feed, DeleteFeedResponse, FeedDetailUpdate, FavoriteResponse } from "@/app/types/feed";
+import { Feed, DeleteFeedResponse, FeedDetailUpdate, FavoriteResponse, BrandListResponse } from "@/app/types/feed";
 
 // import axiosInstance from "./axiosInstance";
 import api from "./axios";
 
 //피드 목록 조회 API
-export const getFeeds = async (params: { type: number; page: number; size: number }): Promise<Feed[]> => {
+export const getFeeds = async (params: { type: 0 | 1; page: number; size: number }): Promise<Feed[]> => {
   const response = await api.post("/api/v1/feed", params);
   return response.data.data; // data 안에 data
 };
 
 // 브랜드별 피드 목록 조회 API
+export const getFeedsByBrand = async (params: { type: 2; page: number; size: number }): Promise<BrandListResponse> => {
+  const response = await api.post("/api/v1/feed", params);
+  return response.data.data;
+};
 
 // 피드 상세 조회 API
 export async function getFeedDetail(feedId: number) {
