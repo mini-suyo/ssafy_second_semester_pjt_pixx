@@ -1,18 +1,18 @@
 // components/people/people-feed/PeopleFeedList.tsx
 
-'use client';
+"use client";
 
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { useParams, useRouter } from 'next/navigation';
-import { getFaceFeeds, invalidateDetections } from '@/app/lib/api/peopleApi';
-import type { FaceFeedType } from '@/app/types/people';
-import PeopleFeedGrid from './PeopleFeedGrid';
-import PeopleHeader from './PeopleHeader';
-import PeopleFeedSelectBar from './PeopleFeedSelectBar';
-import FloatingButton from '@/components/common/FloatingButton';
-import ErrorModal from '@/components/ErrorModal';
-import { useState, useRef } from 'react';
-import styles from './people-feed-list.module.css';
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useParams, useRouter } from "next/navigation";
+import { getFaceFeeds, invalidateDetections } from "@/app/lib/api/peopleApi";
+import type { FaceFeedType } from "@/app/types/people";
+import PeopleFeedGrid from "./PeopleFeedGrid";
+import PeopleHeader from "./PeopleHeader";
+import PeopleFeedSelectBar from "./PeopleFeedSelectBar";
+import FloatingButton from "@/components/common/FloatingButton";
+import ErrorModal from "@/components/ErrorModal";
+import { useState, useRef } from "react";
+import styles from "./people-feed-list.module.css";
 
 export default function PeopleFeedList() {
   const { id } = useParams();
@@ -20,11 +20,11 @@ export default function PeopleFeedList() {
   const router = useRouter();
 
   // 정렬 상태 관리
-  const [sortType, setSortType] = useState<'recent' | 'oldest'>('recent');
-  const apiType = sortType === 'recent' ? 0 : 1;
+  const [sortType, setSortType] = useState<"recent" | "oldest">("recent");
+  const apiType = sortType === "recent" ? 0 : 1;
 
   // 선택 모드 상태 관리
-  const [mode, setMode] = useState<'default' | 'select'>('default');
+  const [mode, setMode] = useState<"default" | "select">("default");
   const [selectedFeedIds, setSelectedFeedIds] = useState<number[]>([]);
 
   // 모달 상태
@@ -45,7 +45,7 @@ export default function PeopleFeedList() {
     isFetchingNextPage,
     refetch,
   } = useInfiniteQuery({
-    queryKey: ['faceFeeds', faceId, apiType] as const,
+    queryKey: ["faceFeeds", faceId, apiType] as const,
     queryFn: ({ pageParam = 0 }) =>
       getFaceFeeds(faceId, { type: apiType, page: pageParam, size: 10 }),
     getNextPageParam: (lastPage, pages) =>
@@ -56,8 +56,8 @@ export default function PeopleFeedList() {
 
   // long-press 시작
   const handlePressStart = () => {
-    if (mode === 'default') {
-      longPressTimerRef.current = setTimeout(() => setMode('select'), 1000);
+    if (mode === "default") {
+      longPressTimerRef.current = setTimeout(() => setMode("select"), 1000);
     }
   };
   // long-press 종료
@@ -79,7 +79,7 @@ export default function PeopleFeedList() {
 
   // 썸네일 클릭
   const handleThumbnailClick = (feedId: number) => {
-    if (mode === 'select') {
+    if (mode === "select") {
       setSelectedFeedIds(prev =>
         prev.includes(feedId) ? prev.filter(id => id !== feedId) : [...prev, feedId]
       );
@@ -91,7 +91,7 @@ export default function PeopleFeedList() {
   // "Not This Person" 버튼 → 무효화 확인 모달
   const handleUnclassify = () => {
     if (selectedFeedIds.length === 0) {
-      setMessage('잘못 분류된 사진을 선택해주세요.');
+      setMessage("잘못 분류된 사진을 선택해주세요.");
       return;
     }
     setConfirmUnclassify(true);
@@ -99,13 +99,13 @@ export default function PeopleFeedList() {
   const executeUnclassify = async () => {
     try {
       await invalidateDetections(selectedFeedIds);
-      setMessage(`선택한 사진이 '${faceName}'에서 제거되었습니다.`);
-      setMode('default');
+      setMessage(`선택한 사진이 "${faceName}"에서 제거되었습니다.`);
+      setMode("default");
       setSelectedFeedIds([]);
       refetch();
     } catch (e) {
       console.error(e);
-      setMessage('분류 해제 실패');
+      setMessage("분류 해제 실패");
     }
     setConfirmUnclassify(false);
   };
@@ -113,7 +113,7 @@ export default function PeopleFeedList() {
   // "Delete" 버튼 → 삭제 확인 모달
   const handleDeletePhotos = () => {
     if (selectedFeedIds.length === 0) {
-      setMessage('삭제할 사진을 선택해주세요.');
+      setMessage("삭제할 사진을 선택해주세요.");
       return;
     }
     setConfirmDelete(true);
@@ -121,12 +121,12 @@ export default function PeopleFeedList() {
   const executeDeletePhotos = async () => {
     try {
       // TODO: 실제 삭제 API 호출
-      setMessage('선택한 사진이 삭제되었습니다.');
-      setMode('default');
+      setMessage("선택한 사진이 삭제되었습니다.");
+      setMode("default");
       setSelectedFeedIds([]);
       refetch();
     } catch {
-      setMessage('삭제 실패');
+      setMessage("삭제 실패");
     }
     setConfirmDelete(false);
   };
@@ -168,10 +168,10 @@ export default function PeopleFeedList() {
         />
       </div>
 
-      {mode === 'select' && (
+      {mode === "select" && (
         <PeopleFeedSelectBar
           onCancel={() => {
-            setMode('default');
+            setMode("default");
             setSelectedFeedIds([]);
           }}
           onUnclassify={handleUnclassify}
@@ -182,10 +182,10 @@ export default function PeopleFeedList() {
       <FloatingButton
         mode={mode}
         onClick={() => {
-          if (mode === 'default') {
-            setMode('select');
+          if (mode === "default") {
+            setMode("select");
           } else {
-            setMode('default');
+            setMode("default");
             setSelectedFeedIds([]);
           }
         }}
@@ -196,7 +196,7 @@ export default function PeopleFeedList() {
       {/* 무효화 확인 모달 */}
       {confirmUnclassify && (
         <ErrorModal
-          message={`이 사진을 '${faceName}'에서 제거하시겠습니까?`}
+          message={`이 사진을 "${faceName}"에서 제거하시겠습니까?`}
           onClose={() => setConfirmUnclassify(false)}
           onConfirm={executeUnclassify}
         />

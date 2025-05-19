@@ -1,9 +1,9 @@
 // components/people/people-feed/PeopleFeedSelectBar.tsx
 
-'use client';
+"use client";
 
-import Image from 'next/image';
-import styles from './people-feed-select-bar.module.css';
+import Image from "next/image";
+import styles from "./people-feed-select-bar.module.css";
 
 type PeopleFeedSelectBarProps = {
   onCancel: () => void;
@@ -23,7 +23,7 @@ export default function PeopleFeedSelectBar({
         Cancel
       </button>
       <button onClick={onUnclassify}>
-        <Image src="/icons/icon-unclassify.png" alt="Unclassify" width={36} height={36} style={{ padding: '2px' }} />
+        <Image src="/icons/icon-unclassify.png" alt="Unclassify" width={36} height={36} style={{ padding: "2px" }} />
         Not This Person
       </button>
       <button onClick={onDelete}>

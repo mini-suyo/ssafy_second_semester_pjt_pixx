@@ -1,15 +1,15 @@
 // components/people/people-feed/PeopleHeader.tsx
 
-import React from 'react';
-import styles from './people-header.module.css';
-import Link from 'next/link';
-import Image from 'next/image';
-import SortDropdown from '@/components/common/SortDropdown';
+import React from "react";
+import styles from "./people-header.module.css";
+import Link from "next/link";
+import Image from "next/image";
+import SortDropdown from "@/components/common/SortDropdown";
 
 type PeopleHeaderProps = {
   faceName: string;
-  sortType: 'recent' | 'oldest';
-  onSortChange: (value: 'recent' | 'oldest') => void;
+  sortType: "recent" | "oldest";
+  onSortChange: (value: "recent" | "oldest") => void;
 };
 
 export default function PeopleHeader({faceName,sortType,onSortChange,}: PeopleHeaderProps) {

@@ -1,31 +1,31 @@
 // src/components/people/PeopleList.tsx
 
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import styles from './people-list.module.css';
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import styles from "./people-list.module.css";
 import {
   getFaces,
   patchFaceClusterName,
   deleteFaceCluster
-} from '@/app/lib/api/peopleApi';
-import type { FaceType } from '@/app/types/people';
-import FloatingButton from '../common/FloatingButton';
-import PeopleSelectBar from './PeopleSelectBar';
-import ErrorModal from '../ErrorModal';
+} from "@/app/lib/api/peopleApi";
+import type { FaceType } from "@/app/types/people";
+import FloatingButton from "../common/FloatingButton";
+import PeopleSelectBar from "./PeopleSelectBar";
+import ErrorModal from "../ErrorModal";
 
 export default function PeopleList() {
   const [faces, setFaces] = useState<FaceType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [mode, setMode] = useState<'default' | 'select'>('default');
+  const [mode, setMode] = useState<"default" | "select">("default");
   const [selectedFaceIds, setSelectedFaceIds] = useState<number[]>([]);
 
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [editingName, setEditingName] = useState<string>('');
+  const [editingName, setEditingName] = useState<string>("");
 
   // Alert/Confirm 대체용
   const [message, setMessage] = useState<string | null>(null);
@@ -46,7 +46,7 @@ export default function PeopleList() {
   }, []);
 
   const handleModeChange = () => {
-    setMode(prev => (prev === 'default' ? 'select' : 'default'));
+    setMode(prev => (prev === "default" ? "select" : "default"));
     if (editingId !== null) cancelEdit();
     setSelectedFaceIds([]);
   };
@@ -54,7 +54,7 @@ export default function PeopleList() {
   // 인물 삭제 버튼 누를 때: 선택 여부 체크 후 모달 띄우기
   const handleDeleteFaces = () => {
     if (!selectedFaceIds.length) {
-      setMessage('삭제할 대상을 선택해주세요.');
+      setMessage("삭제할 대상을 선택해주세요.");
       return;
     }
     setConfirmDelete(true);
@@ -71,10 +71,10 @@ export default function PeopleList() {
         prev.filter(face => !selectedFaceIds.includes(face.faceId))
       );
       setSelectedFaceIds([]);
-      setMode('default');
-      setMessage('선택한 대상이 삭제되었습니다.');
+      setMode("default");
+      setMessage("선택한 대상이 삭제되었습니다.");
     } catch (e: any) {
-      setMessage('인물 삭제에 실패했습니다: ' + e.message);
+      setMessage("인물 삭제에 실패했습니다: " + e.message);
     }
     setConfirmDelete(false);
   };
@@ -82,7 +82,7 @@ export default function PeopleList() {
   // 이름 저장
   const saveName = async (faceId: number) => {
     if (!editingName.trim()) {
-      setMessage('이름을 입력해주세요.');
+      setMessage("이름을 입력해주세요.");
       return;
     }
     try {
@@ -94,22 +94,22 @@ export default function PeopleList() {
         )
       );
       cancelEdit();
-      setMode('default');
+      setMode("default");
       setSelectedFaceIds([]);
     } catch (e: any) {
-      setMessage('이름 변경 실패: ' + e.message);
+      setMessage("이름 변경 실패: " + e.message);
     }
   };
 
   const startEdit = (face: FaceType) => {
-    if (mode !== 'select') return;
+    if (mode !== "select") return;
     setEditingId(face.faceId);
     setEditingName(face.faceName);
   };
 
   const cancelEdit = () => {
     setEditingId(null);
-    setEditingName('');
+    setEditingName("");
   };
 
   if (loading) return <div>로딩 중…</div>;
@@ -123,12 +123,12 @@ export default function PeopleList() {
           return (
             <div key={face.faceId} className={styles.profileContainer}>
               <div className={styles.profileWrapper}>
-                {mode === 'default' ? (
+                {mode === "default" ? (
                   <Link href={`/people/${face.faceId}`}>
                     <div
                       className={
                         `${styles.profileCircle}` +
-                        (isSelected ? ` ${styles.selected}` : '')
+                        (isSelected ? ` ${styles.selected}` : "")
                       }
                     >
                       <Image
@@ -145,7 +145,7 @@ export default function PeopleList() {
                   <div
                     className={
                       `${styles.profileCircle}` +
-                      (isSelected ? ` ${styles.selected}` : '')
+                      (isSelected ? ` ${styles.selected}` : "")
                     }
                     onClick={() =>
                       setSelectedFaceIds(prev =>
@@ -173,8 +173,8 @@ export default function PeopleList() {
                       value={editingName}
                       onChange={e => setEditingName(e.target.value)}
                       onKeyDown={e => {
-                        if (e.key === 'Enter') saveName(face.faceId);
-                        if (e.key === 'Escape') cancelEdit();
+                        if (e.key === "Enter") saveName(face.faceId);
+                        if (e.key === "Escape") cancelEdit();
                       }}
                       placeholder="이름을 입력하세요."
                       maxLength={20}
@@ -200,8 +200,8 @@ export default function PeopleList() {
                     className={styles.profileName}
                     onClick={() => startEdit(face)}
                   >
-                    <span>{face.faceName || 'Unknown'}</span>
-                    {mode === 'select' && (
+                    <span>{face.faceName || "Unknown"}</span>
+                    {mode === "select" && (
                       <Image
                         src="/icons/icon-pencil.png"
                         alt="edit"
@@ -218,7 +218,7 @@ export default function PeopleList() {
         })}
       </div>
 
-      {mode === 'select' && (
+      {mode === "select" && (
         <PeopleSelectBar
           onCancel={handleModeChange}
           onDelete={handleDeleteFaces}
@@ -236,7 +236,7 @@ export default function PeopleList() {
       {/* 삭제 확인 모달 */}
       {confirmDelete && (
         <ErrorModal
-          message={'선택한 대상을 삭제하시겠습니까?\n(분류만 제거되며, 피드는 삭제되지 않습니다.)'}
+          message={"선택한 대상을 삭제하시겠습니까?\n(분류만 제거되며, 피드는 삭제되지 않습니다.)"}
           onClose={() => setConfirmDelete(false)}
           onConfirm={executeDelete}
         />

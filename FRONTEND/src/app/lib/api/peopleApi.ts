@@ -1,15 +1,14 @@
 // src/app/lib/api/peopleApi.ts
 
-import api from './axios';
+import api from "./axios";
 import type {
   FaceResponseType,
   FaceRequestType,
   FaceDetailResponseType,
-  PatchResponseType,
-} from '@/app/types/people';
+} from "@/app/types/people";
 
 export async function getFaces(params: FaceRequestType): Promise<FaceResponseType> {
-  const { data } = await api.post('/api/v1/feed/face', params);
+  const { data } = await api.post("/api/v1/feed/face", params);
   return data;
 }
 
@@ -65,7 +64,7 @@ export async function invalidateDetections(
   detectionIds: number[]
 ): Promise<CommonResponse> {
   const { data } = await api.patch<CommonResponse>(
-    '/api/v1/detect/invalidate',
+    "/api/v1/detect/invalidate",
    { detectionIds } 
   );
   return data;

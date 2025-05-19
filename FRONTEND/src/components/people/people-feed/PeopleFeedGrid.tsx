@@ -1,10 +1,10 @@
 // components/people/people-feed/PeopleFeedGrid.tsx
 
-'use client';
+"use client";
 
-import Image from 'next/image';
-import styles from './people-feed-grid.module.css';
-import { FeedThumbnailItemProps } from '@/app/types/people';
+import Image from "next/image";
+import styles from "./people-feed-grid.module.css";
+import { FeedThumbnailItemProps } from "@/app/types/people";
 
 export default function PeopleFeedGrid({
   feedId,
@@ -31,10 +31,10 @@ export default function PeopleFeedGrid({
       onTouchEnd={onLongPressEnd}
       onTouchCancel={onLongPressEnd}
     >
-      {mode === 'select' && (
+      {mode === "select" && (
         <div className={styles.checkIcon}>
           <Image
-            src={isSelected ? '/icons/icon-checked-purple.png' : '/icons/icon-unchecked-purple.png'}
+            src={isSelected ? "/icons/icon-checked-purple.png" : "/icons/icon-unchecked-purple.png"}
             alt="선택 여부"
             width={40}
             height={40}

@@ -1,9 +1,9 @@
 // src/components/people/PeopleItem.tsx
 
-'use client';
+"use client";
 
-import Image from 'next/image';
-import styles from './people-list.module.css';
+import Image from "next/image";
+import styles from "./people-list.module.css";
 
 export interface PeopleItemProps {
   name: string;
@@ -12,7 +12,7 @@ export interface PeopleItemProps {
 
 export default function PeopleItem({
   name,
-  imageUrl = '/dummy-feed-thumbnail.png',
+  imageUrl = "/dummy-feed-thumbnail.png",
 }: PeopleItemProps) {
   return (
     <div className={styles.profileContainer}>
