@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { useRef, useState } from "react";
-import { getFeedDetail } from "@/app/lib/api/feedApi";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import { getFeedDetail, toggleFavorite } from "@/app/lib/api/feedApi";
 import { FeedDetailResponse } from "@/app/types/feed";
 
 import FeedMainMedia from "./FeedMainMedia";
@@ -17,6 +17,7 @@ type FeedDetailProps = {
 
 export default function FeedDetail({ feedId }: FeedDetailProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
@@ -46,10 +47,38 @@ export default function FeedDetail({ feedId }: FeedDetailProps) {
     }
   };
 
+  // 피드 즐겨찾기
+  const favoriteMutation = useMutation({
+    mutationFn: () => toggleFavorite(feedId),
+    onSuccess: () => {
+      // 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: ["feedDetail", feedId] }); // 피드 상세
+      queryClient.invalidateQueries({ queryKey: ["albumFeeds", 2, "recent"] }); // 즐겨찾기 앨범
+      queryClient.invalidateQueries({
+        predicate: (query) => query.queryKey[0] === "feeds", // 피드 목록 전체 무효화
+      });
+    },
+  });
+
   const handleFavorite = () => {
-    setIsFavorite(!isFavorite);
-    alert("Coming soon");
+    favoriteMutation.mutate(); // async/await 대신 react-query 방식
   };
+
+  // const handleFavorite = async () => {
+  //   try {
+  //     const updated = await toggleFavorite(feedId);
+  //     setIsFavorite(updated.isFavorite);
+  //   } catch (error) {
+  //     alert("즐겨찾기 처리에 실패했습니다.");
+  //     console.error(error);
+  //   }
+  // };
+
+  useEffect(() => {
+    if (data) {
+      setIsFavorite(data.feedFavorite);
+    }
+  }, [data]);
 
   if (isLoading) return <div>로딩 중...</div>;
   if (isError || !data)
@@ -72,10 +101,10 @@ export default function FeedDetail({ feedId }: FeedDetailProps) {
           {/* <button onClick={() => setIsFavorite(!isFavorite)} > */}
           <button onClick={handleFavorite}>
             <Image
-              src={isFavorite ? "/icons/icon-like.png" : "/icons/icon-unlike-white.png"}
+              src={isFavorite ? "/icons/icon-star-fill-yellow.png" : "/icons/icon-star-empty-white.png"}
               alt="즐겨찾기"
-              width={24}
-              height={20}
+              width={28}
+              height={28}
             />
           </button>
           {/* <button onClick={() => currentFile && handleDownload(currentFile.imageId)}> */}

@@ -31,6 +31,18 @@ export default function FeedAlbumAdd({ isOpen, onClose, onSelect, onCreateNewAlb
     },
     initialPageParam: 0,
     staleTime: 1000 * 60 * 5,
+
+    // 목록 불러올 때 즐겨찾기와 기본피드앨범은 안가져오는 필터
+    select: (original) => ({
+      pages: original.pages.map((page) => ({
+        ...page,
+        data: {
+          ...page.data,
+          albumList: page.data.albumList.filter((a) => a.albumId !== 1 && a.albumId !== 2),
+        },
+      })),
+      pageParams: original.pageParams,
+    }),
   });
 
   // 앨범 생성 플로팅 버튼과 충돌나서 주석처리함
