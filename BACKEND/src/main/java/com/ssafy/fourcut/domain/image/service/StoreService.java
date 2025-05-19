@@ -95,7 +95,7 @@ public class StoreService {
             if (request.getPageUrl().contains("monomansion.net")) {
                 updateBrand(feed, 2, "모노맨션 크롤링");
                 crawlMonomansion(request);
-            } else if (request.getPageUrl().contains("haru7")) {
+            } else if (request.getPageUrl().contains("haru")) {
                 updateBrand(feed, 3, "하루필름 크롤링");
                 crawlharu(request);
             } else if (request.getPageUrl().contains("seobuk.kr")) {
@@ -137,7 +137,10 @@ public class StoreService {
         Feed feed = feedRepository.findById(request.getFeedId())
                 .orElseThrow(() -> new CustomException(404, "Feed를 찾을 수 없습니다."));
 
-        Document doc = Jsoup.connect(request.getPageUrl()).get();
+        String redirectedUrl = resolveRedirectUrl(request.getPageUrl());
+        log.info("리다이렉트 최종 URL: {}", redirectedUrl);
+
+        Document doc = Jsoup.connect(redirectedUrl).get();
         Elements links = doc.select("a");
 
         for (Element link : links) {
@@ -153,8 +156,11 @@ public class StoreService {
         Feed feed = feedRepository.findById(request.getFeedId())
                 .orElseThrow(() -> new CustomException(404, "Feed를 찾을 수 없습니다."));
 
+        String redirectedUrl = resolveRedirectUrl(request.getPageUrl());
+        log.info("리다이렉트 최종 URL: {}", redirectedUrl);
+
         // 1. uid 파라미터 추출
-        String uid = extractUidFromUrl(request.getFeedId(), request.getPageUrl());
+        String uid = extractUidFromUrl(request.getFeedId(), redirectedUrl);
         log.info("uid : " + uid);
 
         // 2. POST 요청 보내기

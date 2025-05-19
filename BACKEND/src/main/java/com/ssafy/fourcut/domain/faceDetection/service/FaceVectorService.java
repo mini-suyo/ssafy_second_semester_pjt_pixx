@@ -40,6 +40,7 @@ public class FaceVectorService {
         Page<FaceVector> page = vectorRepo.findByUser_UserId(userId, pageable);
 
         List<FaceListItemDto> list = page.stream()
+                .filter(fv -> fv.getDetectionCount() >= 2)
                 .map(fv -> new FaceListItemDto(
                         fv.getFaceId(),
                         fv.getFaceClusterName() != null ? fv.getFaceClusterName() : "Unknown",

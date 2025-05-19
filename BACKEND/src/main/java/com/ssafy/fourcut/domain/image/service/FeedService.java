@@ -7,12 +7,14 @@ import com.ssafy.fourcut.domain.image.entity.*;
 import com.ssafy.fourcut.domain.image.entity.enums.ImageType;
 import com.ssafy.fourcut.domain.image.repository.*;
 import com.ssafy.fourcut.domain.user.repository.UserRepository;
+import com.ssafy.fourcut.global.exception.CustomException;
 import com.ssafy.fourcut.global.s3.S3Uploader;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -223,6 +225,57 @@ public class FeedService {
 
         //삭제
         feedRepository.deleteAll(feeds);
+    }
+
+    @Transactional
+    public BrandFeedResponseDto getBrandDetail(
+            Integer userId,
+            Integer brandId,
+            BrandFeedRequestDto req
+    ) {
+        Sort sort = req.getType() == 0
+                ? Sort.by("feedDate").descending()
+                : Sort.by("feedDate").ascending();
+        Pageable pg = PageRequest.of(req.getPage(), req.getSize(), sort);
+
+        Page<Feed> page = feedRepository.findByUser_UserIdAndBrand_BrandId(userId, brandId, pg);
+
+        List<BrandFeedItemDto> list = page.stream()
+                .map(this::toBrandFeedItem)    // 변경된 메서드명 사용
+                .collect(Collectors.toList());
+
+        String brandName = brandRepository.findById(brandId)
+                .orElseThrow(() -> new CustomException(400, "브랜드를 찾을 수 없습니다: " + brandId))
+                .getBrandName();
+
+        return new BrandFeedResponseDto(brandName, list);
+    }
+
+    // 기존 toItem → toBrandFeedItem 으로 이름 변경
+    private BrandFeedItemDto toBrandFeedItem(Feed feed) {
+        // 1) isThumbnail=true 인 이미지 우선
+        String thumbUrl = feed.getImages().stream()
+                .filter(Image::getIsThumbnail)
+                .map(Image::getImageUrl)
+                .findFirst()
+                // 2) 없으면 IMAGE 타입 중 ID 최소값
+                .orElseGet(() -> feed.getImages().stream()
+                        .filter(img -> ImageType.IMAGE.equals(img.getImageType()))
+                        .min(Comparator.comparing(Image::getImageId))
+                        .map(Image::getImageUrl)
+                        .orElse("")
+                );
+
+        // 3) 비어있지 않으면 CloudFront signed URL
+        String signedThumb = thumbUrl.isEmpty()
+                ? ""
+                : cloudFrontService.generateSignedCloudFrontUrl(thumbUrl, "get");
+
+        return new BrandFeedItemDto(
+                feed.getFeedId(),
+                signedThumb,
+                feed.getFeedFavorite()
+        );
     }
 }
 
