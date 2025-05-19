@@ -1,20 +1,28 @@
+// src/components/people/PeopleList.tsx
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './people-list.module.css';
-import { getFaces, patchFaceClusterName } from '@/app/lib/api/peopleApi';
+import {
+  getFaces,
+  patchFaceClusterName,
+  deleteFaceCluster
+} from '@/app/lib/api/peopleApi';
 import type { FaceType } from '@/app/types/people';
 import FloatingButton from '../common/FloatingButton';
+import PeopleSelectBar from './PeopleSelectBar';
 
 export default function PeopleList() {
   const [faces, setFaces] = useState<FaceType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<'default' | 'select'>('default');
 
-  // 편집 상태
+  const [mode, setMode] = useState<'default' | 'select'>('default');
+  const [selectedFaceIds, setSelectedFaceIds] = useState<number[]>([]);
+
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingName, setEditingName] = useState<string>('');
 
@@ -33,13 +41,41 @@ export default function PeopleList() {
   }, []);
 
   const handleModeChange = () => {
-    setMode(prev => prev === 'default' ? 'select' : 'default');
-    if (editingId) {
-      cancelEdit();
+    setMode(prev => (prev === 'default' ? 'select' : 'default'));
+    if (editingId !== null) cancelEdit();
+    setSelectedFaceIds([]);
+  };
+
+  const handleDeleteFaces = async () => {
+    if (selectedFaceIds.length === 0) {
+      alert('삭제할 인물을 선택해주세요.');
+      return;
+    }
+    if (
+      !confirm(
+        '선택한 인물을 삭제하시겠습니까?\n(피드 자체는 삭제되지 않습니다.)'
+      )
+    ) {
+      return;
+    }
+    try {
+      for (const faceId of selectedFaceIds) {
+        const res = await deleteFaceCluster(faceId);
+        if (res.status !== 200) throw new Error(res.message);
+      }
+      setFaces(prev =>
+        prev.filter(face => !selectedFaceIds.includes(face.faceId))
+      );
+      setSelectedFaceIds([]);
+      setMode('default');
+      alert('선택한 인물이 삭제되었습니다.');
+    } catch (e: any) {
+      alert('인물 삭제에 실패했습니다.: ' + e.message);
     }
   };
 
   const startEdit = (face: FaceType) => {
+    if (mode !== 'select') return;
     setEditingId(face.faceId);
     setEditingName(face.faceName);
   };
@@ -51,7 +87,7 @@ export default function PeopleList() {
 
   const saveName = async (faceId: number) => {
     if (!editingName.trim()) {
-      alert('이름을 입력해주세요');
+      alert('이름을 입력해주세요.');
       return;
     }
     try {
@@ -74,69 +110,114 @@ export default function PeopleList() {
   return (
     <>
       <div className={styles.peopleGrid}>
-        {faces.map(face => (
-          <div key={face.faceId} className={styles.profileContainer}>
-            <div className={styles.profileWrapper}>
-              <Link href={`/people/${face.faceId}`}>
-                <div className={styles.profileCircle}>
-                  <Image
-                    src={face.faceThumbnail}
-                    alt={face.faceName}
-                    width={100}
-                    height={100}
-                    className={styles.profileImage}
-                  />
-                </div>
-              </Link>
+        {faces.map(face => {
+          const isSelected = selectedFaceIds.includes(face.faceId);
 
-              {editingId === face.faceId ? (
-                <div className={styles.editContainer}>
-                  <input
-                    className={styles.profileInput}
-                    value={editingName}
-                    onChange={e => setEditingName(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') saveName(face.faceId);
-                      if (e.key === 'Escape') cancelEdit();
-                    }}
-                    placeholder="이름을 입력하세요"
-                    maxLength={20}
-                    autoFocus
-                  />
-                  <div className={styles.editButtons}>
-                    <button
-                      className={`${styles.editButton} ${styles.saveButton}`}
-                      onClick={() => saveName(face.faceId)}
+          return (
+            <div key={face.faceId} className={styles.profileContainer}>
+              <div className={styles.profileWrapper}>
+                {mode === 'default' ? (
+                  <Link href={`/people/${face.faceId}`}>
+                    <div
+                      className={
+                        `${styles.profileCircle}` +
+                        (isSelected ? ` ${styles.selected}` : '')
+                      }
                     >
-                      저장
-                    </button>
-                    <button
-                      className={`${styles.editButton} ${styles.cancelButton}`}
-                      onClick={cancelEdit}
-                    >
-                      취소
-                    </button>
+                      <Image
+                        src={face.faceThumbnail}
+                        alt={face.faceName}
+                        width={100}
+                        height={100}
+                        className={styles.profileImage}
+                      />
+                      {isSelected && <div className={styles.checkIcon} />}
+                    </div>
+                  </Link>
+                ) : (
+                  <div
+                    className={
+                      `${styles.profileCircle}` +
+                      (isSelected ? ` ${styles.selected}` : '')
+                    }
+                    onClick={() =>
+                      setSelectedFaceIds(prev =>
+                        prev.includes(face.faceId)
+                          ? prev.filter(id => id !== face.faceId)
+                          : [...prev, face.faceId]
+                      )
+                    }
+                  >
+                    <Image
+                      src={face.faceThumbnail}
+                      alt={face.faceName}
+                      width={100}
+                      height={100}
+                      className={styles.profileImage}
+                    />
+                    {isSelected && <div className={styles.checkIcon} />}
                   </div>
-                </div>
-              ) : (
-                <div 
-                  className={styles.profileName}
-                  onClick={() => startEdit(face)}
-                >
-                  <span>{face.faceName || 'Unknown'}</span>
-                  <Image
-                    src="/icons/icon-pencil.png"
-                    alt="edit"
-                    width={16}
-                    height={16}
-                    className={styles.editIcon}
-                  />
-                </div>
-              )}
+                )}
+
+                {editingId === face.faceId ? (
+                  <div className={styles.editContainer}>
+                    <input
+                      className={styles.profileInput}
+                      value={editingName}
+                      onChange={e => setEditingName(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') saveName(face.faceId);
+                        if (e.key === 'Escape') cancelEdit();
+                      }}
+                      placeholder="이름을 입력하세요."
+                      maxLength={20}
+                      autoFocus
+                    />
+                    <div className={styles.editButtons}>
+                      <button
+                        className={`${styles.editButton} ${styles.saveButton}`}
+                        onClick={() => saveName(face.faceId)}
+                      >
+                        저장
+                      </button>
+                      <button
+                        className={`${styles.editButton} ${styles.cancelButton}`}
+                        onClick={cancelEdit}
+                      >
+                        취소
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className={styles.profileName}
+                    onClick={() => startEdit(face)}
+                  >
+                    <span>{face.faceName || 'Unknown'}</span>
+                    {mode === 'select' && (
+                      <Image
+                        src="/icons/icon-pencil.png"
+                        alt="edit"
+                        width={16}
+                        height={16}
+                        className={styles.editIcon}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
+      {mode === 'select' && (
+        <PeopleSelectBar
+          onCancel={handleModeChange}
+          onDelete={handleDeleteFaces}
+        />
+      )}
+
       <FloatingButton mode={mode} onClick={handleModeChange} />
     </>
   );

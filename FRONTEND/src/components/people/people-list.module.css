@@ -1,10 +1,12 @@
+/* src/components/people/people-list.module.css */
+
 .peopleGrid {
   display: grid;
   grid-template-columns: repeat(2, 140px);
   gap: 2rem 2.5rem;
   padding: 1rem;
   margin-top: 2rem;
-  margin-bottom: 100px; /* 하단 여백 추가 */
+  margin-bottom: 120px; /* 하단 여백 추가 */
   padding-bottom: 100px; /* 네비게이션 바 공간 확보 */
   justify-content: center;
 }
@@ -140,4 +142,29 @@
 .cancelButton {
   background-color: rgba(255, 255, 255, 0.2);
   color: white;
+}
+
+/* dummy export so CSS module recognizes .selected */
+.selected {}
+
+/* 프로필 원(circle)만 어둡게 */
+.profileCircle.selected::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 5;
+}
+
+/* 선택된 원에만 체크 아이콘 */
+.checkIcon {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 24px;
+  height: 24px;
+  background-image: url('/icons/icon-checked-purple.png');
+  background-size: cover;
+  z-index: 10;
 }
