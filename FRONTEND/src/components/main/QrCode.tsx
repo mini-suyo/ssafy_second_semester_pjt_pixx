@@ -10,14 +10,23 @@ export default function QrCode() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false); // QR 처리 상태 추가
+  const lastScannedRef = useRef<string>(""); // 마지막으로 스캔된 QR 코드 값 저장
   const router = useRouter();
 
   useEffect(() => {
     const codeReader = new BrowserQRCodeReader();
     let controls: { stop: () => void } | undefined;
 
-    // handleQrResult 함수를 useEffect 안으로 이동
     const handleQrResult = async (qrUrl: string) => {
+      // 이미 처리 중이거나 같은 QR 코드인 경우 무시
+      if (isProcessing || qrUrl === lastScannedRef.current) {
+        return;
+      }
+
+      setIsProcessing(true);
+      lastScannedRef.current = qrUrl;
+
       try {
         const response = await api.post("/api/v1/photos/upload/qr", {
           pageUrl: qrUrl,
@@ -39,6 +48,12 @@ export default function QrCode() {
         } else {
           setErrorMessage("QR 코드 처리 중 오류가 발생했습니다.");
         }
+      } finally {
+        setIsProcessing(false);
+        // 3초 후에 마지막 스캔 값 초기화
+        setTimeout(() => {
+          lastScannedRef.current = "";
+        }, 5000);
       }
     };
 
