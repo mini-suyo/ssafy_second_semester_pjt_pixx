@@ -47,7 +47,7 @@ export default function PeopleList() {
   };
 
   const handleDeleteFaces = async () => {
-    if (selectedFaceIds.length === 0) {
+    if (!selectedFaceIds.length) {
       alert('삭제할 인물을 선택해주세요.');
       return;
     }
@@ -70,7 +70,7 @@ export default function PeopleList() {
       setMode('default');
       alert('선택한 인물이 삭제되었습니다.');
     } catch (e: any) {
-      alert('인물 삭제에 실패했습니다.: ' + e.message);
+      alert('인물 삭제에 실패했습니다: ' + e.message);
     }
   };
 
@@ -93,12 +93,18 @@ export default function PeopleList() {
     try {
       const res = await patchFaceClusterName(faceId, editingName);
       if (res.status !== 200) throw new Error(res.message);
+
+      // 이름 바뀐 데이터로 갱신
       setFaces(prev =>
         prev.map(f =>
           f.faceId === faceId ? { ...f, faceName: editingName } : f
         )
       );
+
+      // 편집창 닫고, 선택 모드도 종료
       cancelEdit();
+      setMode('default');
+      setSelectedFaceIds([]);
     } catch (e: any) {
       alert('이름 변경 실패: ' + e.message);
     }
@@ -112,7 +118,6 @@ export default function PeopleList() {
       <div className={styles.peopleGrid}>
         {faces.map(face => {
           const isSelected = selectedFaceIds.includes(face.faceId);
-
           return (
             <div key={face.faceId} className={styles.profileContainer}>
               <div className={styles.profileWrapper}>
