@@ -4,6 +4,8 @@ import com.ssafy.fourcut.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CurrentTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -48,6 +50,7 @@ public class FaceVector {
 
     @OneToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "rep_detection_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private FaceDetection repDetection;
 
     public void updateFaceThumbnail(String thumbnail) {
