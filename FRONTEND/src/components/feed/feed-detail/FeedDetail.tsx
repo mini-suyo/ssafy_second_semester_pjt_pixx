@@ -64,16 +64,6 @@ export default function FeedDetail({ feedId }: FeedDetailProps) {
     favoriteMutation.mutate(); // async/await 대신 react-query 방식
   };
 
-  // const handleFavorite = async () => {
-  //   try {
-  //     const updated = await toggleFavorite(feedId);
-  //     setIsFavorite(updated.isFavorite);
-  //   } catch (error) {
-  //     alert("즐겨찾기 처리에 실패했습니다.");
-  //     console.error(error);
-  //   }
-  // };
-
   useEffect(() => {
     if (data) {
       setIsFavorite(data.feedFavorite);
