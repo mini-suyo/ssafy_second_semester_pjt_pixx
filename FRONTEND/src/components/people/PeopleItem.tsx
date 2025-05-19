@@ -3,7 +3,7 @@
 'use client';
 
 import Image from 'next/image';
-import styles from './people.module.css';
+import styles from './people-list.module.css';
 
 export interface PeopleItemProps {
   name: string;

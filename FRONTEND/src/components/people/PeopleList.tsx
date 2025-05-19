@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import styles from './people.module.css';
+import styles from './people-list.module.css';
 import { getFaces, patchFaceClusterName } from '@/app/lib/api/peopleApi';
 import type { FaceType } from '@/app/types/people';
 import FloatingButton from '../common/FloatingButton';
