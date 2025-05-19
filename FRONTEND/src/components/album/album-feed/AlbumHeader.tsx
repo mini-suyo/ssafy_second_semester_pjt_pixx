@@ -4,7 +4,12 @@ import React from "react";
 import styles from "./album-header.module.css";
 import Link from "next/link";
 import Image from "next/image";
-import SortDropdown from "@/components/common/SortDropdown";
+import SortDropdown, { OptionType } from "@/components/common/SortDropdown";
+
+const albumSortOptions: OptionType<"recent" | "oldest">[] = [
+  { value: "recent", label: "최신순" },
+  { value: "oldest", label: "오래된순" },
+] as const;
 
 type AlbumHeaderProps = {
   albumName: string;
@@ -27,7 +32,7 @@ export default function AlbumHeader({ albumName, albumMemo, sortType, onSortChan
 
       {/* 정렬 */}
       <div className={styles.selectWrapper}>
-        <SortDropdown value={sortType} onChange={onSortChange} />
+        <SortDropdown value={sortType} onChange={onSortChange} options={albumSortOptions} />
       </div>
     </div>
   );
