@@ -59,7 +59,7 @@ export default function FeedList() {
     },
     initialPageParam: 0,
     refetchOnWindowFocus: false, // 창 포커스 변경 시 리페치 방지
-    staleTime: 1000 * 60 * 5, // 5분 동안 데이터를 신선한 상태로 유지 -> 나중에 사진 업로드 시 피드 변경 코드 추가 해야함!!
+    staleTime: 1000 * 60 * 5, // 5분 동안 데이터를 신선한 상태로 유지
   });
 
   const observerRef = useRef<HTMLDivElement>(null);
@@ -87,7 +87,19 @@ export default function FeedList() {
         [feedId]: isFavorite,
       }));
 
-      // 즐겨찾기 앨범 캐시 무효과
+      //  React Query 캐시 직접 수정 - 클라이언트 상태(UI)를 바로 업데이트 가능하게 해줌..어려움..
+      queryClient.setQueryData(["feeds", sortType], (oldData: any) => {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page: Feed[]) =>
+            page.map((feed) => (feed.feedId === feedId ? { ...feed, feedFavorite: isFavorite } : feed))
+          ),
+        };
+      });
+
+      // 즐겨찾기 앨범 캐시 무효화
       queryClient.invalidateQueries({
         queryKey: ["albumFeeds", 2, "recent"],
       });
