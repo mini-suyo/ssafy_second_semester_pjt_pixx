@@ -86,7 +86,6 @@ public class StoreService {
     /*
      * 받은 URL을 크롤링하여 파일들을 다운로드하여 S3에 저장한다.
      */
-    @Transactional
     public void CrawlUploadAndSave(QRUploadRequestDto request) {
         try {
             Feed feed = feedRepository.findById(request.getFeedId())
