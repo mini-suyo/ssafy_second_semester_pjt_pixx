@@ -109,7 +109,7 @@ export default function QrCode() {
     return () => {
       controls?.stop();
     };
-  }, [isScanning, router]); // router만 의존성으로 남김
+  }, [isScanning, router, isProcessing]);
 
   return (
     <>
