@@ -1,7 +1,7 @@
 .peopleGrid {
   display: grid;
   grid-template-columns: repeat(2, 140px);
-  gap: 2rem 2.5rem;  /* 첫 번째 값이 row gap, 두 번째 값이 column gap */
+  gap: 2rem 2.5rem;
   padding: 1rem;
   margin-top: 2rem;
   justify-content: center;
@@ -10,7 +10,8 @@
 .profileContainer {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start; /* 상단 정렬로 변경 */
+  height: 220px; /* 컨테이너 높이 고정 */
 }
 
 .profileWrapper {
@@ -18,6 +19,7 @@
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+  min-height: 200px; /* 최소 높이 설정 */
 }
 
 .profileCircle {
@@ -63,11 +65,13 @@
   text-align: center;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   transition: background-color 0.2s;
+  width: 120px; /* 너비 고정 */
 }
 
 .profileName:hover {
@@ -88,6 +92,7 @@
   flex-direction: column;
   gap: 0.5rem;
   align-items: center;
+  width: 120px;
 }
 
 .profileInput {
@@ -97,7 +102,7 @@
   padding: 0.5rem;
   color: white;
   font-size: 1.2rem;
-  width: 100%;
+  width: 100%; /* editContainer의 너비를 상속 */
   text-align: center;
   outline: none;
   transition: border-color 0.2s;
