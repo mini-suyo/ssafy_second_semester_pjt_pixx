@@ -1,5 +1,21 @@
 /* components/album/feed-thumbnail-item.module.css */
 
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slideUp {
+  opacity: 0;
+  animation: slideUpFade 1.5s ease-out forwards;
+}
+
 .thumbnailWrapper {
   position: relative;
   width: 100%;
