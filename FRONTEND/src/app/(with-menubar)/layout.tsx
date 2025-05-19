@@ -7,14 +7,13 @@ import Menubar from "@/components/Menubar";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const isDoneMenuPage =
-    /^\/feed\/\d+$/.test(pathname) || // /feed/123
-    /^\/feed\/brand\/[^/]+$/.test(pathname) || // /feed/brand/1
-    /^\/album\/[^/]+$/.test(pathname); // /album/3
+
+  // feed/:id, feed/brand/:id, album/:id, people/:id
+  const isDetailPage = /^\/(feed\/\d+|feed\/brand\/[^/]+|album\/[^/]+|people\/[^/]+)$/.test(pathname);
 
   return (
     <div>
-      {!isDoneMenuPage && <Menubar />}
+      {!isDetailPage && <Menubar />}
       {children}
     </div>
   );
