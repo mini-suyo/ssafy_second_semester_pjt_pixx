@@ -26,17 +26,17 @@ export default function FeedList() {
   // 피드 즐겨찾기
   const [favorite, setFavorite] = useState<{ [feedId: number]: boolean }>({});
 
-  // 앨범 생성
+  // 선택모드 관리
   const [mode, setMode] = useState<"default" | "select">("default"); // 앨범 생성 플로팅버튼 상태 관리
   const longPressTimer = useRef<NodeJS.Timeout | null>(null); // 썸네일 오래 누르는거 상태 관리
   const [selectedFeedIds, setSelectedFeedIds] = useState<number[]>([]); // 선택된 피드 관리
 
-  // 앨범 생성 모달
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // 앨범 생성 시 제목 관리
   const [albumTitle, setAlbumTitle] = useState("");
 
-  // 앨범에 사진 추가
-  const [isAlbumModalOpen, setIsAlbumModalOpen] = useState(false);
+  // 앨범 추가 및 생성 모달 관리
+  const [isAlbumAddOpen, setIsAlbumAddOpen] = useState(false);
+  const [isAlbumCreateOpen, setIsAlbumCreateOpen] = useState(false);
 
   // 피드 썸네일 로딩 및 에러 상태 관리
   const [imageLoaded, setImageLoaded] = useState<{ [key: number]: boolean }>({});
@@ -59,7 +59,7 @@ export default function FeedList() {
     },
     initialPageParam: 0,
     refetchOnWindowFocus: false, // 창 포커스 변경 시 리페치 방지
-    staleTime: 1000 * 60 * 5, // 5분 동안 데이터를 신선한 상태로 유지 -> 나중에 사진 업로드 시 피드 변경 코드 추가 해야함!!
+    staleTime: 1000 * 60 * 5, // 5분 동안 데이터를 신선한 상태로 유지
   });
 
   const observerRef = useRef<HTMLDivElement>(null);
@@ -87,7 +87,19 @@ export default function FeedList() {
         [feedId]: isFavorite,
       }));
 
-      // 즐겨찾기 앨범 캐시 무효과
+      //  React Query 캐시 직접 수정 - 클라이언트 상태(UI)를 바로 업데이트 가능하게 해줌..어려움..
+      queryClient.setQueryData(["feeds", sortType], (oldData: any) => {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page: Feed[]) =>
+            page.map((feed) => (feed.feedId === feedId ? { ...feed, feedFavorite: isFavorite } : feed))
+          ),
+        };
+      });
+
+      // 즐겨찾기 앨범 캐시 무효화
       queryClient.invalidateQueries({
         queryKey: ["albumFeeds", 2, "recent"],
       });
@@ -195,7 +207,7 @@ export default function FeedList() {
   // 앨범 생성
   const handleCreateAlbum = async () => {
     if (albumTitle.trim() === "" || selectedFeedIds.length === 0) {
-      alert("앨범에 추가할 사진을 선택해주세요.");
+      alert("앨범 이름을 입력해주세요.");
       return;
     }
     try {
@@ -213,7 +225,7 @@ export default function FeedList() {
       alert("오류가 발생하여 앨범 생성에 실패했습니다");
       console.log(error);
     } finally {
-      setIsModalOpen(false);
+      setIsAlbumCreateOpen(false);
       setMode("default");
       setSelectedFeedIds([]);
       setAlbumTitle("");
@@ -226,7 +238,7 @@ export default function FeedList() {
       alert("추가할 사진을 먼저 선택해주세요.");
       return;
     }
-    setIsAlbumModalOpen(true);
+    setIsAlbumAddOpen(true);
   };
 
   const handleAlbumSelect = async (albumId: number) => {
@@ -239,11 +251,18 @@ export default function FeedList() {
       alert("사진 추가에 실패했습니다.");
       console.error(error);
     } finally {
-      setIsAlbumModalOpen(false);
+      setIsAlbumAddOpen(false);
       setMode("default");
       setSelectedFeedIds([]);
     }
   };
+
+  const handleCloseAlbumAddModal = () => {
+    setIsAlbumAddOpen(false); // 모달 닫기
+    setMode("default"); // 모드 초기화
+    setSelectedFeedIds([]); // 선택된 피드도 초기화
+  };
+
   // 이미지 삭제
   const handleDeletePhotos = async () => {
     if (selectedFeedIds.length === 0) {
@@ -318,8 +337,8 @@ export default function FeedList() {
                         favorite[feed.feedId] ? "/icons/icon-star-fill-yellow.png" : "/icons/icon-star-empty-yellow.png"
                       }
                       alt="즐겨찾기"
-                      width={28}
-                      height={28}
+                      width={32}
+                      height={32}
                     />
                   </div>
                   {/* 선택된 피드 약간 어둡게 처리 */}
@@ -352,8 +371,8 @@ export default function FeedList() {
                             : "/icons/icon-unchecked-purple.png"
                         }
                         alt="선택 여부"
-                        width={32}
-                        height={32}
+                        width={36}
+                        height={39}
                       />
                     </div>
                   )}
@@ -382,21 +401,33 @@ export default function FeedList() {
         }}
       />
 
-      {/* 앨범 생성 모달 */}
-      <FeedAlbumCreateModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        albumTitle={albumTitle}
-        setAlbumTitle={setAlbumTitle}
-        onSubmit={handleCreateAlbum}
-      />
+      {/* 앨범 생성 및 앨범 피드 추가 */}
+      {isAlbumAddOpen && (
+        <FeedAlbumAdd
+          isOpen={isAlbumAddOpen}
+          onClose={handleCloseAlbumAddModal}
+          onSelect={handleAlbumSelect}
+          onCreateNewAlbum={() => setIsAlbumCreateOpen(true)}
+        />
+      )}
 
-      {/* 앨범에 피드 추가 */}
-      <FeedAlbumAdd isOpen={isAlbumModalOpen} onClose={() => setIsAlbumModalOpen(false)} onSelect={handleAlbumSelect} />
+      {isAlbumCreateOpen && (
+        <FeedAlbumCreateModal
+          isOpen={isAlbumCreateOpen}
+          onClose={() => setIsAlbumCreateOpen(false)}
+          albumTitle={albumTitle}
+          setAlbumTitle={setAlbumTitle}
+          onSubmit={handleCreateAlbum}
+        />
+      )}
 
       {/* 선택용 Navbar 렌더링 (선택 모드일 때만 노출) */}
       {mode === "select" && (
-        <FeedSelectBar onAdd={handleAddToAlbum} onCreate={() => setIsModalOpen(true)} onDelete={handleDeletePhotos} />
+        <FeedSelectBar
+          onAdd={handleAddToAlbum}
+          // onCreate={() => setIsModalOpen(true)}
+          onDelete={handleDeletePhotos}
+        />
       )}
     </div>
   );

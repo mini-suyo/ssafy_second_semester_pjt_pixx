@@ -41,6 +41,11 @@ public class FaceDetectionService {
     @Value("${face-api.url}")
     private String faceApiUrl;
 
+    /**
+     * 1) FastAPI에 이미지 보내서 얼굴 검출 → face_detection 저장
+     * 2) 새로 저장된 face_detection 전부에 대해 유사도 검사 → face_vector 생성/갱신 + 썸네일
+     * 3) 검출 결과 DTO를 그대로 반환
+     */
     @Transactional
     public List<FaceApiDtos.FaceDetectDto> processImage(Integer imageId, String imgUrl) {
         // 1) FastAPI 호출 & face_detection 저장
@@ -88,13 +93,16 @@ public class FaceDetectionService {
         // 3) 클러스터링 & 썸네일 생성
         List<FaceDetection> newDets =
                 detectionRepo.findByFaceVectorIsNullAndValidTrueAndImage_ImageId(imageId);
+
         for (FaceDetection det : newDets) {
             FaceVector best = findBestMatch(det);
             if (best != null) {
+                // ─ 기존 클러스터에 합치기 ─
                 det.setFaceVector(best);
                 updateCentroid(best, det);
                 vectorRepo.save(best);
             } else {
+                // 신규 클러스터 & 썸네일 생성
                 FaceVector fv = FaceVector.builder()
                         .user(det.getImage().getFeed().getUser())
                         .faceVectorData(det.getDetectionVectorData())
@@ -102,6 +110,7 @@ public class FaceDetectionService {
                         .repDetection(det)
                         .build();
 
+                // 바운딩 박스 기반 크롭 → 썸네일 S3 업로드
                 String userId = String.valueOf(det.getImage().getFeed().getUser().getUserId());
                 String s3Key = uploadThumbnailToS3(
                         imgUrl,
@@ -109,8 +118,11 @@ public class FaceDetectionService {
                         userId
                 );
 
+                // 썸네일 세팅 후에야 한 번만 save()
                 fv.updateFaceThumbnail(s3Key);
                 vectorRepo.save(fv);
+
+                // face_detection 에 연관짓고 저장
                 det.setFaceVector(fv);
             }
             detectionRepo.save(det);
@@ -127,6 +139,7 @@ public class FaceDetectionService {
         return CompletableFuture.completedFuture(null);
     }
 
+    /** 클러스터 이름 변경 (face_cluster_name) */
     @Transactional
     public void updateClusterName(Integer faceId, String clusterName) {
         FaceVector fv = vectorRepo.findById(faceId)
@@ -135,6 +148,7 @@ public class FaceDetectionService {
         vectorRepo.save(fv);
     }
 
+    /** 잘못된 검출 무효화 */
     @Transactional
     public void invalidateDetection(Integer detectionId) {
         FaceDetection det = detectionRepo.findById(detectionId)
@@ -142,6 +156,21 @@ public class FaceDetectionService {
         det.setValid(false);
         detectionRepo.save(det);
     }
+
+    /**
+     * 지정된 faceId 의 FaceVector(클러스터) 와 연관된 FaceDetection 들을 모두 삭제
+     */
+    @Transactional
+    public void deleteFace(Integer faceId) {
+        FaceVector fv = vectorRepo.findById(faceId)
+                .orElseThrow(() -> new CustomException(400, "삭제할 얼굴을 찾을 수 없습니다: " + faceId));
+        // cascade 삭제가 걸려있다면 연관 FaceDetection 도 함께 삭제됩니다.
+        vectorRepo.delete(fv);
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────────
+    // 헬퍼 메서드
+    // ────────────────────────────────────────────────────────────────────────────────
 
     /**
      * 주어진 이미지 URL과 바운딩박스(JSON)으로부터
@@ -244,6 +273,9 @@ public class FaceDetectionService {
         fv.setDetectionCount(n + 1);
         fv.setFaceVectorData(vectorToJson(current));
     }
+
+
+    // ──── Vector/BBox 파싱 & 유틸 ────────────────────────────────────────────────
 
     private double[] parseVector(String json) {
         String body = json.replaceAll("[\\[\\]\\s]", "");
