@@ -26,8 +26,9 @@ public class S3Uploader {
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(contentType);
-            metadata.setContentLength(contentLength);
-
+            if (contentLength != null && contentLength > 0) {
+                metadata.setContentLength(contentLength);
+            }
             amazonS3.putObject(bucketName, s3Key, inputStream, metadata);
             return s3Key;
         } catch (Exception e) {

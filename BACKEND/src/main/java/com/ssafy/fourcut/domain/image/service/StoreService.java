@@ -190,8 +190,12 @@ public class StoreService {
         Feed feed = feedRepository.findById(request.getFeedId())
                 .orElseThrow(() -> new CustomException(404, "Feed를 찾을 수 없습니다."));
 
+        // 리다이렉트 추적해서 최종 URL 얻기
+        String redirectedUrl = resolveRedirectUrl(request.getPageUrl());
+        log.info("리다이렉트 최종 URL: {}", redirectedUrl);
+
         // 1. folderPath 파라미터 추출
-        String folderPath = extractQueryParam(request.getPageUrl(), "folderPath");  // "/QRimage/20250508/770/UUID"
+        String folderPath = extractQueryParam(redirectedUrl, "folderPath");  // "/QRimage/20250508/770/UUID"
 
         // 2. 경로에서 각 구성 요소 추출
         String[] parts = folderPath.split("/");
@@ -219,6 +223,22 @@ public class StoreService {
         QRuploadAndSave(request.getUserId(), imageDownloadUrl, feed);
         QRuploadAndSave(request.getUserId(), videoDownloadUrl, feed);
     }
+
+    private String resolveRedirectUrl(String originalUrl) throws Exception {
+        HttpURLConnection conn = (HttpURLConnection) new URL(originalUrl).openConnection();
+        conn.setInstanceFollowRedirects(false); // 수동으로 리다이렉트 추적
+        conn.setRequestMethod("GET");
+        conn.connect();
+
+        int responseCode = conn.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP || responseCode == HttpURLConnection.HTTP_MOVED_PERM) {
+            String redirectUrl = conn.getHeaderField("Location");
+            return redirectUrl;
+        } else {
+            throw new CustomException(500, "리다이렉트 응답이 아닙니다. 응답코드: " + responseCode);
+        }
+    }
+
 
     private String extractUidFromUrl(int feedId, String url) {
         int idx = url.indexOf("u=");
@@ -270,6 +290,7 @@ public class StoreService {
                 );
             }
         } catch (Exception e) {
+            log.error("QRuploadAndSave 실패 - URL: {}", fileUrl, e);
             feedRepository.deleteById(feed.getFeedId());
             throw new CustomException(500, "파일 다운로드 및 S3 업로드 중 오류가 발생했습니다.");
         }
