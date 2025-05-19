@@ -55,4 +55,22 @@ public class FaceDetectionController {
                 .build()
         );
     }
+
+    /**
+     * 얼굴 삭제
+     * POST /api/v1/detect/{faceId}/delete
+     */
+    @PostMapping("/{faceId}/delete")
+    public ResponseEntity<ApiResponse<Void>> deleteFace(
+            @PathVariable Integer faceId
+    ) {
+        service.deleteFace(faceId);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .status(200)
+                        .message("얼굴 삭제 성공")
+                        .data(null)
+                        .build()
+        );
+    }
 }
