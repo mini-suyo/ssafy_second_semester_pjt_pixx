@@ -148,7 +148,13 @@ public class FaceDetectionService {
         vectorRepo.save(fv);
     }
 
-    /** 잘못된 검출 무효화 */
+    // 여러 건 얼굴 인식 무효화
+    @Transactional
+    public void invalidateDetections(List<Integer> detectionIds) {
+        detectionIds.forEach(this::invalidateDetection);
+    }
+
+    // 단건 얼굴 인식 무효화
     @Transactional
     public void invalidateDetection(Integer detectionId) {
         FaceDetection det = detectionRepo.findById(detectionId)
