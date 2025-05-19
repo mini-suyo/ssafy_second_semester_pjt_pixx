@@ -1,13 +1,13 @@
-// components/feed/FeedList.tsx
+// components/feed/FeedBrandMoreList.tsx
 
 "use client";
 
 import { InfiniteData, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { deleteFeed, getFeeds, getFeedsByBrand } from "@/app/lib/api/feedApi";
+import { useRouter } from "next/navigation";
+import { deleteFeed, getFeedsByBrandId } from "@/app/lib/api/feedApi";
 import { addPhotosToAlbum, createAlbum } from "@/app/lib/api/albumApi";
-import { BrandListResponse, FavoriteResponse, Feed } from "@/app/types/feed";
+import { BrandListMoreResponse, FavoriteResponse, Feed } from "@/app/types/feed";
 import { useMutation } from "@tanstack/react-query";
 import { toggleFavorite } from "@/app/lib/api/feedApi";
 
@@ -17,23 +17,21 @@ import FeedAlbumCreateModal from "./FeedAlbumCreateModal";
 import FeedAlbumAdd from "./FeedAlbumAdd";
 import SortDropdown, { OptionType } from "../common/SortDropdown";
 import Image from "next/image";
-import styles from "./feed-list.module.css";
-import FeedBrandList from "./FeedBrandList";
+import styles from "./feed-brand-more-list.module.css";
+import Link from "next/link";
 
-const feedSortOptions: OptionType<"recent" | "oldest" | "brand">[] = [
+const feedBrandSortOptions: OptionType<"recent" | "oldest">[] = [
   { value: "recent", label: "최신순" },
   { value: "oldest", label: "오래된순" },
-  { value: "brand", label: "브랜드순" },
 ] as const;
 
-export default function FeedList() {
+type FeedBrandMoreListProps = {
+  brandId: number;
+};
+
+export default function FeedBrandMoreList({ brandId }: FeedBrandMoreListProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const searchParams = useSearchParams();
-  const defaultSortParam = searchParams.get("sort");
-
-  const defaultSortType: "recent" | "brand" | "oldest" =
-    defaultSortParam === "brand" ? "brand" : defaultSortParam === "oldest" ? "oldest" : "recent"; // 기본값
 
   // 피드 즐겨찾기
   const [favorite, setFavorite] = useState<{ [feedId: number]: boolean }>({});
@@ -57,65 +55,35 @@ export default function FeedList() {
   const MAX_RETRY_ATTEMPTS = 3;
 
   // 정렬
-  const [sortType, setSortType] = useState<"recent" | "oldest" | "brand">(defaultSortType);
+  const [sortType, setSortType] = useState<"recent" | "oldest">("recent");
 
   // 무한스크롤
   const observerRef = useRef<HTMLDivElement>(null);
 
   // 리액트 쿼리 + 무한스크롤
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, refetch, isLoading, isError } = useInfiniteQuery<
-    Feed[] | BrandListResponse,
+    BrandListMoreResponse, // 각 페이지의 반환 타입
     Error,
-    InfiniteData<Feed[] | BrandListResponse>,
-    [string, string],
-    number
+    InfiniteData<BrandListMoreResponse>, // 전체 데이터 구조
+    [string, number, string], // queryKey 타입: ["brandFeed", brandId, sortType]
+    number // pageParam 타입
   >({
-    queryKey: ["feeds", sortType],
+    queryKey: ["brandFeed", brandId, sortType],
     queryFn: async ({ pageParam = 0 }) => {
-      if (sortType === "brand") {
-        const response = await getFeedsByBrand({ type: 2, page: pageParam, size: 2 });
-        // 더 이상 데이터가 없는지 확인
-        if (!response.brandList || response.brandList.length === 0) {
-          return { brandList: [] };
-        }
-        return response;
-      } else {
-        const typeValue = sortType === "recent" ? 0 : 1;
-        const response = await getFeeds({ type: typeValue, page: pageParam, size: 20 });
-        return response;
-      }
+      const typeValue = sortType === "recent" ? 0 : 1;
+      const response = await getFeedsByBrandId(brandId, {
+        type: typeValue,
+        page: pageParam,
+        size: 10,
+      });
+      return response;
     },
     getNextPageParam: (lastPage, allPages) => {
-      if (sortType === "brand") {
-        const currentPage = lastPage as BrandListResponse;
-
-        // 현재 페이지에 브랜드가 아예 없으면 종료
-        if (!currentPage.brandList || currentPage.brandList.length === 0) {
-          return undefined;
-        }
-
-        // 지금까지 받은 모든 브랜드 이름 목록
-        const allBrandNames = new Set(
-          allPages.flatMap((page) => (page as BrandListResponse).brandList).map((brand) => brand.brandName)
-        );
-
-        // 현재 페이지의 브랜드 이름 목록
-        const newBrandNames = new Set(currentPage.brandList.map((brand) => brand.brandName));
-
-        // 새로 받은 브랜드들이 모두 기존에 있던 브랜드라면 중복이므로 종료
-        const isAllDuplicate = Array.from(newBrandNames).every((name) => allBrandNames.has(name));
-
-        if (isAllDuplicate) return undefined;
-
-        // 다음 페이지 존재
-        return allPages.length;
-      } else {
-        const feedList = lastPage as Feed[];
-        if (!feedList || feedList.length < 20) {
-          return undefined;
-        }
-        return allPages.length;
+      const brandFeedList = lastPage.brandFeedList;
+      if (!brandFeedList || brandFeedList.length < 20) {
+        return undefined;
       }
+      return allPages.length;
     },
     initialPageParam: 0,
     refetchOnWindowFocus: false,
@@ -125,13 +93,11 @@ export default function FeedList() {
   // 무한스크롤 감시자
   useEffect(() => {
     if (!observerRef.current) return;
-
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
         fetchNextPage();
       }
     });
-
     observer.observe(observerRef.current);
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
@@ -146,35 +112,17 @@ export default function FeedList() {
       }));
 
       // React Query 캐시 업데이트
-      if (sortType === "brand") {
-        queryClient.setQueryData(["feeds", sortType], (oldData: any) => {
-          if (!oldData) return oldData;
 
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page: BrandListResponse) => ({
-              ...page,
-              brandList: page.brandList.map((brand) => ({
-                ...brand,
-                feeds: brand.feeds.map((feed) =>
-                  feed.feedId === feedId ? { ...feed, feedFavorite: isFavorite } : feed
-                ),
-              })),
-            })),
-          };
-        });
-      } else {
-        queryClient.setQueryData(["feeds", sortType], (oldData: any) => {
-          if (!oldData) return oldData;
+      queryClient.setQueryData(["feeds", sortType], (oldData: any) => {
+        if (!oldData) return oldData;
 
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page: Feed[]) =>
-              page.map((feed) => (feed.feedId === feedId ? { ...feed, feedFavorite: isFavorite } : feed))
-            ),
-          };
-        });
-      }
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page: Feed[]) =>
+            page.map((feed) => (feed.feedId === feedId ? { ...feed, feedFavorite: isFavorite } : feed))
+          ),
+        };
+      });
 
       // 즐겨찾기 앨범 캐시 무효화
       queryClient.invalidateQueries({
@@ -192,25 +140,12 @@ export default function FeedList() {
 
     const initialFavorite: { [feedId: number]: boolean } = {};
 
-    if (sortType === "brand") {
-      const brandData = data as InfiniteData<BrandListResponse>;
-
-      brandData.pages.forEach((page) => {
-        page.brandList.forEach((brand) => {
-          brand.feeds.forEach((feed: Feed) => {
-            initialFavorite[feed.feedId] = feed.feedFavorite;
-          });
-        });
+    data.pages.forEach((page) => {
+      if (!page.brandFeedList) return;
+      page.brandFeedList.forEach((feed) => {
+        initialFavorite[feed.feedId] = feed.feedFavorite;
       });
-    } else {
-      const feedData = data as InfiniteData<Feed[]>;
-
-      feedData.pages.forEach((page) => {
-        page.forEach((feed) => {
-          initialFavorite[feed.feedId] = feed.feedFavorite;
-        });
-      });
-    }
+    });
 
     setFavorite(initialFavorite);
   }, [data, sortType]);
@@ -270,7 +205,7 @@ export default function FeedList() {
   };
 
   // 정렬 변경 핸들러
-  const handleSortChange = (value: "recent" | "oldest" | "brand") => {
+  const handleSortChange = (value: "recent" | "oldest") => {
     setSortType(value);
     queryClient.removeQueries({ queryKey: ["feeds"] });
     refetch();
@@ -391,128 +326,116 @@ export default function FeedList() {
       </div>
     );
 
-  // ✅ 브랜드 전용 렌더링
-  if (sortType === "brand") {
-    const brandData = data as InfiniteData<BrandListResponse>;
-    const brandList = brandData?.pages.flatMap((page) => page.brandList) || [];
-
-    return (
-      <div className={styles.wrapper}>
-        <div className={styles.selectWrapper}>
-          <SortDropdown value={sortType} onChange={handleSortChange} options={feedSortOptions} />
-        </div>
-        <FeedBrandList brandList={brandList} />
-        <div ref={observerRef} style={{ height: 1 }} />
-        {isFetchingNextPage && <div className={styles.loadingMore}>브랜드 더 불러오는 중...</div>}
-        {!hasNextPage && brandList.length > 0 && <div className={styles.endMessage}>모든 브랜드를 불러왔습니다.</div>}
-      </div>
-    );
-  }
-
   // ✅ 날짜 정렬 렌더링
-  const feedData = data as InfiniteData<Feed[]>;
+  const allFeeds = data?.pages.flatMap((page) => page.brandFeedList) ?? [];
+  const brandName = data?.pages?.[0]?.brandName ?? "";
 
   return (
     <div className={styles.wrapper}>
+      <div className={styles.brandTitleRow}>
+        <Link href="/feed?sort=brand" className={styles.backButton}>
+          <Image src="/icons/icon-back.png" alt="뒤로가기" width={24} height={24} />
+        </Link>
+        <h1 className={styles.brandName}>{brandName}</h1>
+      </div>
+
       {/* 정렬 */}
       <div className={styles.selectWrapper}>
-        <SortDropdown value={sortType} onChange={handleSortChange} options={feedSortOptions} />
+        <SortDropdown value={sortType} onChange={handleSortChange} options={feedBrandSortOptions} />
       </div>
       <div className={styles["feed-grid-wrapper"]}>
         <div className={styles["feed-grid"]}>
-          {feedData?.pages.map((page) =>
-            page.map((feed: Feed) => {
-              return (
-                <div
-                  key={feed.feedId}
-                  className={styles["feed-item"]}
-                  onClick={() => handleFeedClick(feed.feedId)}
-                  onTouchStart={handlePressStart} // 모바일 longPress
-                  onTouchEnd={handlePressEnd} // 모바일 longPress
-                  onTouchCancel={handlePressEnd} // 모바일 longPress
-                  onMouseDown={handlePressStart} // 웹 longPress
-                  onMouseUp={handlePressEnd} // 웹 longPress
-                  onMouseLeave={handlePressEnd} // 웹 longPress
-                >
-                  {feed.feedThumbnailImgUrl ? (
-                    //eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      // src={"/dummy-feed-thumbnail.png"}
-                      src={feed.feedThumbnailImgUrl || "/pixx-logo-dummy.png"}
-                      alt={`Feed ${feed.feedId}`}
-                      // fill
-                      className={styles.feedImage}
-                      // priority={pageIndex === 0 && feedIndex < 6} // 처음 6개는 priority 사용할거면 위에서 pageIndex,feedIndex  넘겨받아야함
-                      onLoad={() => handleImageLoad(feed.feedId)}
-                      onError={() => handleImageError(feed.feedId)}
-                    />
-                  ) : (
-                    <div className={styles.imageError}>이미지 없음</div>
-                  )}
+          {allFeeds?.map((feed) => {
+            if (!feed) return null;
+            return (
+              <div
+                key={feed.feedId}
+                className={styles["feed-item"]}
+                onClick={() => handleFeedClick(feed.feedId)}
+                onTouchStart={handlePressStart} // 모바일 longPress
+                onTouchEnd={handlePressEnd} // 모바일 longPress
+                onTouchCancel={handlePressEnd} // 모바일 longPress
+                onMouseDown={handlePressStart} // 웹 longPress
+                onMouseUp={handlePressEnd} // 웹 longPress
+                onMouseLeave={handlePressEnd} // 웹 longPress
+              >
+                {feed.feedThumbnailImgUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={feed.feedThumbnailImgUrl || "/pixx-logo-dummy.png"}
+                    alt={`Feed ${feed.feedId}`}
+                    // fill
+                    className={styles.feedImage}
+                    // priority={pageIndex === 0 && feedIndex < 6} // 처음 6개는 priority 사용할거면 위에서 pageIndex,feedIndex  넘겨받아야함
+                    onLoad={() => handleImageLoad(feed.feedId)}
+                    onError={() => handleImageError(feed.feedId)}
+                  />
+                ) : (
+                  <div className={styles.imageError}>이미지 없음</div>
+                )}
 
-                  {/*  즐겨찾기 토글 버튼 */}
-                  <div
-                    className={styles.favoriteIcon}
-                    onClick={(e) => {
-                      e.stopPropagation(); // 상세 페이지 이동 방지
-                      toggleFavoriteMutation(feed.feedId);
-                    }}
-                  >
+                {/*  즐겨찾기 토글 버튼 */}
+                <div
+                  className={styles.favoriteIcon}
+                  onClick={(e) => {
+                    e.stopPropagation(); // 상세 페이지 이동 방지
+                    toggleFavoriteMutation(feed.feedId);
+                  }}
+                >
+                  <Image
+                    src={
+                      favorite[feed.feedId] ? "/icons/icon-star-fill-yellow.png" : "/icons/icon-star-empty-yellow.png"
+                    }
+                    alt="즐겨찾기"
+                    width={32}
+                    height={32}
+                  />
+                </div>
+                {/* 선택된 피드 약간 어둡게 처리 */}
+                {mode === "select" && selectedFeedIds.includes(feed.feedId) && (
+                  <div className={styles.selectedOverlay}></div>
+                )}
+
+                {/* 로딩 표시 */}
+                {!imageLoaded[feed.feedId] && !imageErrors[feed.feedId] && (
+                  <div className={styles.imageLoading}>로딩중...</div>
+                )}
+
+                {/* 에러 표시 및 재시도 버튼 */}
+                {imageErrors[feed.feedId] && (
+                  <div className={styles.imageError}>
+                    <p>이미지 로드 실패</p>
+                    <button className={styles.retryButton} onClick={(e) => handleRetryRequest(feed.feedId, e)}>
+                      다시 시도
+                    </button>
+                  </div>
+                )}
+
+                {/* 선택 모드일 때만 체크 아이콘 렌더링 */}
+                {mode === "select" && (
+                  <div className={styles.checkIcon}>
                     <Image
                       src={
-                        favorite[feed.feedId] ? "/icons/icon-star-fill-yellow.png" : "/icons/icon-star-empty-yellow.png"
+                        selectedFeedIds.includes(feed.feedId)
+                          ? "/icons/icon-checked-purple.png"
+                          : "/icons/icon-unchecked-purple.png"
                       }
-                      alt="즐겨찾기"
-                      width={32}
-                      height={32}
+                      alt="선택 여부"
+                      width={36}
+                      height={39}
                     />
                   </div>
-                  {/* 선택된 피드 약간 어둡게 처리 */}
-                  {mode === "select" && selectedFeedIds.includes(feed.feedId) && (
-                    <div className={styles.selectedOverlay}></div>
-                  )}
-
-                  {/* 로딩 표시 */}
-                  {!imageLoaded[feed.feedId] && !imageErrors[feed.feedId] && (
-                    <div className={styles.imageLoading}>로딩중...</div>
-                  )}
-
-                  {/* 에러 표시 및 재시도 버튼 */}
-                  {imageErrors[feed.feedId] && (
-                    <div className={styles.imageError}>
-                      <p>이미지 로드 실패</p>
-                      <button className={styles.retryButton} onClick={(e) => handleRetryRequest(feed.feedId, e)}>
-                        다시 시도
-                      </button>
-                    </div>
-                  )}
-
-                  {/* 선택 모드일 때만 체크 아이콘 렌더링 */}
-                  {mode === "select" && (
-                    <div className={styles.checkIcon}>
-                      <Image
-                        src={
-                          selectedFeedIds.includes(feed.feedId)
-                            ? "/icons/icon-checked-purple.png"
-                            : "/icons/icon-unchecked-purple.png"
-                        }
-                        alt="선택 여부"
-                        width={36}
-                        height={39}
-                      />
-                    </div>
-                  )}
-                </div>
-              );
-            })
-          )}
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* 감시용 div: 마지막에 스크롤 도달하면 다음 페이지 불러오기 */}
         <div ref={observerRef} style={{ height: "1px" }} />
 
         {/* 추가 로딩 중이면 표시 */}
-        {isFetchingNextPage && <div>추가 로딩 중...</div>}
+        {isFetchingNextPage && <div> 로딩 중...</div>}
       </div>
       {/* 플로팅 버튼 추가 */}
       <FloatingButton
