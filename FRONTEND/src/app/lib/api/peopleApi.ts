@@ -1,10 +1,12 @@
 // src/app/lib/api/peopleApi.ts
 
 import api from './axios';
-import type { 
-    FaceResponseType, 
-    FaceRequestType,
-    FaceDetailResponseType,} from '@/app/types/people';
+import type {
+  FaceResponseType,
+  FaceRequestType,
+  FaceDetailResponseType,
+  PatchResponseType,
+} from '@/app/types/people';
 
 export async function getFaces(params: FaceRequestType): Promise<FaceResponseType> {
   const { data } = await api.post('/api/v1/feed/face', params);
@@ -43,7 +45,7 @@ export async function patchFaceClusterName(
 export interface DeleteFaceClusterResponse {
   status: number;
   message: string;
-  data: any[]; 
+  data: any[];
 }
 export async function deleteFaceCluster(
   faceId: number
@@ -52,3 +54,19 @@ export async function deleteFaceCluster(
   return data;
 }
 
+export interface CommonResponse {
+  status: number;
+  message: string;
+  data: null;
+}
+
+// 배치 무효화용 PATCH
+export async function invalidateDetections(
+  detectionIds: number[]
+): Promise<CommonResponse> {
+  const { data } = await api.patch<CommonResponse>(
+    '/api/v1/detect/invalidate',
+   { detectionIds } 
+  );
+  return data;
+}

@@ -4,7 +4,7 @@
 
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
-import { getFaceFeeds } from '@/app/lib/api/peopleApi';
+import { getFaceFeeds, invalidateDetections } from '@/app/lib/api/peopleApi';
 import type { FaceFeedType } from '@/app/types/people';
 import PeopleFeedGrid from './PeopleFeedGrid';
 import PeopleHeader from './PeopleHeader';
@@ -79,13 +79,21 @@ export default function PeopleFeedList() {
       alert('잘못 분류된 사진을 선택해주세요.');
       return;
     }
+
+    // feedId → detectionIds 배열로 변환
+    const toInvalidate = selectedFeedIds.flatMap(feedId => {
+      const feed = allFeeds.find(f => f.feedId === feedId);
+      return feed?.detectionIds ?? [];
+    });
+
     try {
-      // TODO: 인물 분류 해제 API 연동
+      await invalidateDetections(toInvalidate);
       alert('선택한 사진이 이 인물에서 분류 해제되었습니다.');
       setMode('default');
       setSelectedFeedIds([]);
       refetch();
-    } catch {
+    } catch (e) {
+      console.error(e);
       alert('분류 해제 실패');
     }
   };
@@ -160,17 +168,17 @@ export default function PeopleFeedList() {
       </div>
 
 
-    {/* 선택 모드 바 */}
-    {mode === 'select' && (
-      <PeopleFeedSelectBar
-        onCancel={() => {
-          setMode('default');
-          setSelectedFeedIds([]);
-        }}
-        onUnclassify={handleUnclassify}
-        onDelete={handleDeletePhotos}
-      />
-    )}
+{/* 선택 모드 바 */}
+{mode === 'select' && (
+        <PeopleFeedSelectBar
+          onCancel={() => {
+            setMode('default');
+            setSelectedFeedIds([]);
+          }}
+         onUnclassify={handleUnclassify}
+          onDelete={handleDeletePhotos}
+        />
+      )}
 
       {/* 플로팅 버튼 */}
       <FloatingButton

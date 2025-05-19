@@ -23,6 +23,7 @@ export interface FaceFeedType {
   feedId: number;
   feedThumbnailImgUrl: string;
   feedFavorite: boolean;
+  detectionIds: number[];
 }
 
 export interface FaceDetailResponseType {
@@ -32,6 +33,22 @@ export interface FaceDetailResponseType {
     faceName: string;
     faceFeedList: FaceFeedType[];
   };
+}
+
+export interface FaceInvalidateRequest {
+  detectionIds: number[];
+}
+
+export interface FaceFeedType {
+  feedId: number;
+  feedThumbnailImgUrl: string;
+  feedFavorite: boolean;
+  detectionId: number;    // ← 반드시 추가
+}
+export interface PatchResponseType {
+  status: number;
+  message: string;
+  data: null;
 }
 
 export interface FeedThumbnailItemProps {
