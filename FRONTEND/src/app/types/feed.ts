@@ -7,6 +7,18 @@ export interface Feed {
   feedFavorite: boolean;
 }
 
+export type BrandListResponse = {
+  brandList: {
+    brandName: string;
+    feeds: Feed[];
+  }[];
+};
+
+export type BrandListMoreResponse = {
+  brandName: string;
+  brandFeedList: Feed[];
+};
+
 export interface FeedFile {
   imageId: number;
   imageUrl: string;

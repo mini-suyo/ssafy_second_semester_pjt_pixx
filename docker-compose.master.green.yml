@@ -33,10 +33,12 @@ services:
     restart: always
     environment:
       - SERVER_PORT=${SPRING_MASTER_GREEN_CONTAINER_PORT}
+      - LOG_FILENAME=master.log
     expose:
       - "${SPRING_MASTER_GREEN_CONTAINER_PORT}"
     volumes:
       - /home/ubuntu/aws:/app/aws
+      - /home/ubuntu/logs:/logs
 
 networks:
   default:

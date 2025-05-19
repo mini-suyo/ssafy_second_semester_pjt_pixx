@@ -48,4 +48,12 @@ public interface FeedRepository extends JpaRepository<Feed, Integer> {
             "brand"
     })
     Optional<Feed> findWithDetailsByFeedId(Integer feedId);
+
+    // face_feed 에서 뽑은 feedId들 + 로그인한 userId 로 페이징 조회
+    Page<Feed> findByFeedIdInAndUser_UserId(List<Integer> feedIds, Integer userId, Pageable pageable);
+    Page<Feed> findByUser_UserIdAndBrand_BrandId(
+            Integer userId,
+            Integer brandId,
+            Pageable pageable
+    );
 }

@@ -32,10 +32,12 @@ services:
     restart: always
     environment:
       - SERVER_PORT=${SPRING_DEV_CONTAINER_PORT}
+      - LOG_FILENAME=dev.log
     expose:
       - "${SPRING_DEV_CONTAINER_PORT}"
     volumes:
       - /home/ubuntu/aws:/app/aws
+      - /home/ubuntu/logs:/logs
     depends_on:
       mysql:
         condition: service_healthy   # 에러 방지를 위해 mysql healthcheck 통과 후 시작

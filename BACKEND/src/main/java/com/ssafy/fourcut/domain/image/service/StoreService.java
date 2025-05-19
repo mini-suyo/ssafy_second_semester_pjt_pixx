@@ -31,6 +31,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -85,7 +86,6 @@ public class StoreService {
     /*
      * 받은 URL을 크롤링하여 파일들을 다운로드하여 S3에 저장한다.
      */
-    @Transactional
     public void CrawlUploadAndSave(QRUploadRequestDto request) {
         try {
             Feed feed = feedRepository.findById(request.getFeedId())
@@ -95,7 +95,7 @@ public class StoreService {
             if (request.getPageUrl().contains("monomansion.net")) {
                 updateBrand(feed, 2, "모노맨션 크롤링");
                 crawlMonomansion(request);
-            } else if (request.getPageUrl().contains("haru7")) {
+            } else if (request.getPageUrl().contains("haru")) {
                 updateBrand(feed, 3, "하루필름 크롤링");
                 crawlharu(request);
             } else if (request.getPageUrl().contains("seobuk.kr")) {
@@ -105,6 +105,7 @@ public class StoreService {
                 updateBrand(feed, 5, "인생네컷 크롤링");
                 crawlLife4cut(request);
             } else {
+                feedRepository.deleteById(request.getFeedId());
                 throw new CustomException(400, "지원하지 않는 브랜드입니다.");
             }
         } catch (CustomException e) {
@@ -143,7 +144,10 @@ public class StoreService {
         for (Element link : links) {
             String href = link.absUrl("href");
             if (href.contains("base_api")) {
-                QRuploadAndSave(request.getUserId(), href, feed);
+                log.info("하루필름 URL::::" + href);
+                String cleanedUrl = href.replaceAll("limit=\\+?\\d+\\s*hours?", "limit=+24");
+                log.info("수정된 하루필름 URL::::" + cleanedUrl);
+                QRuploadAndSave(request.getUserId(), cleanedUrl, feed);
             }
         }
     }
@@ -153,8 +157,11 @@ public class StoreService {
         Feed feed = feedRepository.findById(request.getFeedId())
                 .orElseThrow(() -> new CustomException(404, "Feed를 찾을 수 없습니다."));
 
+        String redirectedUrl = resolveRedirectUrl(request.getPageUrl(), request.getFeedId());
+        log.info("리다이렉트 최종 URL: {}", redirectedUrl);
+
         // 1. uid 파라미터 추출
-        String uid = extractUidFromUrl(request.getFeedId(), request.getPageUrl());
+        String uid = extractUidFromUrl(request.getFeedId(), redirectedUrl);
         log.info("uid : " + uid);
 
         // 2. POST 요청 보내기
@@ -190,12 +197,17 @@ public class StoreService {
         Feed feed = feedRepository.findById(request.getFeedId())
                 .orElseThrow(() -> new CustomException(404, "Feed를 찾을 수 없습니다."));
 
+        // 리다이렉트 추적해서 최종 URL 얻기
+        String redirectedUrl = resolveRedirectUrl(request.getPageUrl(), request.getFeedId());
+        log.info("리다이렉트 최종 URL: {}", redirectedUrl);
+
         // 1. folderPath 파라미터 추출
-        String folderPath = extractQueryParam(request.getPageUrl(), "folderPath");  // "/QRimage/20250508/770/UUID"
+        String folderPath = extractQueryParam(redirectedUrl, "folderPath");  // "/QRimage/20250508/770/UUID"
 
         // 2. 경로에서 각 구성 요소 추출
         String[] parts = folderPath.split("/");
         if (parts.length < 5) {
+            feedRepository.deleteById(request.getFeedId());
             throw new CustomException(400, "folderPath 형식이 올바르지 않습니다.");
         }
 
@@ -220,6 +232,23 @@ public class StoreService {
         QRuploadAndSave(request.getUserId(), videoDownloadUrl, feed);
     }
 
+    private String resolveRedirectUrl(String originalUrl, int feedId) throws Exception {
+        HttpURLConnection conn = (HttpURLConnection) new URL(originalUrl).openConnection();
+        conn.setInstanceFollowRedirects(false); // 수동으로 리다이렉트 추적
+        conn.setRequestMethod("GET");
+        conn.connect();
+
+        int responseCode = conn.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP || responseCode == HttpURLConnection.HTTP_MOVED_PERM) {
+            String redirectUrl = conn.getHeaderField("Location");
+            return redirectUrl;
+        } else {
+            feedRepository.deleteById(feedId);
+            throw new CustomException(500, "리다이렉트 응답이 아닙니다. 응답코드: " + responseCode);
+        }
+    }
+
+
     private String extractUidFromUrl(int feedId, String url) {
         int idx = url.indexOf("u=");
         if (idx == -1) {
@@ -228,6 +257,37 @@ public class StoreService {
         }
         return url.substring(idx + 2);
     }
+
+    private String encodeUrlQueryValuesOnly(String url) {
+        try {
+            int idx = url.indexOf('?');
+            if (idx == -1) return url;
+
+            String base = url.substring(0, idx);
+            String query = url.substring(idx + 1);
+
+            StringBuilder sb = new StringBuilder(base).append("?");
+            String[] pairs = query.split("&");
+
+            for (int i = 0; i < pairs.length; i++) {
+                String[] keyValue = pairs[i].split("=", 2); // value에 '='가 있을 수 있으므로 limit 2
+                String key = keyValue[0];
+                String value = keyValue.length > 1
+                        ? URLEncoder.encode(keyValue[1], StandardCharsets.UTF_8)
+                        : "";
+
+                sb.append(key).append("=").append(value);
+                if (i < pairs.length - 1) sb.append("&");
+            }
+
+            return sb.toString();
+        } catch (Exception e) {
+            return url;
+        }
+    }
+
+
+
 
     /*
      * QR 관련 S3 및 DB 저장 메서드
@@ -238,6 +298,7 @@ public class StoreService {
             URL url = new URL(fileUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
 
             try (InputStream inputStream = connection.getInputStream()) {
 
@@ -249,6 +310,9 @@ public class StoreService {
                 if ("application/octet-stream".equals(contentType)) {
                     extension = getExtensionFromUrl(fileUrl);
                     contentType = detectContentTypeFromExtension(extension);
+                } else if (fileUrl.contains("haru") && fileUrl.contains(".jpg")) {
+                    extension = ".jpg";
+                    contentType = "image/jpeg";
                 } else {
                     extension = getExtensionByContentType(contentType);
                 }
@@ -270,6 +334,7 @@ public class StoreService {
                 );
             }
         } catch (Exception e) {
+            log.error("QRuploadAndSave 실패 - URL: {}", fileUrl, e);
             feedRepository.deleteById(feed.getFeedId());
             throw new CustomException(500, "파일 다운로드 및 S3 업로드 중 오류가 발생했습니다.");
         }
@@ -300,6 +365,11 @@ public class StoreService {
             else return ImageType.IMAGE;
         }
         if (contentType.startsWith("video/")) return ImageType.VIDEO;
+        if (contentType.equals("application/force-download") || contentType.equals("application/octet-stream")) {
+            // 확장자로 판단하는 fallback 로직
+            return ImageType.IMAGE; // 또는 getExtensionFromUrl(fileUrl) 결과로 판별해도 됨
+        }
+
         feedRepository.deleteById(feedId);
         throw new CustomException(500, "알 수 없는 파일 타입: " + contentType);
     }
