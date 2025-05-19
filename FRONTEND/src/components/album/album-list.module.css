@@ -1,10 +1,20 @@
 /* components/album/album-list.module.css */
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .albumListWrapper {
   display: flex;
   flex-direction: column;
   gap: 50px; /* 앨범끼리 간격 */
   margin: 60px 0px 150px 0px; /*상우하좌*/
+  animation: fadeIn 1.2s ease-in-out forwards;
 }
 
 .albumItem {
@@ -38,6 +48,8 @@
   height: 120px;
   object-fit: contain;
   flex-shrink: 0;
+  opacity: 0;
+  animation: fadeIn 1.2s ease-in-out forwards;
 }
 
 /* 반응형 추가 */

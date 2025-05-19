@@ -22,7 +22,7 @@ export default function AlbumFeedGrid({
 }: FeedThumbnailItemProps) {
   return (
     <div
-      className={styles.thumbnailWrapper}
+      className={`${styles.thumbnailWrapper} ${styles.slideUp}`}
       onClick={onClick}
       onMouseDown={onLongPressStart}
       onMouseUp={onLongPressEnd}
