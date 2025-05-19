@@ -22,7 +22,7 @@ export default function Page() {
       </button>
       <Image src={Logo} alt="PIXX Logo" className={styles.logo} />
       <KakaoLogin />
-      {showTutorial && <Tutorial onClose={() => setShowTutorial(false)} />}
+      {showTutorial && <Tutorial onClose={() => setShowTutorial(false)} type="welcome" />}
     </>
   );
 }
