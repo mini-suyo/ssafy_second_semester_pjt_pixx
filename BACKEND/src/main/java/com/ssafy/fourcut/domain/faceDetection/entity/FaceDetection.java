@@ -40,6 +40,6 @@ public class FaceDetection {
     @CurrentTimestamp
     private LocalDateTime detectedAt;
 
-    @Column(name = "is_valid", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private Boolean valid = true;   // 잘못된 검출 무시 처리
+    @Column(name = "is_valid", nullable = false, columnDefinition = "TINYINT(1) default 1")
+    private boolean valid = true;
 }
