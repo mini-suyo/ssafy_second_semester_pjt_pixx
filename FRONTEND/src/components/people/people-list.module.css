@@ -4,6 +4,8 @@
   gap: 2rem 2.5rem;
   padding: 1rem;
   margin-top: 2rem;
+  margin-bottom: 100px; /* 하단 여백 추가 */
+  padding-bottom: 100px; /* 네비게이션 바 공간 확보 */
   justify-content: center;
 }
 
