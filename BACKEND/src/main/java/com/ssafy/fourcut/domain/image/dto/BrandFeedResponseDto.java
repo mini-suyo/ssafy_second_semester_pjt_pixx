@@ -8,6 +8,6 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class BrandFeedResponseDto {
-    private String albumName;             // 브랜드명
-    private List<BrandFeedItemDto> albumFeedList;
+    private String brandName;             // 브랜드명
+    private List<BrandFeedItemDto> brandFeedList;
 }
