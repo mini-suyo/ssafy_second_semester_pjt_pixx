@@ -4,10 +4,10 @@
 
 import { InfiniteData, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { deleteFeed, getFeeds, getFeedsByBrandId } from "@/app/lib/api/feedApi";
+import { useRouter } from "next/navigation";
+import { deleteFeed, getFeedsByBrandId } from "@/app/lib/api/feedApi";
 import { addPhotosToAlbum, createAlbum } from "@/app/lib/api/albumApi";
-import { BrandListMoreResponse, BrandListResponse, FavoriteResponse, Feed } from "@/app/types/feed";
+import { BrandListMoreResponse, FavoriteResponse, Feed } from "@/app/types/feed";
 import { useMutation } from "@tanstack/react-query";
 import { toggleFavorite } from "@/app/lib/api/feedApi";
 
