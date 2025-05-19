@@ -221,4 +221,21 @@ public class FeedController {
                         .build()
         );
     }
+
+    @PostMapping("/brand/{brandId}")
+    public ResponseEntity<ApiResponse<BrandFeedResponseDto>> brandDetail(
+            @PathVariable Integer brandId,
+            @RequestBody BrandFeedRequestDto req,
+            Principal principal
+    ) {
+        Integer userId = Integer.parseInt(principal.getName());
+        BrandFeedResponseDto data = feedService.getBrandDetail(userId, brandId, req);
+        return ResponseEntity.ok(
+                ApiResponse.<BrandFeedResponseDto>builder()
+                        .status(200)
+                        .message("브랜드 디테일 보기 성공")
+                        .data(data)
+                        .build()
+        );
+    }
 }
