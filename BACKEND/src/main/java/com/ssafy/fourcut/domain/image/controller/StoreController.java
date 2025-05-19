@@ -37,7 +37,7 @@ public class StoreController {
      * QR 업로드
      */
     @PostMapping("/qr")
-    public ResponseEntity<ApiResponse<Void>> uploadQr(
+    public ResponseEntity<ApiResponse<Map<String, Integer>>> uploadQr(
             Principal principal,
             @RequestBody QRUploadRequestDto request) {
         log.info("/api/v1/photos/upload/qr");
@@ -66,11 +66,14 @@ public class StoreController {
                     faceDetectionService.processImageAsync(img.getImageId(), signedUrl);
                 });
 
+        Map<String, Integer> data = new HashMap<>();
+        data.put("feedId", feedId);
+
         return ResponseEntity.ok(
-                ApiResponse.<Void>builder()
+                ApiResponse.<Map<String, Integer>>builder()
                         .status(200)
                         .message("QR 업로드 성공")
-                        .data(null)
+                        .data(data)
                         .build()
         );
     }
@@ -79,7 +82,7 @@ public class StoreController {
      * 파일 업로드
      */
     @PostMapping("/file")
-    public ResponseEntity<ApiResponse<Void>> uploadFile(
+    public ResponseEntity<ApiResponse<Map<String, Integer>>> uploadFile(
             Principal principal,
             @RequestPart("files") List<MultipartFile> files) {
         log.info("/api/v1/photos/upload/file");
@@ -118,11 +121,14 @@ public class StoreController {
                     faceDetectionService.processImageAsync(img.getImageId(), signedUrl);
                 });
 
+        Map<String, Integer> data = new HashMap<>();
+        data.put("feedId", feedId);
+
         return ResponseEntity.ok(
-                ApiResponse.<Void>builder()
+                ApiResponse.<Map<String, Integer>>builder()
                         .status(200)
                         .message("파일 업로드 성공")
-                        .data(null)
+                        .data(data)
                         .build()
         );
     }
