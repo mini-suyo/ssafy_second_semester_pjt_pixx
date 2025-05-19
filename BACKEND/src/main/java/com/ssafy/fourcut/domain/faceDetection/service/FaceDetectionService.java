@@ -3,11 +3,8 @@ package com.ssafy.fourcut.domain.faceDetection.service;
 import com.ssafy.fourcut.domain.faceDetection.dto.FaceApiDtos;
 import com.ssafy.fourcut.domain.faceDetection.entity.FaceDetection;
 import com.ssafy.fourcut.domain.faceDetection.entity.FaceVector;
-
 import com.ssafy.fourcut.domain.faceDetection.repository.FaceDetectionRepository;
 import com.ssafy.fourcut.domain.faceDetection.repository.FaceVectorRepository;
-
-
 import com.ssafy.fourcut.domain.image.entity.Image;
 import com.ssafy.fourcut.domain.image.repository.ImageRepository;
 import com.ssafy.fourcut.global.exception.CustomException;
@@ -44,14 +41,9 @@ public class FaceDetectionService {
     @Value("${face-api.url}")
     private String faceApiUrl;
 
-    /**
-     * 1) FastAPI에 이미지 보내서 얼굴 검출 → face_detection 저장
-     * 2) 새로 저장된 face_detection 전부에 대해 유사도 검사 → face_vector 생성/갱신 + 썸네일
-     * 3) 검출 결과 DTO를 그대로 반환
-     */
     @Transactional
     public List<FaceApiDtos.FaceDetectDto> processImage(Integer imageId, String imgUrl) {
-        // --- 1) FastAPI 호출 & face_detection 저장 ---
+        // 1) FastAPI 호출 & face_detection 저장
         String url = faceApiUrl + "/api/v1/detect/" + imageId;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -93,19 +85,16 @@ public class FaceDetectionService {
             detectionRepo.save(det);
         }
 
-        // 3) 클러스터링 & 썸네일
+        // 3) 클러스터링 & 썸네일 생성
         List<FaceDetection> newDets =
                 detectionRepo.findByFaceVectorIsNullAndValidTrueAndImage_ImageId(imageId);
-
         for (FaceDetection det : newDets) {
             FaceVector best = findBestMatch(det);
             if (best != null) {
-                // ─ 기존 클러스터에 합치기 ─
                 det.setFaceVector(best);
                 updateCentroid(best, det);
                 vectorRepo.save(best);
             } else {
-                // 신규 클러스터 & 썸네일 생성
                 FaceVector fv = FaceVector.builder()
                         .user(det.getImage().getFeed().getUser())
                         .faceVectorData(det.getDetectionVectorData())
@@ -113,7 +102,6 @@ public class FaceDetectionService {
                         .repDetection(det)
                         .build();
 
-                // 바운딩 박스 기반 크롭 → 썸네일 S3 업로드
                 String userId = String.valueOf(det.getImage().getFeed().getUser().getUserId());
                 String s3Key = uploadThumbnailToS3(
                         imgUrl,
@@ -121,11 +109,8 @@ public class FaceDetectionService {
                         userId
                 );
 
-                // 썸네일 세팅 후에야 한 번만 save()
                 fv.updateFaceThumbnail(s3Key);
                 vectorRepo.save(fv);
-
-                // face_detection 에 연관짓고 저장
                 det.setFaceVector(fv);
             }
             detectionRepo.save(det);
@@ -134,6 +119,7 @@ public class FaceDetectionService {
         // 4) 결과 DTO 반환
         return body.getData();
     }
+
     @Async
     @Transactional
     public CompletableFuture<Void> processImageAsync(Integer imageId, String imgUrl) {
@@ -141,7 +127,6 @@ public class FaceDetectionService {
         return CompletableFuture.completedFuture(null);
     }
 
-    /** 클러스터 이름 변경 (face_cluster_name) */
     @Transactional
     public void updateClusterName(Integer faceId, String clusterName) {
         FaceVector fv = vectorRepo.findById(faceId)
@@ -150,7 +135,6 @@ public class FaceDetectionService {
         vectorRepo.save(fv);
     }
 
-    /** 잘못된 검출 무효화 */
     @Transactional
     public void invalidateDetection(Integer detectionId) {
         FaceDetection det = detectionRepo.findById(detectionId)
@@ -159,36 +143,50 @@ public class FaceDetectionService {
         detectionRepo.save(det);
     }
 
-    // ────────────────────────────────────────────────────────────────────────────────
-    // 헬퍼 메서드
-    // ────────────────────────────────────────────────────────────────────────────────
-
     /**
-     * 주어진 이미지 URL과 바운딩박스 JSON으로 얼굴 영역을 크롭해
-     * 150x150 썸네일로 만들고 S3에 업로드한 뒤 key를 반환.
+     * 주어진 이미지 URL과 바운딩박스(JSON)으로부터
+     * - 원본 bbox를 20% 확장한 정사각형 영역을 크롭하고
+     * - 1:1 비율(150×150) 썸네일로 리사이즈하여 S3에 업로드 후 key 반환
      */
     private String uploadThumbnailToS3(String imageUrl, String bboxJson, String userId) {
         try {
             BufferedImage original = ImageIO.read(new URL(imageUrl));
+
+            // 1) 원본 bbox 파싱
             int[] box = parseBbox(bboxJson);
-            BufferedImage faceCrop = original.getSubimage(
-                    box[0], box[1],
-                    box[2] - box[0], box[3] - box[1]
+            int x1 = box[0], y1 = box[1];
+            int x2 = box[2], y2 = box[3];
+
+            // 2) bbox 중심/크기 계산
+            int bw = x2 - x1;
+            int bh = y2 - y1;
+            int baseSize = Math.min(bw, bh);
+            double expandRatio = 1.3;  // 20% 확장
+            int expandedSize = (int)(baseSize * expandRatio);
+
+            int centerX = x1 + bw / 2;
+            int centerY = y1 + bh / 2;
+
+            // 3) 확장된 정사각형의 좌상단 좌표
+            int cropX = centerX - expandedSize / 2;
+            int cropY = centerY - expandedSize / 2;
+
+            // 4) 이미지 범위(clamp) 체크
+            cropX = Math.max(0, Math.min(cropX, original.getWidth() - expandedSize));
+            cropY = Math.max(0, Math.min(cropY, original.getHeight() - expandedSize));
+
+            // 5) 크롭 & 썸네일 생성
+            BufferedImage squareCrop = original.getSubimage(
+                    cropX, cropY,
+                    expandedSize, expandedSize
             );
-
-            // 2) 얼굴 영역에서 정사각형으로 센터 크롭
-            int w = faceCrop.getWidth();
-            int h = faceCrop.getHeight();
-            int size = Math.min(w, h);
-            int x = (w - size) / 2;
-            int y = (h - size) / 2;
-            BufferedImage squareCrop = faceCrop.getSubimage(x, y, size, size);
-
+            int thumbSize = 150;  // 최종 썸네일 사이즈 (px)
             BufferedImage thumb = Thumbnails.of(squareCrop)
-                    .size(150, 150)
+                    .size(thumbSize, thumbSize)
                     .outputQuality(0.8)
                     .asBufferedImage();
 
+            // 6) 바이트 변환 및 S3 업로드
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(thumb, "jpg", os);
             byte[] bytes = os.toByteArray();
@@ -208,6 +206,18 @@ public class FaceDetectionService {
         }
     }
 
+    // ─── 유틸 메서드들 ────────────────────────────────────────────────────────
+
+    private int[] parseBbox(String json) {
+        String body = json.replaceAll("[\\[\\]\\s]", "");
+        String[] parts = body.split(",");
+        return new int[]{
+                (int)Math.round(Double.parseDouble(parts[0])),
+                (int)Math.round(Double.parseDouble(parts[1])),
+                (int)Math.round(Double.parseDouble(parts[2])),
+                (int)Math.round(Double.parseDouble(parts[3]))
+        };
+    }
 
     private FaceVector findBestMatch(FaceDetection det) {
         List<FaceVector> vectors = vectorRepo.findByUser_UserId(det.getImage().getFeed().getUser().getUserId());
@@ -235,11 +245,7 @@ public class FaceDetectionService {
         fv.setFaceVectorData(vectorToJson(current));
     }
 
-
-    // ──── Vector/BBox 파싱 & 유틸 ────────────────────────────────────────────────
-
     private double[] parseVector(String json) {
-        // e.g. "[0.12, -0.34, …]" 형태 → double[]
         String body = json.replaceAll("[\\[\\]\\s]", "");
         String[] parts = body.split(",");
         double[] arr = new double[parts.length];
@@ -257,18 +263,6 @@ public class FaceDetectionService {
         }
         sb.append("]");
         return sb.toString();
-    }
-
-    private int[] parseBbox(String json) {
-        // e.g. "[x1,y1,x2,y2]"
-        String body = json.replaceAll("[\\[\\]\\s]", "");
-        String[] parts = body.split(",");
-        return new int[]{
-                (int)Math.round(Double.parseDouble(parts[0])),
-                (int)Math.round(Double.parseDouble(parts[1])),
-                (int)Math.round(Double.parseDouble(parts[2])),
-                (int)Math.round(Double.parseDouble(parts[3]))
-        };
     }
 
     private double cosineSimilarity(double[] v1, double[] v2) {
