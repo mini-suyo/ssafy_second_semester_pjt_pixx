@@ -1,0 +1,171 @@
+/* src/components/people/people-list.module.css */
+
+.peopleGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 140px);
+  gap: 2rem 2.5rem;
+  padding: 1rem;
+  margin-top: 2rem;
+  margin-bottom: 120px; /* 하단 여백 추가 */
+  padding-bottom: 100px; /* 네비게이션 바 공간 확보 */
+  justify-content: center;
+}
+
+.profileContainer {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 220px;
+}
+
+.profileWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  min-height: 200px;
+}
+
+.profileCircle {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: transparent;
+  position: relative;
+}
+
+.profileCircle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: linear-gradient(to bottom right, #621A8F, #FFFFFF) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+}
+
+.profileImage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  height: 90%;
+  object-fit: cover;
+  border-radius: 50%;
+  background-color: white;
+}
+
+.profileName {
+  font-size: 1.2rem;
+  color: #FFFFFF;
+  font-weight: 500;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+  width: 140px;
+  justify-content: center;
+}
+
+.profileName:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.editIcon {
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.profileName:hover .editIcon {
+  opacity: 1;
+}
+
+.editContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  width: 140px;
+}
+
+.profileInput {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  color: white;
+  font-size: 1.2rem;
+  width: 100%;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s;
+
+  font-family: inherit;
+}
+
+.profileInput:focus {
+  border-color: #621A8F;
+}
+
+.editButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.editButton {
+  padding: 0.3rem 0.8rem;
+  border-radius: 0.3rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
+}
+
+.editButton:hover {
+  opacity: 0.8;
+}
+
+.saveButton {
+  background-color: #621A8F;
+  color: white;
+}
+
+.cancelButton {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.selected {}
+
+/* 프로필 원(circle)만 어둡게 */
+.profileCircle.selected::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 5;
+}
+
+/* 선택된 원에만 체크 아이콘 */
+.checkIcon {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 24px;
+  height: 24px;
+  background-image: url('/icons/icon-checked-purple.png');
+  background-size: cover;
+  z-index: 10;
+}
