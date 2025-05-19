@@ -159,6 +159,17 @@ public class FaceDetectionService {
         detectionRepo.save(det);
     }
 
+    /**
+     * 지정된 faceId 의 FaceVector(클러스터) 와 연관된 FaceDetection 들을 모두 삭제
+     */
+    @Transactional
+    public void deleteFace(Integer faceId) {
+        FaceVector fv = vectorRepo.findById(faceId)
+                .orElseThrow(() -> new CustomException(400, "삭제할 얼굴을 찾을 수 없습니다: " + faceId));
+        // cascade 삭제가 걸려있다면 연관 FaceDetection 도 함께 삭제됩니다.
+        vectorRepo.delete(fv);
+    }
+
     // ────────────────────────────────────────────────────────────────────────────────
     // 헬퍼 메서드
     // ────────────────────────────────────────────────────────────────────────────────
@@ -176,16 +187,18 @@ public class FaceDetectionService {
                     box[2] - box[0], box[3] - box[1]
             );
 
-            // 2) 얼굴 영역에서 정사각형으로 센터 크롭
+            // 1) 얼굴 영역에서 원하는 크기로 정사각형 크롭
+            int targetCropSize = 200;            // 크롭할 가로/세로 길이 (px)
             int w = faceCrop.getWidth();
             int h = faceCrop.getHeight();
-            int size = Math.min(w, h);
-            int x = (w - size) / 2;
-            int y = (h - size) / 2;
-            BufferedImage squareCrop = faceCrop.getSubimage(x, y, size, size);
+            int x = (w - targetCropSize) / 2;    // 중앙 정렬
+            int y = (h - targetCropSize) / 2;    // 중앙 정렬
+            BufferedImage squareCrop = faceCrop.getSubimage(x, y, targetCropSize, targetCropSize);
 
+            // 2) 출력할 썸네일 크기 지정
+            int thumbSize = 100;                 // 최종 썸네일 가로/세로 길이 (px)
             BufferedImage thumb = Thumbnails.of(squareCrop)
-                    .size(150, 150)
+                    .size(thumbSize, thumbSize)  // 출력 크기 설정
                     .outputQuality(0.8)
                     .asBufferedImage();
 
