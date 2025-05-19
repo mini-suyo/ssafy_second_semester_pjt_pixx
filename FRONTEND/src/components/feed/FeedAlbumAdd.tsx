@@ -108,24 +108,32 @@ export default function FeedAlbumAdd({ isOpen, onClose, onSelect, onCreateNewAlb
           <Image src="/icons/icon-close.png" alt="닫기" width={28} height={28} />
         </button>
         <div className={styles.albumListWrapper}>
-          {albums.map((album, index) => (
-            <div key={album.albumId} className={styles.albumItem} onClick={() => onSelect(album.albumId)}>
-              <div className={`${styles.albumContent} ${index % 2 === 0 ? styles.leftImage : styles.rightImage}`}>
-                <Image
-                  src="/constellations/aries_1.png"
-                  alt="별자리"
-                  className={styles.constellationImage}
-                  width={100}
-                  height={100}
-                />
-                <div className={`${styles.albumInfo} ${index % 2 === 0 ? styles.alignLeft : styles.alignRight}`}>
-                  <div className={styles.albumName}>{album.albumName}</div>
-                  <div className={styles.separator} />
-                  <div className={styles.albumDate}>{formatDate(album.albumDate)}</div>
+          {albums.map((album, index) => {
+            // 총 12개 이미지 중 하나를 돌려쓰도록
+            const totalImages = 12;
+            const imageNumber = (album.albumId % totalImages) + 1;
+            const imagePath = `/constellations/${imageNumber}.png`;
+
+            return (
+              <div key={album.albumId} className={styles.albumItem} onClick={() => onSelect(album.albumId)}>
+                <div className={`${styles.albumContent} ${index % 2 === 0 ? styles.leftImage : styles.rightImage}`}>
+                  <Image
+                    src={imagePath}
+                    alt="별자리"
+                    className={styles.constellationImage}
+                    width={100}
+                    height={100}
+                    unoptimized
+                  />
+                  <div className={`${styles.albumInfo} ${index % 2 === 0 ? styles.alignLeft : styles.alignRight}`}>
+                    <div className={styles.albumName}>{album.albumName}</div>
+                    <div className={styles.separator} />
+                    <div className={styles.albumDate}>{formatDate(album.albumDate)}</div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         <div ref={loadMoreRef} className={styles.loadMoreTrigger}>
           {isFetchingNextPage && <p>앨범을 더 불러오는 중...</p>}
