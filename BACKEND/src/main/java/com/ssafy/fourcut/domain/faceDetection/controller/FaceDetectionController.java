@@ -1,6 +1,7 @@
 package com.ssafy.fourcut.domain.faceDetection.controller;
 
 import com.ssafy.fourcut.domain.faceDetection.dto.FaceApiDtos;
+import com.ssafy.fourcut.domain.faceDetection.dto.FaceInvalidRequestDto;
 import com.ssafy.fourcut.domain.faceDetection.service.FaceDetectionService;
 import com.ssafy.fourcut.global.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -43,18 +44,19 @@ public class FaceDetectionController {
         );
     }
 
-    @PatchMapping("/invalidate/{detectionId}")
-    public ResponseEntity<ApiResponse<Void>> invalidate(
-            @PathVariable Integer detectionId
+
+    @PatchMapping("/invalidate")
+    public ResponseEntity<ApiResponse<Void>> invalidateDetections(
+            @RequestBody FaceInvalidRequestDto req
     ) {
-        service.invalidateDetection(detectionId);
+        service.invalidateDetections(req.getDetectionIds());
         return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .status(200)
                 .message("무효화 처리 성공")
                 .data(null)
-                .build()
-        );
+                .build());
     }
+
 
     /**
      * 얼굴 삭제
