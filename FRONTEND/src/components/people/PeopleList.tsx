@@ -1,12 +1,10 @@
-//src/components/people/PeopleList.tsx
-
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getFaces } from '@/app/lib/api/peopleApi';
-import PeopleItem from './PeopleItem';
+import Image from 'next/image';
 import Link from 'next/link';
 import styles from './people.module.css';
+import { getFaces, patchFaceClusterName } from '@/app/lib/api/peopleApi';
 import type { FaceType } from '@/app/types/people';
 
 export default function PeopleList() {
@@ -14,14 +12,15 @@ export default function PeopleList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // 편집 상태
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingName, setEditingName] = useState<string>('');
 
   useEffect(() => {
     (async () => {
       try {
         const res = await getFaces({ type: 0, page: 0, size: 20 });
-        if (res.status !== 200) {
-            throw new Error(res.message);
-          }
+        if (res.status !== 200) throw new Error(res.message);
         setFaces(res.data.faceList);
       } catch (e: any) {
         setError(e.message);
@@ -31,19 +30,102 @@ export default function PeopleList() {
     })();
   }, []);
 
+  const startEdit = (face: FaceType) => {
+    setEditingId(face.faceId);
+    setEditingName(face.faceName);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditingName('');
+  };
+
+  const saveName = async (faceId: number) => {
+    if (!editingName.trim()) {
+      alert('이름을 입력해주세요');
+      return;
+    }
+    try {
+      const res = await patchFaceClusterName(faceId, editingName);
+      if (res.status !== 200) throw new Error(res.message);
+      setFaces(prev =>
+        prev.map(f =>
+          f.faceId === faceId ? { ...f, faceName: editingName } : f
+        )
+      );
+      cancelEdit();
+    } catch (e: any) {
+      alert('이름 변경 실패: ' + e.message);
+    }
+  };
+
   if (loading) return <div>로딩 중…</div>;
-  if (error)   return <div>에러: {error}</div>;
+  if (error) return <div>에러: {error}</div>;
 
   return (
     <div className={styles.peopleGrid}>
-      {faces.map(f => (
-        <Link
-          key={f.faceId}
-          href={`/people/${f.faceId}`}
-          className={styles.profileContainer}  // optional: 링크 전체 영역 클릭
-        >
-          <PeopleItem name={f.faceName} imageUrl={f.faceThumbnail} />
-        </Link>
+      {faces.map(face => (
+        <div key={face.faceId} className={styles.profileContainer}>
+          <div className={styles.profileWrapper}>
+            {/* 사진: 클릭 시 상세 페이지 이동 */}
+            <Link href={`/people/${face.faceId}`}>
+              <div className={styles.profileCircle}>
+                <Image
+                  src={face.faceThumbnail}
+                  alt={face.faceName}
+                  width={100}
+                  height={100}
+                  className={styles.profileImage}
+                />
+              </div>
+            </Link>
+
+            {editingId === face.faceId ? (
+              <div className={styles.editContainer}>
+                <input
+                  className={styles.profileInput}
+                  value={editingName}
+                  onChange={e => setEditingName(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') saveName(face.faceId);
+                    if (e.key === 'Escape') cancelEdit();
+                  }}
+                  placeholder="이름을 입력하세요"
+                  maxLength={20}
+                  autoFocus
+                />
+                <div className={styles.editButtons}>
+                  <button
+                    className={`${styles.editButton} ${styles.saveButton}`}
+                    onClick={() => saveName(face.faceId)}
+                  >
+                    save
+                  </button>
+                  <button
+                    className={`${styles.editButton} ${styles.cancelButton}`}
+                    onClick={cancelEdit}
+                  >
+                    cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div 
+                className={styles.profileName}
+                onClick={() => startEdit(face)}
+              >
+                <span>{face.faceName || 'Unknown'}</span>
+                <Image
+                  src="/icons/icon-pencil.png"
+                  alt="edit"
+                  width={16}
+                  height={16}
+                  className={styles.editIcon}
+                />
+              </div>
+            )}
+          </div>
+        </div>
       ))}
     </div>
   );
