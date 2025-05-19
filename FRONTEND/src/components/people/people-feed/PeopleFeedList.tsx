@@ -10,6 +10,7 @@ import PeopleFeedGrid from './PeopleFeedGrid';
 import PeopleHeader from './PeopleHeader';
 import PeopleFeedSelectBar from './PeopleFeedSelectBar';
 import FloatingButton from '@/components/common/FloatingButton';
+import ErrorModal from '@/components/ErrorModal';
 import { useState, useRef } from 'react';
 import styles from './people-feed-list.module.css';
 
@@ -25,6 +26,11 @@ export default function PeopleFeedList() {
   // 선택 모드 상태 관리
   const [mode, setMode] = useState<'default' | 'select'>('default');
   const [selectedFeedIds, setSelectedFeedIds] = useState<number[]>([]);
+
+  // 모달 상태
+  const [message, setMessage] = useState<string | null>(null);
+  const [confirmUnclassify, setConfirmUnclassify] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // long-press 용 타이머
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -62,6 +68,15 @@ export default function PeopleFeedList() {
     }
   };
 
+  // 로딩/에러 처리
+  if (isLoading) return <div>불러오는 중...</div>;
+  if (isError) return <div>에러가 발생했어요</div>;
+
+  // data 보장 이후
+  const firstPageData = data!.pages[0].data;
+  const faceName = firstPageData.faceName;  // 클러스터 이름
+  const allFeeds = data!.pages.flatMap(page => page.data.faceFeedList);
+
   // 썸네일 클릭
   const handleThumbnailClick = (feedId: number) => {
     if (mode === 'select') {
@@ -73,69 +88,57 @@ export default function PeopleFeedList() {
     }
   };
 
-  // 선택된 사진을 인물에서 제거
-  const handleUnclassify = async () => {
+  // "Not This Person" 버튼 → 무효화 확인 모달
+  const handleUnclassify = () => {
     if (selectedFeedIds.length === 0) {
-      alert('잘못 분류된 사진을 선택해주세요.');
+      setMessage('잘못 분류된 사진을 선택해주세요.');
       return;
     }
-
-    // feedId → detectionIds 배열로 변환
-    const toInvalidate = selectedFeedIds.flatMap(feedId => {
-      const feed = allFeeds.find(f => f.feedId === feedId);
-      return feed?.detectionIds ?? [];
-    });
-
+    setConfirmUnclassify(true);
+  };
+  const executeUnclassify = async () => {
     try {
-      await invalidateDetections(toInvalidate);
-      alert('선택한 사진이 이 인물에서 분류 해제되었습니다.');
+      await invalidateDetections(selectedFeedIds);
+      setMessage(`선택한 사진이 '${faceName}'에서 제거되었습니다.`);
       setMode('default');
       setSelectedFeedIds([]);
       refetch();
     } catch (e) {
       console.error(e);
-      alert('분류 해제 실패');
+      setMessage('분류 해제 실패');
     }
+    setConfirmUnclassify(false);
   };
 
-  // 선택된 사진 삭제
-  const handleDeletePhotos = async () => {
+  // "Delete" 버튼 → 삭제 확인 모달
+  const handleDeletePhotos = () => {
     if (selectedFeedIds.length === 0) {
-      alert('삭제할 사진을 선택해주세요.');
+      setMessage('삭제할 사진을 선택해주세요.');
       return;
     }
-    if (!confirm('선택한 피드를 완전히 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) {
-      return;
-    }
+    setConfirmDelete(true);
+  };
+  const executeDeletePhotos = async () => {
     try {
-      // TODO: 피드 삭제 API 연동
-      alert('삭제가 완료되었습니다.');
+      // TODO: 실제 삭제 API 호출
+      setMessage('선택한 사진이 삭제되었습니다.');
       setMode('default');
       setSelectedFeedIds([]);
       refetch();
     } catch {
-      alert('삭제 실패');
+      setMessage('삭제 실패');
     }
+    setConfirmDelete(false);
   };
 
-  // 로딩/에러 처리
-  if (isLoading) return <div>불러오는 중...</div>;
-  if (isError) return <div>에러가 발생했어요</div>;
-
-  // data 보장 이후
-  const firstPageData = data!.pages[0].data;
-  const allFeeds = data!.pages.flatMap(page => page.data.faceFeedList);
-
   return (
-    <div>
-      {/* 헤더 */}
+    <>
       <PeopleHeader
-        faceName={firstPageData.faceName}
+        faceName={faceName}
         sortType={sortType}
         onSortChange={setSortType}
       />
 
-      {/* 그리드 */}
       <div className={styles.gridWrapper}>
         {allFeeds.map((feed: FaceFeedType) => (
           <PeopleFeedGrid
@@ -154,8 +157,6 @@ export default function PeopleFeedList() {
             onLongPressEnd={handlePressEnd}
           />
         ))}
-
-        {/* 무한 스크롤 트리거 */}
         <div
           ref={el => {
             if (!el || !hasNextPage || isFetchingNextPage) return;
@@ -167,20 +168,17 @@ export default function PeopleFeedList() {
         />
       </div>
 
-
-{/* 선택 모드 바 */}
-{mode === 'select' && (
+      {mode === 'select' && (
         <PeopleFeedSelectBar
           onCancel={() => {
             setMode('default');
             setSelectedFeedIds([]);
           }}
-         onUnclassify={handleUnclassify}
+          onUnclassify={handleUnclassify}
           onDelete={handleDeletePhotos}
         />
       )}
 
-      {/* 플로팅 버튼 */}
       <FloatingButton
         mode={mode}
         onClick={() => {
@@ -194,6 +192,32 @@ export default function PeopleFeedList() {
       />
 
       {isFetchingNextPage && <p className="text-center mt-4">더 불러오는 중...</p>}
-    </div>
+
+      {/* 무효화 확인 모달 */}
+      {confirmUnclassify && (
+        <ErrorModal
+          message={`이 사진을 '${faceName}'에서 제거하시겠습니까?`}
+          onClose={() => setConfirmUnclassify(false)}
+          onConfirm={executeUnclassify}
+        />
+      )}
+
+      {/* 삭제 확인 모달 */}
+      {confirmDelete && (
+        <ErrorModal
+          message="선택한 피드를 완전히 삭제하시겠습니까?"
+          onClose={() => setConfirmDelete(false)}
+          onConfirm={executeDeletePhotos}
+        />
+      )}
+
+      {/* 처리 결과 메시지 모달 */}
+      {message && (
+        <ErrorModal
+          message={message}
+          onClose={() => setMessage(null)}
+        />
+      )}
+    </>
   );
 }

@@ -105,7 +105,7 @@
   border-radius: 0.5rem;
   padding: 0.5rem;
   color: white;
-  font-size: 1.2rem;
+  font-size: 1rem;
   width: 100%;
   text-align: center;
   outline: none;
@@ -144,7 +144,6 @@
   color: white;
 }
 
-/* dummy export so CSS module recognizes .selected */
 .selected {}
 
 /* 프로필 원(circle)만 어둡게 */

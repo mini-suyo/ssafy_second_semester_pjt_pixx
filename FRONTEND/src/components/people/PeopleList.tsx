@@ -14,6 +14,7 @@ import {
 import type { FaceType } from '@/app/types/people';
 import FloatingButton from '../common/FloatingButton';
 import PeopleSelectBar from './PeopleSelectBar';
+import ErrorModal from '../ErrorModal';
 
 export default function PeopleList() {
   const [faces, setFaces] = useState<FaceType[]>([]);
@@ -25,6 +26,10 @@ export default function PeopleList() {
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingName, setEditingName] = useState<string>('');
+
+  // Alert/Confirm 대체용
+  const [message, setMessage] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -46,18 +51,17 @@ export default function PeopleList() {
     setSelectedFaceIds([]);
   };
 
-  const handleDeleteFaces = async () => {
+  // 인물 삭제 버튼 누를 때: 선택 여부 체크 후 모달 띄우기
+  const handleDeleteFaces = () => {
     if (!selectedFaceIds.length) {
-      alert('삭제할 인물을 선택해주세요.');
+      setMessage('삭제할 대상을 선택해주세요.');
       return;
     }
-    if (
-      !confirm(
-        '선택한 인물을 삭제하시겠습니까?\n(피드 자체는 삭제되지 않습니다.)'
-      )
-    ) {
-      return;
-    }
+    setConfirmDelete(true);
+  };
+
+  // 모달에서 “확인” 누르면 실제 삭제 실행
+  const executeDelete = async () => {
     try {
       for (const faceId of selectedFaceIds) {
         const res = await deleteFaceCluster(faceId);
@@ -68,9 +72,32 @@ export default function PeopleList() {
       );
       setSelectedFaceIds([]);
       setMode('default');
-      alert('선택한 인물이 삭제되었습니다.');
+      setMessage('선택한 대상이 삭제되었습니다.');
     } catch (e: any) {
-      alert('인물 삭제에 실패했습니다: ' + e.message);
+      setMessage('인물 삭제에 실패했습니다: ' + e.message);
+    }
+    setConfirmDelete(false);
+  };
+
+  // 이름 저장
+  const saveName = async (faceId: number) => {
+    if (!editingName.trim()) {
+      setMessage('이름을 입력해주세요.');
+      return;
+    }
+    try {
+      const res = await patchFaceClusterName(faceId, editingName);
+      if (res.status !== 200) throw new Error(res.message);
+      setFaces(prev =>
+        prev.map(f =>
+          f.faceId === faceId ? { ...f, faceName: editingName } : f
+        )
+      );
+      cancelEdit();
+      setMode('default');
+      setSelectedFaceIds([]);
+    } catch (e: any) {
+      setMessage('이름 변경 실패: ' + e.message);
     }
   };
 
@@ -83,31 +110,6 @@ export default function PeopleList() {
   const cancelEdit = () => {
     setEditingId(null);
     setEditingName('');
-  };
-
-  const saveName = async (faceId: number) => {
-    if (!editingName.trim()) {
-      alert('이름을 입력해주세요.');
-      return;
-    }
-    try {
-      const res = await patchFaceClusterName(faceId, editingName);
-      if (res.status !== 200) throw new Error(res.message);
-
-      // 이름 바뀐 데이터로 갱신
-      setFaces(prev =>
-        prev.map(f =>
-          f.faceId === faceId ? { ...f, faceName: editingName } : f
-        )
-      );
-
-      // 편집창 닫고, 선택 모드도 종료
-      cancelEdit();
-      setMode('default');
-      setSelectedFaceIds([]);
-    } catch (e: any) {
-      alert('이름 변경 실패: ' + e.message);
-    }
   };
 
   if (loading) return <div>로딩 중…</div>;
@@ -220,6 +222,23 @@ export default function PeopleList() {
         <PeopleSelectBar
           onCancel={handleModeChange}
           onDelete={handleDeleteFaces}
+        />
+      )}
+
+      {/* 일반 메시지 모달 */}
+      {message && (
+        <ErrorModal
+          message={message}
+          onClose={() => setMessage(null)}
+        />
+      )}
+
+      {/* 삭제 확인 모달 */}
+      {confirmDelete && (
+        <ErrorModal
+          message={'선택한 대상을 삭제하시겠습니까?\n(분류만 제거되며, 피드는 삭제되지 않습니다.)'}
+          onClose={() => setConfirmDelete(false)}
+          onConfirm={executeDelete}
         />
       )}
 
