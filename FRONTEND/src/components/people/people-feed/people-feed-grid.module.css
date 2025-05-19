@@ -1,0 +1,55 @@
+/* src/components/people/people-feed/people-feed-grid.module.css */
+
+.thumbnailWrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border: #fffaf8 solid 5px;
+    box-sizing: border-box;
+  }
+  
+  .thumbnailImage {
+    object-fit: cover;
+  }
+  
+  .loading {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 0.875rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .error {
+    position: absolute;
+    inset: 0;
+    color: white;
+    font-size: 0.875rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .retryButton {
+    background-color: white;
+    color: black;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .checkIcon {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    z-index: 10;
+  }
+  
