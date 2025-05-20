@@ -2,6 +2,9 @@ package com.ssafy.fourcut.domain.faceDetection.repository;
 
 import com.ssafy.fourcut.domain.faceDetection.entity.FaceDetection;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,4 +21,8 @@ public interface FaceDetectionRepository extends JpaRepository<FaceDetection, In
 
     // face_id 에 매핑된 유효한 검출만 꺼내오기
     List<FaceDetection> findByFaceVector_FaceIdAndValidTrue(Integer faceId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM FaceDetection fd WHERE fd.image.feed.feedId IN :feedIds")
+    int deleteByFeedIds(@Param("feedIds") List<Integer> feedIds);
 }
