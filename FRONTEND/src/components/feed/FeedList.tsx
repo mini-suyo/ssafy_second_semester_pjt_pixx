@@ -19,6 +19,7 @@ import SortDropdown, { OptionType } from "../common/SortDropdown";
 import Image from "next/image";
 import styles from "./feed-list.module.css";
 import FeedBrandList from "./FeedBrandList";
+import AlertModal from "../common/AlertModal";
 
 const feedSortOptions: OptionType<"recent" | "oldest" | "brand">[] = [
   { value: "recent", label: "최신순" },
@@ -50,6 +51,12 @@ export default function FeedList() {
   const [isAlbumAddOpen, setIsAlbumAddOpen] = useState(false);
   const [isAlbumCreateOpen, setIsAlbumCreateOpen] = useState(false);
 
+  // 알람 모달
+  const [alertModal, setAlertModal] = useState<{ isOpen: boolean; message: string }>({
+    isOpen: false,
+    message: "",
+  });
+
   // 피드 썸네일 로딩 및 에러 상태 관리
   const [imageLoaded, setImageLoaded] = useState<{ [key: number]: boolean }>({});
   const [imageErrors, setImageErrors] = useState<{ [key: number]: boolean }>({});
@@ -61,6 +68,16 @@ export default function FeedList() {
 
   // 무한스크롤
   const observerRef = useRef<HTMLDivElement>(null);
+
+  // 알람 모달 열기
+  const openAlert = (message: string) => {
+    setAlertModal({ isOpen: true, message });
+  };
+
+  // 알람 모달 닫기
+  const closeAlert = () => {
+    setAlertModal({ isOpen: false, message: "" });
+  };
 
   // 리액트 쿼리 + 무한스크롤
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, refetch, isLoading, isError } = useInfiniteQuery<
@@ -111,7 +128,7 @@ export default function FeedList() {
         return allPages.length;
       } else {
         const feedList = lastPage as Feed[];
-        if (!feedList || feedList.length < 20) {
+        if (!feedList || feedList.length < 8) {
           return undefined;
         }
         return allPages.length;
@@ -182,7 +199,7 @@ export default function FeedList() {
       });
     },
     onError: () => {
-      alert("즐겨찾기 변경에 실패했습니다.");
+      openAlert("즐겨찾기 추가에 실패했습니다.");
     },
   });
 
@@ -294,7 +311,7 @@ export default function FeedList() {
   // 앨범 생성
   const handleCreateAlbum = async () => {
     if (albumTitle.trim() === "" || selectedFeedIds.length === 0) {
-      alert("앨범 이름을 입력해주세요.");
+      openAlert("앨범 이름을 입력해주세요.");
       return;
     }
     try {
@@ -302,14 +319,14 @@ export default function FeedList() {
         albumTitle: albumTitle.trim(),
         imageList: selectedFeedIds,
       });
-      alert("앨범 생성되었습니다");
+      openAlert("앨범 생성되었습니다");
       await queryClient.invalidateQueries({
         predicate: (query) => query.queryKey[0] === "albums",
       });
 
       router.push(`/album/${res.data.data.albumId}`);
     } catch (error) {
-      alert("오류가 발생하여 앨범 생성에 실패했습니다");
+      openAlert("오류가 발생하여 앨범 생성에 실패했습니다");
       console.log(error);
     } finally {
       setIsAlbumCreateOpen(false);
@@ -322,7 +339,7 @@ export default function FeedList() {
   // 앨범에 피드 추가
   const handleAddToAlbum = () => {
     if (selectedFeedIds.length === 0) {
-      alert("추가할 사진을 먼저 선택해주세요.");
+      openAlert("추가할 사진을 먼저 선택해주세요.");
       return;
     }
     setIsAlbumAddOpen(true);
@@ -331,11 +348,11 @@ export default function FeedList() {
   const handleAlbumSelect = async (albumId: number) => {
     try {
       await addPhotosToAlbum({ albumId, imageList: selectedFeedIds });
-      alert("앨범에 사진이 추가되었습니다.");
+      openAlert("앨범에 사진이 추가되었습니다.");
       await queryClient.invalidateQueries({ queryKey: ["albums"] }); // 앨범 목록 무효화
       router.push(`/album/${albumId}`); //  앨범 상세 페이지로 이동
     } catch (error) {
-      alert("사진 추가에 실패했습니다.");
+      openAlert("사진 추가에 실패했습니다.");
       console.error(error);
     } finally {
       setIsAlbumAddOpen(false);
@@ -353,7 +370,7 @@ export default function FeedList() {
   // 이미지 삭제
   const handleDeletePhotos = async () => {
     if (selectedFeedIds.length === 0) {
-      alert("삭제할 사진을 선택해주세요.");
+      openAlert("삭제할 사진을 선택해주세요.");
       return;
     }
 
@@ -362,11 +379,11 @@ export default function FeedList() {
         imageList: selectedFeedIds,
       });
 
-      alert("피드 사진 삭제 완료");
+      openAlert("피드 사진 삭제 완료");
 
       refetch(); // 새로운 데이터 불러와서 UI 갱신
     } catch (error) {
-      alert("삭제 실패");
+      openAlert("삭제 실패");
       console.error(error);
     } finally {
       setMode("default");
@@ -403,8 +420,8 @@ export default function FeedList() {
         </div>
         <FeedBrandList brandList={brandList} />
         <div ref={observerRef} style={{ height: 1 }} />
-        {isFetchingNextPage && <div className={styles.loadingMore}>브랜드 더 불러오는 중...</div>}
-        {!hasNextPage && brandList.length > 0 && <div className={styles.endMessage}>모든 브랜드를 불러왔습니다.</div>}
+        {isFetchingNextPage && <div className={styles["loading-message"]}>...</div>}
+        {/* {!hasNextPage && brandList.length > 0 && <div className={styles.endMessage}></div>} */}
       </div>
     );
   }
@@ -444,11 +461,11 @@ export default function FeedList() {
                 >
                   {feed.feedThumbnailImgUrl ? (
                     //eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       // src={"/dummy-feed-thumbnail.png"}
                       src={feed.feedThumbnailImgUrl || "/pixx-logo-dummy.png"}
                       alt={`Feed ${feed.feedId}`}
-                      // fill
+                      fill
                       className={styles.feedImage}
                       // priority={pageIndex === 0 && feedIndex < 6} // 처음 6개는 priority 사용할거면 위에서 pageIndex,feedIndex  넘겨받아야함
                       onLoad={() => handleImageLoad(feed.feedId)}
@@ -563,6 +580,8 @@ export default function FeedList() {
           onDelete={handleDeletePhotos}
         />
       )}
+      {/* 알람 모달 */}
+      <AlertModal isOpen={alertModal.isOpen} message={alertModal.message} onClose={closeAlert} />
     </div>
   );
 }

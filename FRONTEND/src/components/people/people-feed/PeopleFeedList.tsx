@@ -33,8 +33,8 @@ export default function PeopleFeedList() {
 
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
     queryKey: ["faceFeeds", faceId, apiType] as const,
-    queryFn: ({ pageParam = 0 }) => getFaceFeeds(faceId, { type: apiType, page: pageParam, size: 10 }),
-    getNextPageParam: (lastPage, pages) => (lastPage.data.faceFeedList.length < 10 ? undefined : pages.length),
+    queryFn: ({ pageParam = 0 }) => getFaceFeeds(faceId, { type: apiType, page: pageParam, size: 8 }),
+    getNextPageParam: (lastPage, pages) => (lastPage.data.faceFeedList.length < 8 ? undefined : pages.length),
     initialPageParam: 0,
     staleTime: 1000 * 60 * 5,
   });
