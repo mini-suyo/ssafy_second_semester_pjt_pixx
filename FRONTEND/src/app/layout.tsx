@@ -1,6 +1,7 @@
 // app/layout.tsx
 
 import "./globals.css";
+import LayoutClient from "./LayoutClient";
 import Providers from "./providers";
 // import type { Metadata } from "next";
 import { GoogleTagManager } from "@next/third-parties/google";
@@ -17,7 +18,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID!} />
       )}
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <LayoutClient>{children}</LayoutClient>
+        </Providers>
       </body>
     </html>
   );
