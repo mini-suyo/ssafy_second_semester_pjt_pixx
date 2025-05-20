@@ -16,6 +16,7 @@ import FloatingButton from "@/components/common/FloatingButton";
 import FeedAlbumAdd from "@/components/feed/FeedAlbumAdd";
 import FeedAlbumCreateModal from "@/components/feed/FeedAlbumCreateModal";
 import AlbumFeedSelectModal from "./AlbumFeedSelectModal";
+import AlertModal from "@/components/common/AlertModal";
 
 export default function AlbumFeedList() {
   const params = useParams();
@@ -52,12 +53,17 @@ export default function AlbumFeedList() {
   // long-press 감지
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // 알람 모달
+  const [alertModal, setAlertModal] = useState({ isOpen: false, message: "" });
+
+  const openAlert = (msg: string) => setAlertModal({ isOpen: true, message: msg });
+  const closeAlert = () => setAlertModal({ isOpen: false, message: "" });
+
   // API 호출
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status, refetch } = useInfiniteQuery({
     queryKey: ["albumFeeds", albumId, sortType],
-    queryFn: async ({ pageParam = 0 }) => await getAlbumDetail(albumId, { type: apiType, page: pageParam, size: 10 }),
-    getNextPageParam: (lastPage, allPages) =>
-      lastPage?.data?.albumFeedList?.length < 10 ? undefined : allPages.length,
+    queryFn: async ({ pageParam = 0 }) => await getAlbumDetail(albumId, { type: apiType, page: pageParam, size: 8 }),
+    getNextPageParam: (lastPage, allPages) => (lastPage?.data?.albumFeedList?.length < 8 ? undefined : allPages.length),
     initialPageParam: 0,
     staleTime: 1000 * 60 * 5,
   });
@@ -67,10 +73,10 @@ export default function AlbumFeedList() {
     try {
       await addPhotosToAlbum({ albumId, imageList: ids }); // 서버에 선택된 ID 전송
       queryClient.invalidateQueries({ queryKey: ["albumFeeds", albumId] }); // 피드 목록 캐시 무효화 → 자동 리페치
-      alert("앨범에 사진이 추가되었습니다."); // 사용자 알림
+      openAlert("앨범에 사진이 추가되었습니다."); // 사용자 알림
     } catch (error) {
       console.error(error);
-      alert("사진 추가에 실패했습니다."); // 오류 알림
+      openAlert("사진 추가에 실패했습니다."); // 오류 알림
     } finally {
       setSelectedFeedIds([]); // 선택 초기화
       setIsSelectModalOpen(false); // 모달 닫기
@@ -102,7 +108,7 @@ export default function AlbumFeedList() {
   // 앨범 생성
   const handleCreateAlbum = async () => {
     if (albumTitle.trim() === "" || selectedFeedIds.length === 0) {
-      alert("앨범 이름을 입력해주세요.");
+      openAlert("앨범 이름을 입력해주세요.");
       return;
     }
     try {
@@ -110,14 +116,14 @@ export default function AlbumFeedList() {
         albumTitle: albumTitle.trim(),
         imageList: selectedFeedIds,
       });
-      alert("앨범 생성되었습니다");
+      openAlert("앨범 생성되었습니다");
       await queryClient.invalidateQueries({
         predicate: (query) => query.queryKey[0] === "albums",
       });
 
       router.push(`/album/${res.data.data.albumId}`);
     } catch (error) {
-      alert("오류가 발생하여 앨범 생성에 실패했습니다");
+      openAlert("오류가 발생하여 앨범 생성에 실패했습니다");
       console.log(error);
     } finally {
       setIsAlbumCreateOpen(false);
@@ -193,7 +199,7 @@ export default function AlbumFeedList() {
   // 이미지 삭제
   const handleDeletePhotos = async () => {
     if (selectedFeedIds.length === 0) {
-      alert("삭제할 사진을 선택해주세요.");
+      openAlert("삭제할 사진을 선택해주세요.");
       return;
     }
 
@@ -203,13 +209,13 @@ export default function AlbumFeedList() {
         imageList: selectedFeedIds,
       });
 
-      alert("앨범 사진 삭제 완료");
+      openAlert("앨범 사진 삭제 완료");
       setMode("default");
       setSelectedFeedIds([]);
       refetch(); // 새로운 데이터 불러와서 UI 갱신(캐시 데이터 새로 불러옴)
       // router.refresh(); // 새로고침 효과
     } catch (error) {
-      alert("삭제 실패");
+      openAlert("삭제 실패");
       console.error(error);
     }
   };
@@ -217,7 +223,7 @@ export default function AlbumFeedList() {
   // 앨범에 피드 추가
   const handleAlbumFeedMove = () => {
     if (selectedFeedIds.length === 0) {
-      alert("추가할 사진을 먼저 선택해주세요.");
+      openAlert("추가할 사진을 먼저 선택해주세요.");
       return;
     }
     setIsAlbumAddOpen(true);
@@ -232,10 +238,10 @@ export default function AlbumFeedList() {
         queryClient.invalidateQueries({ queryKey: ["albumFeeds", parseInt(params.id as string)] }), // 피드 삭제된 album refetch
       ]);
 
-      alert("앨범에 사진이 추가되었습니다.");
+      openAlert("앨범에 사진이 추가되었습니다.");
       router.push(`/album/${albumId}`);
     } catch (error) {
-      alert("사진 추가에 실패했습니다.");
+      openAlert("사진 추가에 실패했습니다.");
       console.error(error);
     } finally {
       setIsAlbumAddOpen(false);
@@ -339,6 +345,9 @@ export default function AlbumFeedList() {
       {/* 선택 사항 렌더링 */}
       <div ref={observerRef} style={{ height: 1 }} />
       {isFetchingNextPage && <p className="text-center mt-4">로딩 중...</p>}
+
+      {/* 알람 모달 */}
+      <AlertModal isOpen={alertModal.isOpen} message={alertModal.message} onClose={closeAlert} />
     </div>
   );
 }
