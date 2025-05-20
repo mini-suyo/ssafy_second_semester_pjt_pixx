@@ -32,16 +32,19 @@ public class FaceVectorService {
     private final ImageRepository imageRepo;
     private final CloudFrontService cloudFrontService;
 
+    // 2) Service 코드 수정
     public FaceListResponseDto getFaceList(Integer userId, FaceListRequestDto req) {
         Sort sort = (req.getType() == 0)
                 ? Sort.by("createdAt").descending()
                 : Sort.by("createdAt").ascending();
 
         Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
-        Page<FaceVector> page = vectorRepo.findByUser_UserId(userId, pageable);
+
+        // 변경된 부분: 페이징 전에 DB 레벨에서 detectionCount>=2 필터링
+        Page<FaceVector> page = vectorRepo
+                .findByUser_UserIdAndDetectionCountGreaterThanEqual(userId, 2, pageable);
 
         List<FaceListItemDto> list = page.stream()
-                .filter(fv -> fv.getDetectionCount() >= 2)
                 .map(fv -> new FaceListItemDto(
                         fv.getFaceId(),
                         fv.getFaceClusterName() != null ? fv.getFaceClusterName() : "Unknown",
