@@ -1,11 +1,23 @@
 /* globals.css 또는 별도 css 파일 */
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    /* transform: translateY(10px); */
+  }
+  to {
+    opacity: 1;
+    /* transform: translateY(0); */
+  }
+}
+
 .fixed-aspect-ratio-container {
   aspect-ratio: 3 / 4;
   width: 100%;
   margin: 0 auto;
   position: relative;
   overflow: hidden;
+  animation: fadeIn 1.2s ease-in-out forwards;
 }
 
 .fixed-aspect-ratio-video {
@@ -13,6 +25,7 @@
   height: 100%;
   object-fit: cover;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 1.2s ease-in-out forwards;
 }
 
 .fixed-aspect-ratio-image {
@@ -20,6 +33,7 @@
   height: 100%;
   object-fit: contain;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 1.2s ease-in-out forwards;
 }
 
 .video-landscape {

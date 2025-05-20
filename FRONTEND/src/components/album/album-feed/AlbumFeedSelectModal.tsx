@@ -6,6 +6,7 @@ import Image from "next/image";
 import styles from "./album-feed-select-modal.module.css";
 import FloatingButton from "@/components/common/FloatingButton";
 import { Feed } from "@/app/types/feed";
+import AlertModal from "@/components/common/AlertModal";
 
 type Props = {
   isOpen: boolean;
@@ -18,10 +19,15 @@ export default function AlbumFeedSelectModal({ isOpen, onClose, onNext, label }:
   const [feeds, setFeeds] = useState<Feed[]>([]);
   const [selectedFeedIds, setSelectedFeedIds] = useState<number[]>([]);
 
+  const [alertModal, setAlertModal] = useState({ isOpen: false, message: "" });
+
   const [imageLoaded, setImageLoaded] = useState<{ [key: number]: boolean }>({});
   const [imageErrors, setImageErrors] = useState<{ [key: number]: boolean }>({});
   const [retryCount, setRetryCount] = useState<{ [key: number]: number }>({});
   const MAX_RETRY = 3;
+
+  const openAlert = (msg: string) => setAlertModal({ isOpen: true, message: msg });
+  const closeAlert = () => setAlertModal({ isOpen: false, message: "" });
 
   useEffect(() => {
     if (!isOpen) return;
@@ -31,7 +37,7 @@ export default function AlbumFeedSelectModal({ isOpen, onClose, onNext, label }:
         setFeeds(data.flat()); // pages 없이 단일 배열로 처리
       })
       .catch(() => {
-        alert("피드를 불러오는데 실패했습니다.");
+        openAlert("피드를 불러오는데 실패했습니다.");
       });
   }, [isOpen]);
 
@@ -95,12 +101,13 @@ export default function AlbumFeedSelectModal({ isOpen, onClose, onNext, label }:
 
               {/* 이미지 */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={feed.feedThumbnailImgUrl}
                 alt={`Feed ${feed.feedId}`}
                 className={styles.thumbnailImage}
                 onLoad={() => handleImageLoad(feed.feedId)}
                 onError={() => handleImageError(feed.feedId)}
+                fill
               />
 
               {/* 로딩 상태 */}
@@ -129,12 +136,15 @@ export default function AlbumFeedSelectModal({ isOpen, onClose, onNext, label }:
         label={label}
         onClick={() => {
           if (selectedFeedIds.length === 0) {
-            alert("피드를 한 개 이상 선택해주세요.");
+            openAlert("피드를 한 개 이상 선택해주세요.");
             return;
           }
           onNext(selectedFeedIds);
         }}
       />
+
+      {/* 알람 모달 */}
+      <AlertModal isOpen={alertModal.isOpen} message={alertModal.message} onClose={closeAlert} />
     </div>
   );
 }
