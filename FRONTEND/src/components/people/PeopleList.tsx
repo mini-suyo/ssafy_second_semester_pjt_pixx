@@ -7,11 +7,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./people-list.module.css";
-import {
-  getFaces,
-  patchFaceClusterName,
-  deleteFaceCluster,
-} from "@/app/lib/api/peopleApi";
+import { getFaces, patchFaceClusterName, deleteFaceCluster } from "@/app/lib/api/peopleApi";
 import type { FaceType } from "@/app/types/people";
 import FloatingButton from "../common/FloatingButton";
 import PeopleSelectBar from "./PeopleSelectBar";
@@ -32,23 +28,13 @@ export default function PeopleList() {
   // ─────────────────────────────────────────────────────────────────
   // useInfiniteQuery 설정
   // ─────────────────────────────────────────────────────────────────
-  const {
-    data,
-    isLoading,
-    isError,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    refetch,
-  } = useInfiniteQuery({
-    queryKey: ['faces'],      
-    queryFn: ({ pageParam = 0 }) =>
-      getFaces({ type: 0, page: pageParam, size: 6 }),  
-    getNextPageParam: (lastPage, allPages) =>     
-      lastPage.data.faceList.length < 6 ? undefined : allPages.length,
-    initialPageParam: 0,   
-    staleTime: 1000 * 60 * 5,  
-  })
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
+    queryKey: ["faces"],
+    queryFn: ({ pageParam = 0 }) => getFaces({ type: 0, page: pageParam, size: 6 }),
+    getNextPageParam: (lastPage, allPages) => (lastPage.data.faceList.length < 6 ? undefined : allPages.length),
+    initialPageParam: 0,
+    staleTime: 1000 * 60 * 5,
+  });
 
   if (isLoading) return <div>로딩 중…</div>;
   if (isError) return <div>에러가 발생했습니다.</div>;
@@ -130,20 +116,12 @@ export default function PeopleList() {
         {allFaces.map((face) => {
           const isSelected = selectedFaceIds.includes(face.faceId);
           return (
-            <div
-              key={face.faceId}
-              className={styles.profileContainer}
-            >
+            <div key={face.faceId} className={styles.profileContainer}>
               <div className={styles.profileWrapper}>
                 {/* 썸네일 */}
                 {mode === "default" ? (
                   <Link href={`/people/${face.faceId}`}>
-                    <div
-                      className={
-                        `${styles.profileCircle}` +
-                        (isSelected ? ` ${styles.selected}` : "")
-                      }
-                    >
+                    <div className={`${styles.profileCircle}` + (isSelected ? ` ${styles.selected}` : "")}>
                       <Image
                         src={face.faceThumbnail}
                         alt={face.faceName}
@@ -156,15 +134,10 @@ export default function PeopleList() {
                   </Link>
                 ) : (
                   <div
-                    className={
-                      `${styles.profileCircle}` +
-                      (isSelected ? ` ${styles.selected}` : "")
-                    }
+                    className={`${styles.profileCircle}` + (isSelected ? ` ${styles.selected}` : "")}
                     onClick={() =>
                       setSelectedFaceIds((prev) =>
-                        prev.includes(face.faceId)
-                          ? prev.filter((id) => id !== face.faceId)
-                          : [...prev, face.faceId]
+                        prev.includes(face.faceId) ? prev.filter((id) => id !== face.faceId) : [...prev, face.faceId]
                       )
                     }
                   >
@@ -201,19 +174,13 @@ export default function PeopleList() {
                       >
                         저장
                       </button>
-                      <button
-                        className={`${styles.editButton} ${styles.cancelButton}`}
-                        onClick={cancelEdit}
-                      >
+                      <button className={`${styles.editButton} ${styles.cancelButton}`} onClick={cancelEdit}>
                         취소
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div
-                    className={styles.profileName}
-                    onClick={() => startEdit(face)}
-                  >
+                  <div className={styles.profileName} onClick={() => startEdit(face)}>
                     <span>{face.faceName || "Unknown"}</span>
                     {mode === "select" && (
                       <Image
@@ -244,12 +211,7 @@ export default function PeopleList() {
       </div>
 
       {/* 선택 모드 바 */}
-      {mode === "select" && (
-        <PeopleSelectBar
-          onCancel={handleModeChange}
-          onDelete={handleDeleteFaces}
-        />
-      )}
+      {mode === "select" && <PeopleSelectBar onCancel={handleModeChange} onDelete={handleDeleteFaces} />}
 
       {/* 플로팅 버튼 */}
       <FloatingButton mode={mode} onClick={handleModeChange} />
@@ -257,9 +219,7 @@ export default function PeopleList() {
       {/* 삭제 확인 모달 */}
       {confirmDelete && (
         <ErrorModal
-          message={
-            "선택한 대상을 삭제하시겠습니까?\n(분류만 제거되며, 피드는 삭제되지 않습니다.)"
-          }
+          message={"선택한 대상을 삭제하시겠습니까?\n(분류만 제거되며, 피드는 삭제되지 않습니다.)"}
           onClose={() => setConfirmDelete(false)}
           onConfirm={executeDelete}
         />
@@ -269,9 +229,7 @@ export default function PeopleList() {
       {message && <ErrorModal message={message} onClose={() => setMessage(null)} />}
 
       {/* 다음 페이지 로딩 중 */}
-      {isFetchingNextPage && (
-        <p className="text-center mt-4">더 불러오는 중…</p>
-      )}
+      {isFetchingNextPage && <p className="text-center mt-4">더 불러오는 중…</p>}
     </>
   );
 }
