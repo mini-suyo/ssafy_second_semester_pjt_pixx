@@ -6,10 +6,8 @@ import AlbumLoadingWrapper from "@/components/album/AlbumLoadingWrapper";
 
 export default function Page() {
   return (
-    <main>
-      <AlbumLoadingWrapper>
-        <AlbumList />
-      </AlbumLoadingWrapper>
-    </main>
+    <AlbumLoadingWrapper>
+      <AlbumList />
+    </AlbumLoadingWrapper>
   );
 }

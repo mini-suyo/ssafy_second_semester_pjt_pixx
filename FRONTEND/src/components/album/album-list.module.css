@@ -3,9 +3,11 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -23,6 +25,18 @@
   align-items: center;
   justify-content: center; /* 기본은 가운데 정렬 */
   gap: 2rem;
+  opacity: 0;
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.albumItem:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.albumItem:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.albumItem:nth-child(3) {
+  animation-delay: 0.3s;
 }
 
 .albumContent {
