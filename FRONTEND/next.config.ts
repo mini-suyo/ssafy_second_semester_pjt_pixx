@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   output: "standalone", // 도커 배포용 (독립실행형)파일 생성 코드
   images: {
     domains: [
-      "d2w650bgmlbl7n.cloudfront.net", // ✨ CloudFront 도메인 추가
+      "d3t4tucldvkzm6.cloudfront.net", // dev용 S3 분리
     ],
   },
   webpack: (config) => {
