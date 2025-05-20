@@ -23,6 +23,7 @@ export default function AlbumPageWrapper({ children }: { children: React.ReactNo
 
       return () => clearTimeout(timer);
     } catch (err) {
+      console.error("로컬스토리지 접근 에러 : ", err);
       setShowContent(true); // fallback
     }
   }, []);
