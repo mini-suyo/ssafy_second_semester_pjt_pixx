@@ -23,6 +23,7 @@ public class FaceDetection {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "face_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private FaceVector faceVector;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
