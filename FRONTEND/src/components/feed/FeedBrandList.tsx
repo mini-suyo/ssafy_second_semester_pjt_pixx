@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BrandListResponse } from "@/app/types/feed";
 import { toggleFavorite } from "@/app/lib/api/feedApi";
 import styles from "./feed-brand-list.module.css";
+import AlertModal from "../common/AlertModal";
 
 type FeedBrandListProps = {
   brandList: BrandListResponse["brandList"];
@@ -25,6 +26,9 @@ export default function FeedBrandList({ brandList }: FeedBrandListProps) {
   const [retryCount, setRetryCount] = useState<{ [key: number]: number }>({});
   const MAX_RETRY_ATTEMPTS = 3;
 
+  // 알람 모달
+  const [alertModal, setAlertModal] = useState({ isOpen: false, message: "" });
+
   // 브랜드 이름 - 아이디 매핑
   const BRAND_NAME_TO_ID: Record<string, number> = {
     기타: 1,
@@ -33,6 +37,9 @@ export default function FeedBrandList({ brandList }: FeedBrandListProps) {
     포토이즘: 4,
     인생네컷: 5,
   };
+
+  const openAlert = (msg: string) => setAlertModal({ isOpen: true, message: msg });
+  const closeAlert = () => setAlertModal({ isOpen: false, message: "" });
 
   // 즐겨찾기 초기화
   useEffect(() => {
@@ -80,7 +87,7 @@ export default function FeedBrandList({ brandList }: FeedBrandListProps) {
       });
     },
     onError: () => {
-      alert("즐겨찾기 변경에 실패했습니다.");
+      openAlert("즐겨찾기 변경에 실패했습니다.");
     },
   });
 
@@ -137,7 +144,7 @@ export default function FeedBrandList({ brandList }: FeedBrandListProps) {
                   if (brandId) {
                     router.push(`/feed/brand/${brandId}`);
                   } else {
-                    alert("해당 브랜드 ID를 찾을 수 없습니다.");
+                    openAlert("해당 브랜드 ID를 찾을 수 없습니다.");
                   }
                 }}
               >
@@ -151,12 +158,13 @@ export default function FeedBrandList({ brandList }: FeedBrandListProps) {
                   <div key={feed.feedId} className={styles.feedItem} onClick={() => handleFeedClick(feed.feedId)}>
                     {/* 피드 이미지 */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Image
                       src={feed.feedThumbnailImgUrl || "/pixx-logo-dummy.png"}
                       alt={`${brand.brandName} Feed ${feed.feedId}`}
                       className={styles.feedImage}
                       onLoad={() => handleImageLoad(feed.feedId)}
                       onError={() => handleImageError(feed.feedId)}
+                      fill
                     />
 
                     {/* 즐겨찾기 버튼 */}
@@ -200,6 +208,8 @@ export default function FeedBrandList({ brandList }: FeedBrandListProps) {
           </div>
         ))
       )}
+      {/* 알람 모달 */}
+      <AlertModal isOpen={alertModal.isOpen} message={alertModal.message} onClose={closeAlert} />
     </div>
   );
 }

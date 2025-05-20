@@ -42,12 +42,13 @@ export default function AlbumFeedGrid({
         </div>
       )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src={imageUrl}
         alt={`피드 ${feedId}`}
         className={styles.thumbnailImage}
         onLoad={onLoad}
         onError={onError}
+        fill
         // priority={false}
       />
 

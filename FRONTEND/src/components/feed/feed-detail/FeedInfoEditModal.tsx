@@ -11,6 +11,8 @@ import Image from "next/image";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import AlertModal from "@/components/common/AlertModal";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function FeedInfoEditModal({
   isOpen,
@@ -31,6 +33,8 @@ export default function FeedInfoEditModal({
   const [brand, setBrand] = useState(feedDetail.brandName || "");
   const [memo, setMemo] = useState(feedDetail.feedMemo || "");
 
+  const queryClient = useQueryClient();
+
   // 브랜드 선택
   const brandOptions = [
     { value: "기타", label: "기타" },
@@ -49,6 +53,12 @@ export default function FeedInfoEditModal({
   const [tagList, setTagList] = useState<string[]>([]);
   // const [rawInput, setRawInput] = useState("");
   const [currentTag, setCurrentTag] = useState("");
+
+  // 알람 모달
+  const [alertModal, setAlertModal] = useState({ isOpen: false, message: "" });
+
+  const openAlert = (msg: string) => setAlertModal({ isOpen: true, message: msg });
+  const closeAlert = () => setAlertModal({ isOpen: false, message: "" });
 
   //  feedDetail이 바뀔 때마다 상태 초기화
   useEffect(() => {
@@ -105,12 +115,13 @@ export default function FeedInfoEditModal({
 
       console.log("props.feedId:", feedId);
 
-      alert("수정 완료!");
+      openAlert("수정 완료!");
+      queryClient.invalidateQueries({ queryKey: ["feedDetail", feedId] });
       await onSuccess();
       onClose();
     } catch (err) {
       console.error(err);
-      alert("수정 실패");
+      openAlert("수정 실패");
     }
   };
 
@@ -269,6 +280,8 @@ export default function FeedInfoEditModal({
           </button>
         </div>
       </div>
+      {/* 알람 모달 */}
+      <AlertModal isOpen={alertModal.isOpen} message={alertModal.message} onClose={closeAlert} />
     </div>
   );
 }
