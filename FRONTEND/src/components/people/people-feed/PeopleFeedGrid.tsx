@@ -1,12 +1,12 @@
-// components/album/AlbumFeedGrid.tsx
+// components/people/people-feed/PeopleFeedGrid.tsx
 
 "use client";
 
 import Image from "next/image";
-import styles from "./album-feed-grid.module.css";
-import { FeedThumbnailItemProps } from "@/app/types/album";
+import styles from "./people-feed-grid.module.css";
+import { FeedThumbnailItemProps } from "@/app/types/people";
 
-export default function AlbumFeedGrid({
+export default function PeopleFeedGrid({
   feedId,
   imageUrl,
   isLoaded,
@@ -22,7 +22,7 @@ export default function AlbumFeedGrid({
 }: FeedThumbnailItemProps) {
   return (
     <div
-      className={`${styles.thumbnailWrapper} ${styles.slideUp}`}
+      className={styles.thumbnailWrapper}
       onClick={onClick}
       onMouseDown={onLongPressStart}
       onMouseUp={onLongPressEnd}
@@ -41,17 +41,17 @@ export default function AlbumFeedGrid({
           />
         </div>
       )}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+
+      <Image
         src={imageUrl}
         alt={`피드 ${feedId}`}
+        fill
         className={styles.thumbnailImage}
         onLoad={onLoad}
         onError={onError}
-        // priority={false}
+        priority={false}
       />
 
-      {/* 로딩 & 에러 UI */}
       {!isLoaded && !isError && <div className={styles.loading}>로딩중...</div>}
 
       {isError && (
