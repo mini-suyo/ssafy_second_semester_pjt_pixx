@@ -50,7 +50,6 @@ public class FaceVector {
 
     @OneToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "rep_detection_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private FaceDetection repDetection;
 
     public void updateFaceThumbnail(String thumbnail) {
