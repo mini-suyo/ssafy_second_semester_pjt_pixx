@@ -16,6 +16,8 @@ body {
   background: #000000;
   color: #fffaf8;
   font-family: "SUITE", sans-serif;
+  overflow-y: scroll; /* 항상 세로 스크롤 공간 확보 */
+  scrollbar-gutter: stable; /* 추가적으로도 안전장치 */
 }
 /* app-container*/
 .app-container {
