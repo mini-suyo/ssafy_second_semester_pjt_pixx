@@ -139,7 +139,7 @@ export default function FeedDetail({ feedId }: FeedDetailProps) {
                 <video src={file.imageUrl} className={styles.thumbnailContent} />
               ) : (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={file.imageUrl} alt="이미지" className={styles.thumbnailContent} />
+                <Image src={file.imageUrl} alt="이미지" className={styles.thumbnailContent} fill />
               )}
             </div>
           ))}

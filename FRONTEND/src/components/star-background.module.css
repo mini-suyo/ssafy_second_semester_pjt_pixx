@@ -5,6 +5,8 @@
   position: absolute;
   z-index: 1;
   pointer-events: none;
+  inset: 0;
+  overflow: hidden;
 }
 
 .star {
@@ -13,14 +15,29 @@
   border-radius: 50%;
   opacity: 0.4;
   z-index: 1;
-  animation: twinkle 3s infinite alternate;
+  /* animation: twinkle 3s infinite alternate; */
+  animation: flicker 4s infinite ease-in-out;
 }
 
+/* 반짝이기  */
 @keyframes twinkle {
   0% {
     opacity: 0.2;
   }
   100% {
     opacity: 0.6;
+  }
+}
+
+/* 반짝임 + 크기 조절 */
+@keyframes flicker {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.3);
   }
 }
