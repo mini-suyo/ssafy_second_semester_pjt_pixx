@@ -25,4 +25,10 @@ public interface FaceVectorRepository extends JpaRepository<FaceVector, Integer>
       WHERE fv.repDetection.detectionId IN :detectionIds
     """)
     void clearRepDetectionByDetectionIds(@Param("detectionIds") List<Integer> detectionIds);
+
+    Page<FaceVector> findByUser_UserIdAndDetectionCountGreaterThanEqual(
+            Integer userId,
+            int detectionCount,
+            Pageable pageable
+    );
 }
