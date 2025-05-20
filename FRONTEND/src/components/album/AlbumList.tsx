@@ -14,6 +14,7 @@ import AlbumSelectBar from "./AlbumSelectBar";
 import FloatingButton from "../common/FloatingButton";
 import AlbumFeedSelectModal from "./album-feed/AlbumFeedSelectModal";
 import FeedAlbumCreateModal from "../feed/FeedAlbumCreateModal";
+import AlertModal from "../common/AlertModal";
 
 export default function AlbumList() {
   const router = useRouter();
@@ -41,18 +42,24 @@ export default function AlbumList() {
     { value: "oldest", label: "오래된순" },
   ] as const;
 
+  // 알람 모달
+  const [alertModal, setAlertModal] = useState({ isOpen: false, message: "" });
+
+  const openAlert = (msg: string) => setAlertModal({ isOpen: true, message: msg });
+  const closeAlert = () => setAlertModal({ isOpen: false, message: "" });
+
   // React Query의 useInfiniteQuery 훅을 사용하여 무한 스크롤 구현
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status, refetch } = useInfiniteQuery({
     queryKey: ["albums", sortType],
     queryFn: async ({ pageParam = 0 }) => {
-      return await getAlbums({ type: apiSortType, page: pageParam, size: 20 });
+      return await getAlbums({ type: apiSortType, page: pageParam, size: 8 });
     },
 
     getNextPageParam: (lastPage, allPages) => {
       // API 응답 형식에 맞게 처리
       // 만약 마지막 페이지의 결과가 20개 미만이면 더 이상 페이지가 없음
       const albumList = lastPage.data?.albumList || [];
-      return albumList.length < 20 ? undefined : allPages.length;
+      return albumList.length < 8 ? undefined : allPages.length;
     },
     initialPageParam: 0,
   });
@@ -85,7 +92,7 @@ export default function AlbumList() {
   // 앨범 삭제
   const handleDeleteAlbum = async () => {
     if (selectedAlbumIds.length === 0) {
-      alert("삭제할 앨범을 선택하세요.");
+      openAlert("삭제할 앨범을 선택하세요.");
       return;
     }
 
@@ -94,9 +101,9 @@ export default function AlbumList() {
         await deleteAlbum(id);
         await refetch();
       }
-      alert("삭제 완료");
+      openAlert("삭제 완료");
     } catch (err) {
-      alert("삭제 실패");
+      openAlert("삭제 실패");
       console.error(err);
     } finally {
       setSelectedAlbumIds([]);
@@ -149,7 +156,7 @@ export default function AlbumList() {
 
   const handleCreateAlbum = async () => {
     if (albumTitle.trim() === "") {
-      alert("앨범 제목을 입력해주세요.");
+      openAlert("앨범 제목을 입력해주세요.");
       return;
     }
 
@@ -161,11 +168,11 @@ export default function AlbumList() {
 
       const newAlbumId = res.data.data.albumId;
 
-      alert("앨범이 생성되었습니다!");
+      openAlert("앨범이 생성되었습니다!");
       await queryClient.invalidateQueries({ queryKey: ["albums"] }); // 목록 캐시 무효화
       router.push(`/album/${newAlbumId}`); // 상세 페이지 이동
     } catch (error) {
-      alert("앨범 생성에 실패했습니다.");
+      openAlert("앨범 생성에 실패했습니다.");
       console.error(error);
     } finally {
       setAlbumTitle("");
@@ -279,7 +286,7 @@ export default function AlbumList() {
         onClose={handleCloseFeedSelectModal}
         onNext={(selectedIds) => {
           if (selectedIds.length === 0) {
-            alert("사진을 하나 이상 선택해주세요.");
+            openAlert("사진을 하나 이상 선택해주세요.");
             return;
           }
           setSelectedFeedIds(selectedIds); // 선택한 피드 저장
@@ -299,6 +306,9 @@ export default function AlbumList() {
 
       {/* 선택용 Navbar 렌더링 (선택 모드일 때만 노출) */}
       {mode === "select" && <AlbumSelectBar onCreate={() => setIsSelectModalOpen(true)} onDelete={handleDeleteAlbum} />}
+
+      {/* 알람 모달 */}
+      <AlertModal isOpen={alertModal.isOpen} message={alertModal.message} onClose={closeAlert} />
     </div>
   );
 }

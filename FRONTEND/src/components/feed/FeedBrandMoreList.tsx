@@ -19,6 +19,7 @@ import SortDropdown, { OptionType } from "../common/SortDropdown";
 import Image from "next/image";
 import styles from "./feed-brand-more-list.module.css";
 import Link from "next/link";
+import AlertModal from "../common/AlertModal";
 
 const feedBrandSortOptions: OptionType<"recent" | "oldest">[] = [
   { value: "recent", label: "최신순" },
@@ -54,11 +55,18 @@ export default function FeedBrandMoreList({ brandId }: FeedBrandMoreListProps) {
   const [retryCount, setRetryCount] = useState<{ [key: number]: number }>({});
   const MAX_RETRY_ATTEMPTS = 3;
 
+  // 알람 모달
+  const [alertModal, setAlertModal] = useState({ isOpen: false, message: "" });
+
   // 정렬
   const [sortType, setSortType] = useState<"recent" | "oldest">("recent");
 
   // 무한스크롤
   const observerRef = useRef<HTMLDivElement>(null);
+
+  // 알람 모달
+  const openAlert = (msg: string) => setAlertModal({ isOpen: true, message: msg });
+  const closeAlert = () => setAlertModal({ isOpen: false, message: "" });
 
   // 리액트 쿼리 + 무한스크롤
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, refetch, isLoading, isError } = useInfiniteQuery<
@@ -74,13 +82,13 @@ export default function FeedBrandMoreList({ brandId }: FeedBrandMoreListProps) {
       const response = await getFeedsByBrandId(brandId, {
         type: typeValue,
         page: pageParam,
-        size: 10,
+        size: 8,
       });
       return response;
     },
     getNextPageParam: (lastPage, allPages) => {
       const brandFeedList = lastPage.brandFeedList;
-      if (!brandFeedList || brandFeedList.length < 20) {
+      if (!brandFeedList || brandFeedList.length < 8) {
         return undefined;
       }
       return allPages.length;
@@ -130,7 +138,7 @@ export default function FeedBrandMoreList({ brandId }: FeedBrandMoreListProps) {
       });
     },
     onError: () => {
-      alert("즐겨찾기 변경에 실패했습니다.");
+      openAlert("즐겨찾기 변경에 실패했습니다.");
     },
   });
 
@@ -229,7 +237,7 @@ export default function FeedBrandMoreList({ brandId }: FeedBrandMoreListProps) {
   // 앨범 생성
   const handleCreateAlbum = async () => {
     if (albumTitle.trim() === "" || selectedFeedIds.length === 0) {
-      alert("앨범 이름을 입력해주세요.");
+      openAlert("앨범 이름을 입력해주세요.");
       return;
     }
     try {
@@ -237,14 +245,14 @@ export default function FeedBrandMoreList({ brandId }: FeedBrandMoreListProps) {
         albumTitle: albumTitle.trim(),
         imageList: selectedFeedIds,
       });
-      alert("앨범 생성되었습니다");
+      openAlert("앨범 생성되었습니다");
       await queryClient.invalidateQueries({
         predicate: (query) => query.queryKey[0] === "albums",
       });
 
       router.push(`/album/${res.data.data.albumId}`);
     } catch (error) {
-      alert("오류가 발생하여 앨범 생성에 실패했습니다");
+      openAlert("오류가 발생하여 앨범 생성에 실패했습니다");
       console.log(error);
     } finally {
       setIsAlbumCreateOpen(false);
@@ -257,7 +265,7 @@ export default function FeedBrandMoreList({ brandId }: FeedBrandMoreListProps) {
   // 앨범에 피드 추가
   const handleAddToAlbum = () => {
     if (selectedFeedIds.length === 0) {
-      alert("추가할 사진을 먼저 선택해주세요.");
+      openAlert("추가할 사진을 먼저 선택해주세요.");
       return;
     }
     setIsAlbumAddOpen(true);
@@ -266,11 +274,11 @@ export default function FeedBrandMoreList({ brandId }: FeedBrandMoreListProps) {
   const handleAlbumSelect = async (albumId: number) => {
     try {
       await addPhotosToAlbum({ albumId, imageList: selectedFeedIds });
-      alert("앨범에 사진이 추가되었습니다.");
+      openAlert("앨범에 사진이 추가되었습니다.");
       await queryClient.invalidateQueries({ queryKey: ["albums"] }); // 앨범 목록 무효화
       router.push(`/album/${albumId}`); //  앨범 상세 페이지로 이동
     } catch (error) {
-      alert("사진 추가에 실패했습니다.");
+      openAlert("사진 추가에 실패했습니다.");
       console.error(error);
     } finally {
       setIsAlbumAddOpen(false);
@@ -288,7 +296,7 @@ export default function FeedBrandMoreList({ brandId }: FeedBrandMoreListProps) {
   // 이미지 삭제
   const handleDeletePhotos = async () => {
     if (selectedFeedIds.length === 0) {
-      alert("삭제할 사진을 선택해주세요.");
+      openAlert("삭제할 사진을 선택해주세요.");
       return;
     }
 
@@ -297,11 +305,11 @@ export default function FeedBrandMoreList({ brandId }: FeedBrandMoreListProps) {
         imageList: selectedFeedIds,
       });
 
-      alert("피드 사진 삭제 완료");
+      openAlert("피드 사진 삭제 완료");
 
       refetch(); // 새로운 데이터 불러와서 UI 갱신
     } catch (error) {
-      alert("삭제 실패");
+      openAlert("삭제 실패");
       console.error(error);
     } finally {
       setMode("default");
@@ -361,10 +369,10 @@ export default function FeedBrandMoreList({ brandId }: FeedBrandMoreListProps) {
               >
                 {feed.feedThumbnailImgUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={feed.feedThumbnailImgUrl || "/pixx-logo-dummy.png"}
                     alt={`Feed ${feed.feedId}`}
-                    // fill
+                    fill
                     className={styles.feedImage}
                     // priority={pageIndex === 0 && feedIndex < 6} // 처음 6개는 priority 사용할거면 위에서 pageIndex,feedIndex  넘겨받아야함
                     onLoad={() => handleImageLoad(feed.feedId)}
@@ -478,6 +486,9 @@ export default function FeedBrandMoreList({ brandId }: FeedBrandMoreListProps) {
           onDelete={handleDeletePhotos}
         />
       )}
+
+      {/* 알람 모달 */}
+      <AlertModal isOpen={alertModal.isOpen} message={alertModal.message} onClose={closeAlert} />
     </div>
   );
 }
