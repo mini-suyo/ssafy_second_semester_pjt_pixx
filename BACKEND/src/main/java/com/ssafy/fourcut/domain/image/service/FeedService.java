@@ -2,6 +2,7 @@
 package com.ssafy.fourcut.domain.image.service;
 
 import com.amazonaws.services.cloudfront.model.EntityNotFoundException;
+import com.ssafy.fourcut.domain.faceDetection.repository.FaceDetectionRepository;
 import com.ssafy.fourcut.domain.image.dto.*;
 import com.ssafy.fourcut.domain.image.entity.*;
 import com.ssafy.fourcut.domain.image.entity.enums.ImageType;
@@ -25,6 +26,7 @@ import static java.util.Locale.filter;
 @Service
 @RequiredArgsConstructor
 public class FeedService {
+    private final FaceDetectionRepository fdRepo;
     private final FeedRepository feedRepository;
     private final BrandRepository brandRepository;
     private final HashtagRepository hashtagRepository;
@@ -32,6 +34,7 @@ public class FeedService {
     private final CloudFrontService cloudFrontService;
     private final AlbumRepository albumRepository;
     private final StoreRepository storeRepository;
+    private final ImageRepository imageRepository;
     private final S3Uploader s3Uploader;
 
     /** 0,1: 페이징 정렬된 단일 리스트 (unchanged) */
@@ -212,19 +215,14 @@ public class FeedService {
     // src/main/java/com/ssafy/fourcut/domain/image/service/FeedService.java
     @Transactional
     public void deleteFeeds(Integer userId, List<Integer> feedIds) {
-        //피드들 조회
-        List<Feed> feeds = feedRepository.findAllById(feedIds);
+        // 1) S3 파일 삭제
+        imageRepository.findUrlsByFeedIds(feedIds)
+                .forEach(s3Uploader::delete);
 
-        // S3에 있는 파일 삭제
-        for(Feed feed : feeds) {
-            List<Image> images = storeRepository.findByFeedFeedId(feed.getFeedId());
-            for(Image image : images) {
-                s3Uploader.delete(image.getImageUrl());
-            }
-        }
-
-        //삭제
-        feedRepository.deleteAll(feeds);
+        // 2) 엔티티 삭제 (bulk)
+        fdRepo.deleteByFeedIds(feedIds);
+        imageRepository.deleteByFeedIds(feedIds);
+        feedRepository.deleteByIds(feedIds);
     }
 
     @Transactional

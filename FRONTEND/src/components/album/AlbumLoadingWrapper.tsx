@@ -7,8 +7,25 @@ export default function AlbumPageWrapper({ children }: { children: React.ReactNo
   const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowContent(true), 1500); // 텍스트 애니메이션 이후 콘텐츠 전환
-    return () => clearTimeout(timer);
+    try {
+      const hasSeenAlbumIntro = localStorage.getItem("hasSeenAlbumIntro");
+
+      if (hasSeenAlbumIntro === "true") {
+        setShowContent(true);
+        return;
+      }
+
+      const timer = setTimeout(() => {
+        console.log("✨ Showing intro and saving flag");
+        localStorage.setItem("hasSeenAlbumIntro", "true");
+        setShowContent(true);
+      }, 1800);
+
+      return () => clearTimeout(timer);
+    } catch (err) {
+      console.error("로컬스토리지 접근 에러 : ", err);
+      setShowContent(true); // fallback
+    }
   }, []);
 
   if (!showContent) {
