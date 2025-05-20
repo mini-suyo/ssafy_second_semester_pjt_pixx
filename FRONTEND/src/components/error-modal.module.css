@@ -1,12 +1,9 @@
+/* src/components/error-modal.module.css */
+
 .modalOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  height: 100%;
-  width: 100%;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -14,47 +11,52 @@
 }
 
 .modalContent {
-  position: relative;
   background: #4b436e;
   border: 1px solid #585663;
   border-radius: 12px;
   width: 40vh;
   max-width: 400px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .modalHeader {
   height: 2rem;
   background-color: #2a292f;
-  border-bottom: #1e1741;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
-  box-sizing: border-box;
 }
 
 .modalBody {
-  margin: 2rem 0;
-  padding: 0 0.5rem;
+  padding: 2rem 1rem;
   text-align: center;
 }
 
 .modalBody p {
   margin: 0;
   white-space: pre-line;
-  line-height: 1.2;
+  line-height: 1.4;
 }
 
 .modalFooter {
   display: flex;
   justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 0;
 }
 
 .confirmButton {
-  padding: 0.5rem 3rem;
+  padding: 0.5rem 2rem;
   background-color: #2a292f;
-  color: white;
+  color: #fff;
   border: 1px solid #585663;
   border-radius: 4px;
   cursor: pointer;
-  margin-bottom: 1rem;
+}
+
+.cancelButton {
+  padding: 0.5rem 2rem;
+  background-color: transparent;
+  color: #fff;
+  border: 1px solid #585663;
+  border-radius: 4px;
+  cursor: pointer;
 }

@@ -195,9 +195,9 @@ export default function AlbumList() {
     return dayjs(dateString).format("YYYY. MM. DD ~");
   };
 
-  if (status === "pending") {
-    return <div className={styles["loading-message"]}>앨범을 불러오고 있습니다</div>;
-  }
+  // if (status === "pending") {
+  //   return <div className={styles["loading-message"]}>앨범을 불러오고 있습니다</div>;
+  // }
 
   if (status === "error") {
     return <div className={styles["error-message"]}>오류가 발생했습니다 잠시후 다시 시도해주세요</div>;

@@ -81,7 +81,7 @@ export default function FeedList() {
         return response;
       } else {
         const typeValue = sortType === "recent" ? 0 : 1;
-        const response = await getFeeds({ type: typeValue, page: pageParam, size: 20 });
+        const response = await getFeeds({ type: typeValue, page: pageParam, size: 8 });
         return response;
       }
     },
@@ -422,10 +422,18 @@ export default function FeedList() {
         <div className={styles["feed-grid"]}>
           {feedData?.pages.map((page) =>
             page.map((feed: Feed) => {
+              // Stagger Dela 애니메이션(하나씩 떠오르는 효과)
+              // {feedData?.pages.map((page, pageIndex) =>
+              // page.map((feed: Feed, feedIndex: number) => {
+              // const pageSize = 8;
+              // const globalIndex = pageIndex * pageSize + feedIndex;
+              // const delay = globalIndex * 0.15; // 하나씩 뜨게 하는 거
               return (
                 <div
                   key={feed.feedId}
-                  className={styles["feed-item"]}
+                  // className={styles["feed-item"]}
+                  className={`${styles["feed-item"]} ${styles.slideUp}`}
+                  // style={{ animationDelay: `${delay}s` }} // 하나씩 뜨게 하는 거
                   onClick={() => handleFeedClick(feed.feedId)}
                   onTouchStart={handlePressStart} // 모바일 longPress
                   onTouchEnd={handlePressEnd} // 모바일 longPress
