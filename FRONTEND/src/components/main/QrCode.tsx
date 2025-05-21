@@ -40,6 +40,10 @@ export default function QrCode() {
           setIsScanning(false);
           // QR 업로드 후 피드 목록 캐시 무효화
           await queryClient.invalidateQueries({ queryKey: ["feeds"] });
+          // 사람들 목록 갱신
+          await queryClient.invalidateQueries({ queryKey: ["faces"] });
+          await queryClient.refetchQueries({ queryKey: ["faces"] });
+
           router.push(`/feed/${response.data.data.feedId}`);
         } else {
           setErrorMessage(response.data.message || "QR 코드 처리 중 오류가 발생했습니다.");

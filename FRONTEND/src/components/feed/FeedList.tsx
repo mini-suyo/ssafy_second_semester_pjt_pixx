@@ -157,6 +157,8 @@ export default function FeedList() {
   const { mutate: toggleFavoriteMutation } = useMutation<FavoriteResponse, Error, number>({
     mutationFn: toggleFavorite,
     onSuccess: ({ feedId, isFavorite }) => {
+      queryClient.invalidateQueries({ queryKey: ["albumFeeds", 2, "recent"] });
+      queryClient.refetchQueries({ queryKey: ["albumFeeds", 2, "recent"] });
       setFavorite((prev) => ({
         ...prev,
         [feedId]: isFavorite,
@@ -380,6 +382,8 @@ export default function FeedList() {
       });
 
       openAlert("피드 사진 삭제 완료");
+      queryClient.invalidateQueries({ queryKey: ["faces"] });
+      queryClient.refetchQueries({ queryKey: ["faces"] });
 
       refetch(); // 새로운 데이터 불러와서 UI 갱신
     } catch (error) {
