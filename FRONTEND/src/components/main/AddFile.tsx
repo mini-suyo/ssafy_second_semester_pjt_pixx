@@ -144,6 +144,19 @@ export default function AddFile() {
           predicate: (query) => query.queryKey[0] === "feeds",
         });
 
+        // 사람들 목록 갱신
+        await queryClient.setQueryData(["faces"], undefined);
+        await queryClient.removeQueries({ queryKey: ["faces"] });
+        // await queryClient.invalidateQueries({
+        //   predicate: (query) => query.queryKey[0] === "faces",
+        // });
+        // await queryClient.refetchQueries({
+        //   predicate: (query) => query.queryKey[0] === "faces",
+        // });
+
+        // await queryClient.invalidateQueries({ queryKey: ["faces"] });
+        // await queryClient.refetchQueries({ queryKey: ["faces"] });
+
         // 업로드 성공 시 feedId 저장 및 성공 메시지 표시
         setUploadedFeedId(response.data.data.feedId);
         setErrorMessage("파일 업로드에 성공했습니다.\n확인 버튼을 누르면 해당 피드로 이동합니다.");
