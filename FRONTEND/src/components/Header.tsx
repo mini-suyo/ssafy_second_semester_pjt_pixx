@@ -31,7 +31,7 @@ export default function Header() {
   return (
     <div className={styles.headerContainer}>
       <Link href="/feed" className={styles.title}>
-        Pixx
+        PIXX
       </Link>
       <div className={styles.buttonContainer}>
         <button className={styles.tutorialButton} onClick={() => setShowTutorial(true)} aria-label="튜토리얼 보기">
