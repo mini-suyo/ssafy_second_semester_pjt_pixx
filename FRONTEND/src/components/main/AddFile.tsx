@@ -236,7 +236,6 @@ export default function AddFile() {
                 onClick={() => handleThumbnailSelect(index)}
               >
                 {file.type.startsWith("image/") && (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img src={previews[index]} alt={file.name} className={styles.previewImage} />
                 )}
                 {file.type.startsWith("video/") && (
@@ -255,6 +254,7 @@ export default function AddFile() {
                 </button>
               </div>
             ))}
+            <p>업로드 가능한 최대 파일 크기는 20MB입니다</p>
             <button onClick={handleUpload} disabled={isUploading} className={styles.submitButton}>
               {isUploading ? "업로드 중..." : "업로드하기"}
             </button>
