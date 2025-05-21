@@ -213,6 +213,13 @@ export default function AlbumList() {
   // 모든 페이지의 앨범 데이터를 하나의 배열로 합치기
   const albums = data?.pages.flatMap((page) => page.data?.albumList || []) || [];
 
+  // 미분류 앨범 맨 뒤로 보내는 로직
+  const sortedAlbums = [...albums].sort((a, b) => {
+    if (a.albumId === 1) return 1; // a가 미분류면 뒤로
+    if (b.albumId === 1) return -1; // b가 미분류면 뒤로
+    return 0; // 순서 유지
+  });
+
   return (
     <div>
       <div className={styles.selectWrapper}>
@@ -223,7 +230,7 @@ export default function AlbumList() {
         {albums.length === 0 ? (
           <div className={styles["empty-message"]}>앨범을 불러오는데 실패했어요</div>
         ) : (
-          albums.map((album, index) => {
+          sortedAlbums.map((album, index) => {
             const totalImages = 12;
             const imageNumber = (album.albumId % totalImages) + 1;
             const imagePath = `/constellations/${imageNumber}.png`;
