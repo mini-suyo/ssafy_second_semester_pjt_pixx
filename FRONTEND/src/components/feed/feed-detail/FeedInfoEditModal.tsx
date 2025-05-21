@@ -117,6 +117,7 @@ export default function FeedInfoEditModal({
 
       openAlert("수정 완료!");
       queryClient.invalidateQueries({ queryKey: ["feedDetail", feedId] });
+      queryClient.invalidateQueries({ queryKey: ["brandFeed"] });
       await onSuccess();
       onClose();
     } catch (err) {
