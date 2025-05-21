@@ -156,9 +156,15 @@ export default function FeedList() {
   // 피드 즐겨찾기
   const { mutate: toggleFavoriteMutation } = useMutation<FavoriteResponse, Error, number>({
     mutationFn: toggleFavorite,
-    onSuccess: ({ feedId, isFavorite }) => {
+    onSuccess: async ({ feedId, isFavorite }) => {
       queryClient.invalidateQueries({ queryKey: ["albumFeeds", 2, "recent"] });
-      queryClient.refetchQueries({ queryKey: ["albumFeeds", 2, "recent"] });
+      // await를 사용하여 refetch가 완료될 때까지 기다림
+      await queryClient.refetchQueries({
+        queryKey: ["albumFeeds", 2, "recent"],
+        exact: true, // 정확한 키 매칭을 위해
+      });
+
+      // queryClient.refetchQueries({ queryKey: ["albumFeeds", 2, "recent"] });
       setFavorite((prev) => ({
         ...prev,
         [feedId]: isFavorite,
