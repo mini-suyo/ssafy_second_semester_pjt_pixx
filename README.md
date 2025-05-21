@@ -119,7 +119,7 @@
 
 
 ## 서비스 아키텍처
-![architecture](/uploads/ea5852f95f3e16eecab883d0629bfe8e/architecture.png)
+![architecture](/uploads/20b1626a2edc018e027e53641e14e5c5/architecture.png)
 
 ## 설계 문서
 
@@ -234,10 +234,7 @@ backend/
 
 ## [포팅메뉴얼](https://bottlenose-twist-ec3.notion.site/1fab7e3f38b8803bbb4ad5a231930ca6?pvs=4)
 
-## [발표자료(예정)]()
-
 ## 팀 구성원
-
 
 | 역할   | 이름   | 담당 업무                          |
 | ------ | ------ | --------------------------------- |
