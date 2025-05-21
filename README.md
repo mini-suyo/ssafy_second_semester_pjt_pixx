@@ -134,7 +134,7 @@
 ### [API 명세서](https://bottlenose-twist-ec3.notion.site/API-1ddb7e3f38b880c3a12fdecf25504498?pvs=4) 
 
 ## ERD
-![mind_on_2__4_](https://bottlenose-twist-ec3.notion.site/ERD-1dfb7e3f38b88051b500c7704bad7b37?pvs=4)
+![ERD](/uploads/5026f43f3702a3cbab36f26e5822ef43/ERD.png)
 
 ## 프로젝트 구조
 ### Frontend
