@@ -232,7 +232,10 @@ export default function AlbumList() {
         ) : (
           sortedAlbums.map((album, index) => {
             const totalImages = 12;
-            const imageNumber = (album.albumId % totalImages) + 1;
+            // const imageNumber = (index % totalImages) + 1;
+            const hash = [...`${album.albumName}${album.albumId}`].reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+
+            const imageNumber = (hash % totalImages) + 1;
             const imagePath = `/constellations/${imageNumber}.png`;
 
             return (
